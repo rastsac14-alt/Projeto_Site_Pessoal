@@ -47,6 +47,10 @@ if "pokemon_focado" not in st.session_state:
 
     st.session_state.pokemon_focado = None
 
+if "forma_focada_id" not in st.session_state:
+
+    st.session_state.forma_focada_id = None
+
 
 def navegar_para_pokemon(identificador):
     """
@@ -62,9 +66,22 @@ def navegar_para_pokemon(identificador):
         st.rerun()
 
 
+def navegar_para_forma(forma, especie_base):
+    """Abre a ficha da espécie-base mantendo a forma selecionada."""
+
+    id_api = forma.get("id_api") if isinstance(forma, dict) else None
+
+    if id_api:
+
+        st.session_state.pokemon_focado = normalizar_nome(especie_base)
+        st.session_state.forma_focada_id = normalizar_nome(id_api)
+        st.rerun()
+
+
 def voltar_para_pokemon_selecionado():
 
     st.session_state.pokemon_focado = None
+    st.session_state.forma_focada_id = None
 
     st.rerun()
 
@@ -1103,13 +1120,12 @@ def extrair_sprites_forma_api(dados_forma):
 
 
 def _slug_forma_showdown(valor):
-    """Cria nomes compatíveis com os nomes de arquivos do Showdown."""
+    """Cria nomes compatíveis com os arquivos de sprites do Showdown."""
 
     if not valor:
         return []
 
     slug = normalizar_nome(valor)
-
     candidatos = []
 
     def adicionar(item):
@@ -1117,107 +1133,152 @@ def _slug_forma_showdown(valor):
         if item and item not in candidatos:
             candidatos.append(item)
 
-    adicionar(slug)
+    # Para formas com nomenclatura diferente, priorizamos primeiro
+    # o nome real do arquivo no Showdown e só depois o ID original.
 
-    # Mega X / Y / Z
+    # "Mega Lucario Z" / "lucario-mega-z" -> lucario-megaz
+    partes = slug.split("-")
+    if len(partes) >= 2 and partes[0] == "mega":
+        base = "-".join(partes[1:])
+        if base.endswith("-z"):
+            adicionar(base[:-2] + "-megaz")
+        elif base.endswith("-x"):
+            adicionar(base[:-2] + "-megax")
+        elif base.endswith("-y"):
+            adicionar(base[:-2] + "-megay")
+        else:
+            adicionar(base + "-mega")
+
+    # Mega X / Y / Z.
     adicionar(slug.replace("-mega-x", "-megax"))
     adicionar(slug.replace("-mega-y", "-megay"))
     adicionar(slug.replace("-mega-z", "-megaz"))
 
-    # Mega formas do Meowstic e nomenclaturas parecidas.
+    # Meowstic Mega.
     adicionar(slug.replace("-mega-m", "-mmega"))
     adicionar(slug.replace("-mega-f", "-fmega"))
 
-    # G-Max
+    # Furfrou: "heart-trim" -> "heart" etc.
+    adicionar(slug.replace("-trim", ""))
+    adicionar(slug.replace("-form", ""))
+
+    # G-Max.
     adicionar(slug.replace("-gigantamax", "-gmax"))
     adicionar(slug.replace("-gmax", "-gigantamax"))
 
-    # Sexo / forma feminina.
+    # Sexo / feminino.
     adicionar(slug.replace("-female", "-f"))
     adicionar(slug.replace("-male", "-m"))
 
-    # Alguns IDs antigos usam "-female" dentro de nomes de forma.
-    if slug.endswith("-female"):
-        adicionar(slug[:-7] + "-f")
+    # Nome original por último, como fallback.
+    adicionar(slug)
 
     return candidatos
 
 
+SHOWDOWN_2D_BASE = "https://play.pokemonshowdown.com/sprites/gen5/"
+SHOWDOWN_ANIM_BASE = "https://play.pokemonshowdown.com/sprites/ani/"
+
+
 @st.cache_data(ttl=21600)
-def localizar_sprite_showdown(candidatos):
+def urls_showdown_forma(id_api, nome_forma):
     """
-    Procura um sprite 2D alternativo no repositório público do
-    Pokémon Showdown. O servidor do site faz a verificação; o
-    navegador do usuário não precisa fazer chamadas extras.
-
-    A prioridade é a coleção gen5, que atualmente possui sprites
-    atualizados para várias formas recentes, incluindo várias
-    Mega Evoluções e cortes do Furfrou.
-    """
-
-    if not candidatos:
-        return None
-
-    bases = (
-        "https://play.pokemonshowdown.com/sprites/gen5/",
-        "https://play.pokemonshowdown.com/sprites/dex/",
-    )
-
-    for base in bases:
-
-        for slug in candidatos:
-
-            url = (
-                base
-                + slug
-                + ".png"
-            )
-
-            try:
-
-                resposta = requests.get(
-                    url,
-                    timeout=4,
-                    stream=True
-                )
-
-                status = resposta.status_code
-                resposta.close()
-
-                if status == 200:
-                    return url
-
-            except requests.RequestException:
-
-                continue
-
-    return None
-
-
-def obter_sprite_forma_alternativo(
-    id_api,
-    nome_forma
-):
-    """
-    Retorna um sprite 2D alternativo quando a PokéAPI não fornece
-    a imagem específica da forma.
+    Monta as URLs públicas do Showdown sem fazer uma checagem HTTP
+    no servidor do Streamlit. Isso é importante no Streamlit Cloud:
+    o navegador do usuário pode acessar a imagem mesmo quando o
+    servidor do app não consegue fazer a requisição externa.
     """
 
     candidatos = []
 
-    for valor in (
-        id_api,
-        nome_forma
-    ):
-
+    for valor in (id_api, nome_forma):
         for slug in _slug_forma_showdown(valor):
-
             if slug not in candidatos:
                 candidatos.append(slug)
 
-    return localizar_sprite_showdown(
-        tuple(candidatos)
-    )
+    if not candidatos:
+        return {"2d": None, "animado": None, "slug": None}
+
+    # O primeiro candidato é o mais específico. Para as formas novas
+    # da Pokédex do KAYZAC, os IDs atuais já seguem o padrão do Showdown.
+    slug = candidatos[0]
+
+    return {
+        "2d": SHOWDOWN_2D_BASE + slug + ".png",
+        "animado": SHOWDOWN_ANIM_BASE + slug + ".gif",
+        "slug": slug,
+    }
+
+
+def obter_sprite_forma_alternativo(id_api, nome_forma):
+    urls = urls_showdown_forma(id_api, nome_forma)
+    return urls.get("2d")
+
+
+def mostrar_sprites_forma(
+    forma,
+    dados,
+    id_api,
+    nome
+):
+    """Galeria de imagem específica da forma, sem herdar a espécie-base."""
+
+    imagem_local = forma.get("imagem_local")
+    caminho_local = carregar_imagem_local(imagem_local)
+
+    if caminho_local is None:
+        caminho_local = procurar_imagem_local_forma(id_api, nome)
+
+    urls = urls_showdown_forma(id_api, nome)
+
+    sprites_forma = dados.get("_sprites_forma", {}) if dados else {}
+
+    pixel_normal = sprites_forma.get("pixel_normal")
+    pixel_shiny = sprites_forma.get("pixel_shiny")
+    pixel_female = sprites_forma.get("pixel_normal_female")
+    pixel_shiny_female = sprites_forma.get("pixel_shiny_female")
+
+    # Imagem local continua sendo a prioridade máxima.
+    if caminho_local is not None:
+        st.markdown("### 📸 Imagem da forma")
+        st.image(str(caminho_local), width=320)
+        st.caption("🖼️ Imagem local específica desta forma.")
+        return
+
+    st.markdown("### 📸 Sprites da forma")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        if pixel_female or pixel_normal:
+            mostrar_imagem(
+                pixel_female or pixel_normal,
+                "🟦 2D específico da forma ♀️" if pixel_female else "🟦 2D específico da forma",
+                240,
+            )
+        elif urls.get("2d"):
+            st.caption("🟦 2D alternativo • Pokémon Showdown")
+            st.image(urls["2d"], width=240)
+        else:
+            st.info("Imagem 2D indisponível.")
+
+    with col2:
+        # Para as formas recentes, o Showdown possui uma versão animada
+        # em /sprites/ani/. Ela ocupa o lugar do antigo campo "3D/Showdown"
+        # da Pokédex e evita mostrar o sprite da espécie-base.
+        if urls.get("animado"):
+            st.caption("🟩 3D / Animado (sprite animado) • Pokémon Showdown")
+            st.image(urls["animado"], width=240)
+        else:
+            st.info("🟩 3D / animado (sprite) específico não disponível para esta forma.")
+
+    if pixel_shiny_female or pixel_shiny:
+        st.divider()
+        mostrar_imagem(
+            pixel_shiny_female or pixel_shiny,
+            "✨ 2D Shiny específico da forma ♀️" if pixel_shiny_female else "✨ 2D Shiny específico da forma",
+            220,
+        )
 
 
 def mostrar_sprites_forma(
@@ -2251,7 +2312,8 @@ def dados_manuais_para_forma(forma):
 
 def mostrar_forma(
     forma,
-    icone="✨"
+    icone="✨",
+    especie_base=None
 ):
 
     nome = forma.get(
@@ -2386,12 +2448,8 @@ def mostrar_forma(
         )
 
         if (
-            dados_vieram_da_api
+            id_api
             and nome_pokemon_forma
-            and (
-                dados.get("stats")
-                or dados.get("types")
-            )
         ):
 
             chave_botao = (
@@ -2401,14 +2459,19 @@ def mostrar_forma(
             )
 
             if st.button(
-                f"📖 Abrir ficha completa de "
-                f"{nome}",
+                f"📖 Abrir ficha de {nome}",
                 key=chave_botao
             ):
 
-                navegar_para_pokemon(
-                    nome_pokemon_forma
-                )
+                if especie_base:
+                    navegar_para_forma(
+                        forma,
+                        especie_base
+                    )
+                else:
+                    navegar_para_pokemon(
+                        nome_pokemon_forma
+                    )
 
         # ====================================================
         # TIPOS
@@ -2632,6 +2695,28 @@ def mostrar_catalogo_formas(
             dados_formas = dados_teste
             break
 
+    # Garantia do Mega Floette: a forma pode ser cadastrada aqui mesmo
+    # porque a PokéAPI ainda não oferece uma ficha /pokemon própria para ela.
+    if normalizar_nome(nome_especie) == "floette":
+
+        lista_mega = dados_formas.setdefault(
+            "mega_evolucoes",
+            []
+        )
+
+        if not any(
+            normalizar_nome(item.get("id_api", "")) == "floette-mega"
+            for item in lista_mega
+        ):
+
+            lista_mega.append({
+                "nome": "Mega Floette",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos / Lumiose",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "floette-mega"
+            })
+
     if not dados_formas:
 
         st.info(
@@ -2668,7 +2753,8 @@ def mostrar_catalogo_formas(
 
             mostrar_forma(
                 forma,
-                icone
+                icone,
+                nome_especie
             )
 
             st.divider()
@@ -3471,6 +3557,37 @@ def mostrar_historico(
                     )
 
 
+def encontrar_forma_cadastrada(id_api):
+    """Procura uma forma cadastrada em qualquer espécie do JSON."""
+
+    alvo = normalizar_nome(id_api or "")
+    if not alvo:
+        return None
+
+    for dados_especie in formas_pokemon.values():
+        if not isinstance(dados_especie, dict):
+            continue
+
+        for chave in (
+            "formas",
+            "formas_regionais",
+            "mega_evolucoes",
+            "mega_evolucoes_z",
+            "gigantamax",
+            "formas_especiais",
+            "variantes",
+            "fusoes",
+            "transformacoes",
+            "formas_alternativas",
+            "outras_formas",
+        ):
+            for forma in dados_especie.get(chave, []) or []:
+                if normalizar_nome(forma.get("id_api", "")) == alvo:
+                    return forma
+
+    return None
+
+
 # ============================================================
 # LISTA
 # ============================================================
@@ -3655,6 +3772,26 @@ especie = buscar_especie(
 )
 
 
+forma_focada = None
+dados_forma_focada = None
+
+if st.session_state.get("forma_focada_id"):
+
+    forma_focada = encontrar_forma_cadastrada(
+        st.session_state.forma_focada_id
+    )
+
+    if forma_focada:
+
+        id_forma_focada = forma_focada.get("id_api")
+
+        if id_forma_focada:
+
+            dados_forma_focada = carregar_dados_forma(
+                id_forma_focada
+            )
+
+
 # ============================================================
 # AVISO DE NAVEGAÇÃO
 # ============================================================
@@ -3667,11 +3804,20 @@ if st.session_state.pokemon_focado:
 
     with col_nav1:
 
-        st.info(
-            "🔗 Você navegou para "
-            f"**{nome_bonito(nome_pokemon)}** "
-            "através da Pokédex."
-        )
+        if forma_focada:
+            st.info(
+                "✨ Ficha da forma: "
+                f"**{forma_focada.get('nome', 'Forma especial')}**"
+                "\n\n"
+                "Os dados gerais abaixo continuam vinculados à espécie-base "
+                "quando a fonte não possui uma ficha própria para a forma."
+            )
+        else:
+            st.info(
+                "🔗 Você navegou para "
+                f"**{nome_bonito(nome_pokemon)}** "
+                "através da Pokédex."
+            )
 
     with col_nav2:
 
@@ -3687,17 +3833,30 @@ if st.session_state.pokemon_focado:
 # TÍTULO
 # ============================================================
 
-st.header(
-    f"#{numero:04d} "
-    f"{nome_bonito(nome_pokemon)}"
-)
+if forma_focada:
 
-if nome_especie != nome_pokemon:
+    st.header(
+        f"#{numero:04d} "
+        f"{forma_focada.get('nome', 'Forma especial')}"
+    )
 
     st.caption(
-        f"Espécie-base: "
-        f"{nome_bonito(nome_especie)}"
+        f"Espécie-base: {nome_bonito(nome_especie)}"
     )
+
+else:
+
+    st.header(
+        f"#{numero:04d} "
+        f"{nome_bonito(nome_pokemon)}"
+    )
+
+    if nome_especie != nome_pokemon:
+
+        st.caption(
+            f"Espécie-base: "
+            f"{nome_bonito(nome_especie)}"
+        )
 
 
 # ============================================================
@@ -3741,34 +3900,53 @@ col1, col2, col3 = st.columns(
 
 with col1:
 
-    sprites = obter_sprites(
-        pokemon
-    )
+    if forma_focada:
 
-    femea = eh_femea(
-        pokemon
-    )
-
-    sprite_3d = (
-        sprites["3d_normal_female"]
-        if (
-            femea
-            and sprites.get(
-                "3d_normal_female"
-            )
+        urls_forma = urls_showdown_forma(
+            forma_focada.get("id_api"),
+            forma_focada.get("nome")
         )
-        else sprites["3d_normal"]
-    )
 
-    mostrar_imagem(
-        sprite_3d,
-        (
-            "🟩 Sprite 3D ♀️"
-            if femea
-            else "🟩 Sprite 3D"
-        ),
-        220
-    )
+        if urls_forma.get("2d"):
+            st.caption("🟦 2D específico da forma")
+            st.image(urls_forma["2d"], width=220)
+
+        if urls_forma.get("animado"):
+            st.caption("🟩 3D / Animado específico da forma")
+            st.image(urls_forma["animado"], width=220)
+        else:
+            st.info("🟩 3D / animado (sprite) específico indisponível nesta forma.")
+
+    else:
+
+        sprites = obter_sprites(
+            pokemon
+        )
+
+        femea = eh_femea(
+            pokemon
+        )
+
+        sprite_3d = (
+            sprites["3d_normal_female"]
+            if (
+                femea
+                and sprites.get(
+                    "3d_normal_female"
+                )
+            )
+            else sprites["3d_normal"]
+        )
+
+        mostrar_imagem(
+            sprite_3d,
+            (
+                "🟩 Sprite 3D ♀️"
+                if femea
+                else "🟩 Sprite 3D"
+            ),
+            220
+        )
 
     st.metric(
         "Altura",
@@ -4628,7 +4806,7 @@ with aba_tipos:
 with aba_efetividade:
 
     mostrar_efetividade(
-        pokemon
+        dados_forma_focada if forma_focada and dados_forma_focada and dados_forma_focada.get("types") else pokemon
     )
 
 
@@ -4642,9 +4820,17 @@ with aba_sprites:
         "📸 Galeria de Sprites"
     )
 
-    mostrar_sprites(
-        pokemon
-    )
+    if forma_focada:
+        mostrar_sprites_forma(
+            forma_focada,
+            dados_forma_focada or pokemon,
+            forma_focada.get("id_api"),
+            forma_focada.get("nome", "Forma especial")
+        )
+    else:
+        mostrar_sprites(
+            pokemon
+        )
 
 
 # ============================================================
