@@ -216,23 +216,26 @@ def nome_bonito(nome):
 # POKÉAPI
 # ============================================================
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=1800, show_spinner=False)
 def requisicao_api(url):
 
-    try:
+    headers = {
+        "User-Agent": "KAYZAC-Master-Pokemon/1.0"
+    }
 
-        resposta = requests.get(
-            url,
-            timeout=10
-        )
+    for _ in range(3):
+        try:
+            resposta = requests.get(
+                url,
+                headers=headers,
+                timeout=15
+            )
+            resposta.raise_for_status()
+            return resposta.json()
+        except requests.exceptions.RequestException:
+            continue
 
-        resposta.raise_for_status()
-
-        return resposta.json()
-
-    except requests.exceptions.RequestException:
-
-        return None
+    return None
 
 
 # ============================================================
@@ -277,6 +280,62 @@ def buscar_pokemon(identificador):
     return requisicao_api(
         url
     )
+
+
+# ============================================================
+# FALLBACK LOCAL
+# ============================================================
+
+DADOS_FALLBACK_POKEMON = {
+    "zygarde": {
+        "id": 718,
+        "name": "zygarde",
+        "species": {"name": "zygarde"},
+        "height": 50,
+        "weight": 3050,
+        "base_experience": 114,
+        "types": [
+            {"slot": 1, "type": {"name": "dragon"}},
+            {"slot": 2, "type": {"name": "ground"}},
+        ],
+        "abilities": [
+            {"ability": {"name": "aura-break"}, "is_hidden": False, "slot": 1},
+            {"ability": {"name": "power-construct"}, "is_hidden": True, "slot": 3},
+        ],
+        "stats": [
+            {"base_stat": 108, "stat": {"name": "hp"}},
+            {"base_stat": 100, "stat": {"name": "attack"}},
+            {"base_stat": 121, "stat": {"name": "defense"}},
+            {"base_stat": 81, "stat": {"name": "special-attack"}},
+            {"base_stat": 95, "stat": {"name": "special-defense"}},
+            {"base_stat": 95, "stat": {"name": "speed"}},
+        ],
+        "sprites": {
+            "front_default": "https://play.pokemonshowdown.com/sprites/home/zygarde.png",
+            "front_shiny": "https://play.pokemonshowdown.com/sprites/home/zygarde.png",
+            "other": {
+                "home": {
+                    "front_default": "https://play.pokemonshowdown.com/sprites/home/zygarde.png"
+                },
+                "official-artwork": {
+                    "front_default": "https://play.pokemonshowdown.com/sprites/home/zygarde.png"
+                },
+                "showdown": {
+                    "front_default": "https://play.pokemonshowdown.com/sprites/afd/zygarde.png"
+                },
+            },
+        },
+        "cries": {},
+    }
+}
+
+
+def dados_fallback_pokemon(identificador):
+    chave = normalizar_nome(identificador)
+    dados = DADOS_FALLBACK_POKEMON.get(chave)
+    if dados is None and chave == "zygarde-50-power-construct":
+        dados = DADOS_FALLBACK_POKEMON.get("zygarde")
+    return dict(dados) if dados else None
 
 
 # ============================================================
@@ -1185,67 +1244,102 @@ def _slug_forma_showdown(valor):
     return candidatos
 
 
+SHOWDOWN_HOME_BASE = "https://play.pokemonshowdown.com/sprites/home/"
+SHOWDOWN_HOME_CENTERED_BASE = "https://play.pokemonshowdown.com/sprites/home-centered/"
+SHOWDOWN_DEX_BASE = "https://play.pokemonshowdown.com/sprites/dex/"
+SHOWDOWN_AFD_BASE = "https://play.pokemonshowdown.com/sprites/afd/"
 SHOWDOWN_2D_BASE = "https://play.pokemonshowdown.com/sprites/gen5/"
 SHOWDOWN_ANIM_BASE = "https://play.pokemonshowdown.com/sprites/ani/"
 
 
 FORMAS_FONTES_ESPECIAIS = {
     "zygarde-mega": {
-        "2d": "https://play.pokemonshowdown.com/sprites/afd/zygarde-mega.png",
-        "visual_3d": (
-            "https://rotomlabs.net/_next/image?q=100&url="
-            "https%3A%2F%2Fstatic.rotomlabs.net%2Fimages%2Fsprites%2Flegends-z-a%2F0718-zygarde-mega.png"
-            "&w=3840"
-        ),
+        "2d": "https://archives.bulbagarden.net/media/upload/8/8c/0718Zygarde-Mega.png",
+        "visual_3d": "https://archives.bulbagarden.net/media/upload/5/53/HOME0718M_s.png",
         "animado": None,
     },
 }
 
 
-SHOWDOWN_ANIM_INDISPONIVEL = {
-    "lucario-megaz",
-    "garchomp-megaz",
-    "absol-megaz",
-    "zygarde-mega",
-    "pyroar-mega",
-}
-
-
-def _candidatos_slug_showdown(valor):
-    """Gera os slugs do Showdown, priorizando o nome transformado."""
-
+def _slug_forma_showdown(valor):
     if not valor:
         return []
 
     slug = normalizar_nome(valor)
-    transformados = []
-    originais = []
+    candidatos = []
 
-    def adicionar_transformado(item):
+    def adicionar(item):
         item = normalizar_nome(item)
-        if item and item != slug and item not in transformados:
-            transformados.append(item)
+        if item and item not in candidatos:
+            candidatos.append(item)
 
-    adicionar_transformado(slug.replace("-mega-x", "-megax"))
-    adicionar_transformado(slug.replace("-mega-y", "-megay"))
-    adicionar_transformado(slug.replace("-mega-z", "-megaz"))
-    adicionar_transformado(slug.replace("-mega-m", "-mmega"))
-    adicionar_transformado(slug.replace("-mega-f", "-fmega"))
-    adicionar_transformado(slug.replace("-trim", ""))
-    adicionar_transformado(slug.replace("-form", ""))
-    adicionar_transformado(slug.replace("-gigantamax", "-gmax"))
-    adicionar_transformado(slug.replace("-gmax", "-gigantamax"))
-    adicionar_transformado(slug.replace("-female", "-f"))
-    adicionar_transformado(slug.replace("-male", "-m"))
-    originais.append(slug)
+    adicionar(slug.replace("-mega-z", "-megaz"))
+    adicionar(slug.replace("-mega-x", "-megax"))
+    adicionar(slug.replace("-mega-y", "-megay"))
+    adicionar(slug.replace("-mega-m", "-mmega"))
+    adicionar(slug.replace("-mega-f", "-fmega"))
+    adicionar(slug.replace("-trim", ""))
+    adicionar(slug.replace("-form", ""))
+    adicionar(slug.replace("-gigantamax", "-gmax"))
+    adicionar(slug.replace("-gmax", "-gigantamax"))
+    adicionar(slug.replace("-female", "-f"))
+    adicionar(slug.replace("-male", "-m"))
+    adicionar(slug)
 
-    return transformados + originais
+    return candidatos
 
 
-@st.cache_data(ttl=21600)
+@st.cache_data(ttl=86400, show_spinner=False)
+def url_imagem_disponivel(url):
+    if not url:
+        return False
+
+    try:
+        resposta = requests.get(
+            url,
+            timeout=8,
+            stream=True,
+            headers={"User-Agent": "KAYZAC-Master-Pokemon/1.0"},
+        )
+        content_type = resposta.headers.get("content-type", "").lower()
+        ok = resposta.status_code == 200 and (
+            content_type.startswith("image/")
+            or url.lower().split("?")[0].endswith((".png", ".gif", ".jpg", ".jpeg", ".webp"))
+        )
+        resposta.close()
+        return ok
+    except requests.RequestException:
+        return False
+
+
+@st.cache_data(ttl=86400, show_spinner=False)
+def primeiro_url_disponivel(urls):
+    for url in urls:
+        if url and url_imagem_disponivel(url):
+            return url
+    return None
+
+
+def _urls_por_slug(slug):
+    return {
+        "2d": [
+            SHOWDOWN_DEX_BASE + slug + ".png",
+            SHOWDOWN_AFD_BASE + slug + ".png",
+            SHOWDOWN_HOME_BASE + slug + ".png",
+            SHOWDOWN_2D_BASE + slug + ".png",
+        ],
+        "render": [
+            SHOWDOWN_HOME_CENTERED_BASE + slug + ".png",
+            SHOWDOWN_HOME_BASE + slug + ".png",
+        ],
+        "animado": [
+            SHOWDOWN_ANIM_BASE + slug + ".gif",
+        ],
+    }
+
+
+@st.cache_data(ttl=21600, show_spinner=False)
 def urls_showdown_forma(id_api, nome_forma):
-    """Monta fontes públicas da forma sem herdar imagem da espécie-base."""
-
     for valor in (id_api, nome_forma):
         chave = normalizar_nome(valor or "")
         if chave in FORMAS_FONTES_ESPECIAIS:
@@ -1254,40 +1348,47 @@ def urls_showdown_forma(id_api, nome_forma):
             return dados
 
     candidatos = []
-
     for valor in (id_api, nome_forma):
-        for slug in _candidatos_slug_showdown(valor):
+        for slug in _slug_forma_showdown(valor):
             if slug not in candidatos:
                 candidatos.append(slug)
 
     if not candidatos:
-        return {"2d": None, "animado": None, "visual_3d": None, "slug": None}
+        return {"2d": None, "visual_3d": None, "animado": None, "slug": None}
 
-    slug = candidatos[0]
+    melhor_2d = None
+    melhor_render = None
+    melhor_animado = None
+    slug_escolhido = candidatos[0]
+
+    for slug in candidatos:
+        urls = _urls_por_slug(slug)
+
+        if melhor_2d is None:
+            melhor_2d = primeiro_url_disponivel(urls["2d"])
+        if melhor_render is None:
+            melhor_render = primeiro_url_disponivel(urls["render"])
+        if melhor_animado is None:
+            melhor_animado = primeiro_url_disponivel(urls["animado"])
+
+        if melhor_2d and melhor_render and melhor_animado:
+            slug_escolhido = slug
+            break
 
     return {
-        "2d": SHOWDOWN_2D_BASE + slug + ".png",
-        "animado": (
-            None
-            if slug in SHOWDOWN_ANIM_INDISPONIVEL
-            else SHOWDOWN_ANIM_BASE + slug + ".gif"
-        ),
-        "visual_3d": None,
-        "slug": slug,
+        "2d": melhor_2d,
+        "visual_3d": melhor_render,
+        "animado": melhor_animado,
+        "slug": slug_escolhido,
     }
 
+
 def obter_sprite_forma_alternativo(id_api, nome_forma):
-    urls = urls_showdown_forma(id_api, nome_forma)
-    return urls.get("2d")
+    return urls_showdown_forma(id_api, nome_forma).get("2d")
 
 
-def mostrar_sprites_forma(
-    forma,
-    dados,
-    id_api,
-    nome
-):
-    """Galeria de imagem específica da forma, sem herdar a espécie-base."""
+def mostrar_sprites_forma(forma, dados, id_api, nome):
+    """Mostra somente imagens específicas da forma."""
 
     imagem_local = forma.get("imagem_local")
     caminho_local = carregar_imagem_local(imagem_local)
@@ -1296,924 +1397,53 @@ def mostrar_sprites_forma(
         caminho_local = procurar_imagem_local_forma(id_api, nome)
 
     urls = urls_showdown_forma(id_api, nome)
-
-    sprites_forma = dados.get("_sprites_forma", {}) if dados else {}
+    sprites_forma = (dados.get("_sprites_forma", {}) if dados else {}) or {}
 
     pixel_normal = sprites_forma.get("pixel_normal")
     pixel_shiny = sprites_forma.get("pixel_shiny")
     pixel_female = sprites_forma.get("pixel_normal_female")
     pixel_shiny_female = sprites_forma.get("pixel_shiny_female")
 
-    # Imagem local continua sendo a prioridade máxima.
     if caminho_local is not None:
-        st.markdown("### 📸 Imagem da forma")
-        st.image(str(caminho_local), width=320)
-        st.caption("🖼️ Imagem local específica desta forma.")
+        with st.expander("📸 Imagem da forma", expanded=True):
+            st.image(str(caminho_local), width=420)
+            st.caption("🖼️ Imagem local específica desta forma.")
         return
 
-    st.markdown("### 📸 Sprites da forma")
-
+    st.markdown("### 📸 Visual da forma")
     col1, col2 = st.columns(2)
 
     with col1:
-        if pixel_female or pixel_normal:
+        url_2d = pixel_female or pixel_normal or urls.get("2d")
+        if url_2d:
             mostrar_imagem(
-                pixel_female or pixel_normal,
+                url_2d,
                 "🟦 2D específico da forma ♀️" if pixel_female else "🟦 2D específico da forma",
-                240,
+                360,
             )
-        elif urls.get("2d"):
-            st.caption("🟦 2D alternativo • Pokémon Showdown")
-            st.image(urls["2d"], width=240)
         else:
-            st.info("Imagem 2D indisponível.")
+            st.info("2D específico desta forma indisponível.")
 
     with col2:
-        # Para as formas recentes, o Showdown possui uma versão animada
-        # em /sprites/ani/. Ela ocupa o lugar do antigo campo "3D/Showdown"
-        # da Pokédex e evita mostrar o sprite da espécie-base.
-        if urls.get("animado"):
-            st.caption("🟩 3D / Animado (sprite animado) • Pokémon Showdown")
-            st.image(urls["animado"], width=240)
+        render = urls.get("visual_3d")
+        if render:
+            st.caption("🎮 Render / modelo HOME da forma")
+            st.image(render, width=360)
         else:
-            st.info("🟩 3D / animado (sprite) específico não disponível para esta forma.")
+            st.info("🎮 Render / modelo HOME específico indisponível.")
+
+    if urls.get("animado"):
+        st.divider()
+        st.caption("🎞️ Sprite animado específico • Pokémon Showdown")
+        st.image(urls["animado"], width=360)
 
     if pixel_shiny_female or pixel_shiny:
         st.divider()
         mostrar_imagem(
             pixel_shiny_female or pixel_shiny,
             "✨ 2D Shiny específico da forma ♀️" if pixel_shiny_female else "✨ 2D Shiny específico da forma",
-            220,
+            320,
         )
-
-
-def mostrar_sprites_forma(
-    forma,
-    dados,
-    id_api,
-    nome
-):
-    """
-    Exibição dedicada às FORMAS.
-
-    ORDEM DE PRIORIDADE:
-    1. imagem local cadastrada no JSON;
-    2. sprite específico do pokemon-form na PokéAPI;
-    3. sprite 2D alternativo do Pokémon Showdown;
-    4. mensagem de imagem indisponível.
-
-    Em NENHUM momento esta função usa o sprite da espécie-base
-    como se fosse a forma especial.
-    """
-
-    # --------------------------------------------------------
-    # 1) IMAGEM LOCAL
-    # --------------------------------------------------------
-
-    imagem_local = forma.get(
-        "imagem_local"
-    )
-
-    caminho_local = carregar_imagem_local(
-        imagem_local
-    )
-
-    if caminho_local is None:
-
-        caminho_local = procurar_imagem_local_forma(
-            id_api,
-            nome
-        )
-
-    if caminho_local is not None:
-
-        with st.expander(
-            "📸 Imagem da forma"
-        ):
-
-            st.image(
-                str(caminho_local),
-                width=320
-            )
-
-            st.caption(
-                "🖼️ Imagem local específica desta forma."
-            )
-
-        return
-
-    # --------------------------------------------------------
-    # 2) SPRITE ESPECÍFICO DA POKÉAPI
-    # --------------------------------------------------------
-
-    sprites_forma = dados.get(
-        "_sprites_forma",
-        {}
-    ) or {}
-
-    pixel_normal = sprites_forma.get(
-        "pixel_normal"
-    )
-
-    pixel_shiny = sprites_forma.get(
-        "pixel_shiny"
-    )
-
-    pixel_female = sprites_forma.get(
-        "pixel_normal_female"
-    )
-
-    pixel_shiny_female = sprites_forma.get(
-        "pixel_shiny_female"
-    )
-
-    if pixel_normal or pixel_shiny or pixel_female or pixel_shiny_female:
-
-        with st.expander(
-            "📸 Sprites específicos da forma (PokéAPI)"
-        ):
-
-            c1, c2 = st.columns(2)
-
-            with c1:
-
-                mostrar_imagem(
-                    pixel_female or pixel_normal,
-                    "🟦 2D da forma ♀️"
-                    if pixel_female
-                    else "🟦 2D da forma",
-                    220
-                )
-
-            with c2:
-
-                mostrar_imagem(
-                    pixel_shiny_female or pixel_shiny,
-                    "✨ 2D Shiny da forma ♀️"
-                    if pixel_shiny_female
-                    else "✨ 2D Shiny da forma",
-                    220
-                )
-
-        return
-
-    # --------------------------------------------------------
-    # 3) FALLBACK 2D DO POKÉMON SHOWDOWN
-    # --------------------------------------------------------
-
-    urls = urls_showdown_forma(
-        id_api,
-        nome
-    )
-
-    if urls.get("2d"):
-
-        with st.expander("📸 Sprite 2D específico"):
-            st.image(urls["2d"], width=320)
-            st.caption("🟦 Sprite 2D específico da forma")
-
-    if urls.get("visual_3d"):
-
-        with st.expander("🎮 Modelo / render específico"):
-            st.image(urls["visual_3d"], width=320)
-            st.caption("🟩 Render/modelo específico da forma")
-
-    elif urls.get("animado"):
-
-        with st.expander("🎞️ Sprite animado específico"):
-            st.image(urls["animado"], width=320)
-            st.caption("🟩 Sprite animado específico • Pokémon Showdown")
-
-    if urls.get("2d") or urls.get("visual_3d") or urls.get("animado"):
-        return
-
-    # --------------------------------------------------------
-    # 4) NADA DISPONÍVEL
-    # --------------------------------------------------------
-
-    st.info(
-        "⚠️ Ainda não existe uma imagem específica disponível "
-        "nas fontes utilizadas para esta forma.\n\n"
-        "A Pokédex não vai mostrar o sprite da espécie-base no lugar."
-    )
-
-
-# ============================================================
-# CONDIÇÕES DE EVOLUÇÃO
-# ============================================================
-
-def formatar_condicoes(
-    detalhes
-):
-
-    condicoes = []
-
-    nivel = detalhes.get(
-        "min_level"
-    )
-
-    if nivel:
-
-        condicoes.append(
-            f"📈 Nível {nivel}"
-        )
-
-    item = detalhes.get(
-        "item"
-    )
-
-    if item:
-
-        condicoes.append(
-            f"🪨 {nome_bonito(item['name'])}"
-        )
-
-    item_held = detalhes.get(
-        "held_item"
-    )
-
-    if item_held:
-
-        condicoes.append(
-            "🎒 Segurando "
-            f"{nome_bonito(item_held['name'])}"
-        )
-
-    amizade = detalhes.get(
-        "min_happiness"
-    )
-
-    if amizade:
-
-        condicoes.append(
-            f"❤️ Felicidade mínima: {amizade}"
-        )
-
-    beleza = detalhes.get(
-        "min_beauty"
-    )
-
-    if beleza:
-
-        condicoes.append(
-            f"✨ Beleza mínima: {beleza}"
-        )
-
-    afeicao = detalhes.get(
-        "min_affection"
-    )
-
-    if afeicao:
-
-        condicoes.append(
-            f"💖 Afeição mínima: {afeicao}"
-        )
-
-    hora = detalhes.get(
-        "time_of_day"
-    )
-
-    if hora == "day":
-
-        condicoes.append(
-            "☀️ Durante o dia"
-        )
-
-    elif hora == "night":
-
-        condicoes.append(
-            "🌙 Durante a noite"
-        )
-
-    elif hora:
-
-        condicoes.append(
-            f"🕐 Horário: {hora}"
-        )
-
-    if detalhes.get(
-        "trade"
-    ):
-
-        condicoes.append(
-            "🔄 Por troca"
-        )
-
-    genero = detalhes.get(
-        "gender"
-    )
-
-    if genero == 1:
-
-        condicoes.append(
-            "♀️ Apenas fêmea"
-        )
-
-    elif genero == 2:
-
-        condicoes.append(
-            "♂️ Apenas macho"
-        )
-
-    movimento = detalhes.get(
-        "known_move"
-    )
-
-    if movimento:
-
-        condicoes.append(
-            "🥊 Conhecer "
-            f"{nome_bonito(movimento['name'])}"
-        )
-
-    tipo = detalhes.get(
-        "known_move_type"
-    )
-
-    if tipo:
-
-        condicoes.append(
-            "🎯 Conhecer golpe do tipo "
-            f"{nome_bonito(tipo['name'])}"
-        )
-
-    local = detalhes.get(
-        "location"
-    )
-
-    if local:
-
-        condicoes.append(
-            "📍 Local: "
-            f"{nome_bonito(local['name'])}"
-        )
-
-    if detalhes.get(
-        "turn_upside_down"
-    ):
-
-        condicoes.append(
-            "🙃 Subir de nível de cabeça para baixo"
-        )
-
-    if detalhes.get(
-        "needs_overworld_rain"
-    ):
-
-        condicoes.append(
-            "🌧️ Durante chuva no mundo aberto"
-        )
-
-    relacao = detalhes.get(
-        "relative_physical_stats"
-    )
-
-    if relacao == 1:
-
-        condicoes.append(
-            "⚔️ Ataque maior que Defesa"
-        )
-
-    elif relacao == -1:
-
-        condicoes.append(
-            "🛡️ Defesa maior que Ataque"
-        )
-
-    elif relacao == 0:
-
-        condicoes.append(
-            "⚖️ Ataque e Defesa iguais"
-        )
-
-    if not condicoes:
-
-        return [
-            "✨ Condição especial ou automática"
-        ]
-
-    return condicoes
-
-
-# ============================================================
-# EVOLUTION CHAIN
-# ============================================================
-
-def obter_evolucoes(
-    chain
-):
-
-    def construir(
-        no,
-        anterior=None
-    ):
-
-        especie = no.get(
-            "species",
-            {}
-        )
-
-        nome = especie.get(
-            "name"
-        )
-
-        filhos = [
-
-            construir(
-                filho,
-                nome
-            )
-
-            for filho in no.get(
-                "evolves_to",
-                []
-            )
-        ]
-
-        return {
-
-            "nome": nome,
-
-            "anterior": anterior,
-
-            "detalhes":
-                no.get(
-                    "evolution_details",
-                    []
-                ),
-
-            "filhos": filhos
-        }
-
-    return construir(
-        chain
-    )
-
-
-# ============================================================
-# BUSCAR POKÉMON DA EVOLUTION CHAIN
-# ============================================================
-
-@st.cache_data(ttl=3600)
-def buscar_pokemon_evolucao(
-    nome
-):
-
-    nome_api = normalizar_nome(
-        nome
-    )
-
-    pokemon = requisicao_api(
-        "https://pokeapi.co/api/v2/"
-        f"pokemon/{nome_api}"
-    )
-
-    if pokemon is not None:
-
-        return pokemon
-
-    especie_evolucao = requisicao_api(
-        "https://pokeapi.co/api/v2/"
-        f"pokemon-species/{nome_api}"
-    )
-
-    if especie_evolucao is not None:
-
-        variedades = (
-            especie_evolucao.get(
-                "varieties",
-                []
-            )
-        )
-
-        for variedade in variedades:
-
-            if variedade.get(
-                "is_default",
-                False
-            ):
-
-                nome_variedade = (
-                    variedade
-                    .get(
-                        "pokemon",
-                        {}
-                    )
-                    .get(
-                        "name"
-                    )
-                )
-
-                if nome_variedade:
-
-                    pokemon = requisicao_api(
-                        "https://pokeapi.co/api/v2/"
-                        f"pokemon/{nome_variedade}"
-                    )
-
-                    if pokemon is not None:
-
-                        return pokemon
-
-        for variedade in variedades:
-
-            nome_variedade = (
-                variedade
-                .get(
-                    "pokemon",
-                    {}
-                )
-                .get(
-                    "name"
-                )
-            )
-
-            if nome_variedade:
-
-                pokemon = requisicao_api(
-                    "https://pokeapi.co/api/v2/"
-                    f"pokemon/{nome_variedade}"
-                )
-
-                if pokemon is not None:
-
-                    return pokemon
-
-    return buscar_pokemon(
-        nome_api
-    )
-
-
-# ============================================================
-# MOSTRAR EVOLUÇÃO
-# ============================================================
-
-def mostrar_evolucao(
-    nome,
-    anterior=None,
-    detalhes=None,
-    destaque=False
-):
-
-    if not nome:
-
-        return
-
-    pokemon = buscar_pokemon_evolucao(
-        nome
-    )
-
-    if pokemon is None:
-
-        st.warning(
-            f"⚠️ Não foi possível carregar "
-            f"{nome_bonito(nome)}."
-        )
-
-        return
-
-    sprites = obter_sprites(
-        pokemon
-    )
-
-    numero_evolucao = pokemon.get(
-        "id"
-    )
-
-    col1, col2 = st.columns(
-        [1, 2]
-    )
-
-    with col1:
-
-        mostrar_imagem(
-            sprites["artwork_normal"]
-            or sprites["pixel_normal"],
-            nome_bonito(nome),
-            180
-        )
-
-    with col2:
-
-        st.subheader(
-            (
-                "🔰 "
-                if destaque
-                else "🌟 "
-            )
-            + nome_bonito(nome)
-        )
-
-        if numero_evolucao:
-
-            st.write(
-                f"Pokédex #{numero_evolucao:04d}"
-            )
-
-        # ====================================================
-        # BOTÃO PARA ABRIR FICHA
-        # ====================================================
-
-        if st.button(
-            f"📖 Abrir ficha de "
-            f"{nome_bonito(nome)}",
-            key=(
-                "abrir_evolucao_"
-                f"{normalizar_nome(nome)}_"
-                f"{numero_evolucao}"
-            )
-        ):
-
-            navegar_para_pokemon(
-                nome
-            )
-
-        tipos = pokemon.get(
-            "types",
-            []
-        )
-
-        if tipos:
-
-            st.write(
-                "**Tipos:** "
-                + " / ".join(
-                    traduzir_tipo(
-                        tipo["type"]["name"]
-                    )
-                    for tipo in tipos
-                )
-            )
-
-        if detalhes:
-
-            st.markdown(
-                "**Como evolui:**"
-            )
-
-            condicoes = []
-
-            for detalhe in detalhes:
-
-                condicoes.extend(
-                    formatar_condicoes(
-                        detalhe
-                    )
-                )
-
-            for condicao in dict.fromkeys(
-                condicoes
-            ):
-
-                st.write(
-                    f"- {condicao}"
-                )
-
-        else:
-
-            st.caption(
-                "✨ Forma base desta linha evolutiva."
-            )
-
-
-# ============================================================
-# ÁRVORE EVOLUTIVA
-# ============================================================
-
-def mostrar_no_evolucao(
-    no,
-    raiz=False
-):
-
-    if (
-        not no
-        or not no.get("nome")
-    ):
-
-        return
-
-    mostrar_evolucao(
-        no["nome"],
-        no.get("anterior"),
-        no.get("detalhes", []),
-        destaque=raiz
-    )
-
-    filhos = no.get(
-        "filhos",
-        []
-    )
-
-    if not filhos:
-
-        return
-
-    if len(filhos) == 1:
-
-        st.markdown(
-            "### ⬇️ Evolui para"
-        )
-
-        st.divider()
-
-        mostrar_no_evolucao(
-            filhos[0]
-        )
-
-        return
-
-    st.markdown(
-        "### 🌿 Ramificações"
-    )
-
-    colunas = st.columns(
-        len(filhos)
-    )
-
-    for coluna, filho in zip(
-        colunas,
-        filhos
-    ):
-
-        with coluna:
-
-            detalhes = filho.get(
-                "detalhes",
-                []
-            )
-
-            st.markdown(
-                "#### ⬇️ Evolução possível"
-            )
-
-            condicoes = []
-
-            for detalhe in detalhes:
-
-                condicoes.extend(
-                    formatar_condicoes(
-                        detalhe
-                    )
-                )
-
-            for condicao in dict.fromkeys(
-                condicoes
-            ):
-
-                st.caption(
-                    condicao
-                )
-
-            mostrar_no_evolucao(
-                filho
-            )
-
-
-def mostrar_arvore_evolutiva(
-    cadeia
-):
-
-    raiz = obter_evolucoes(
-        cadeia["chain"]
-    )
-
-    st.subheader(
-        "🌳 Linha Evolutiva"
-    )
-
-    st.caption(
-        "Clique em qualquer Pokémon "
-        "para abrir sua ficha completa."
-    )
-
-    mostrar_no_evolucao(
-        raiz,
-        raiz=True
-    )
-
-
-# ============================================================
-# FORMAS
-# ============================================================
-
-def _nome_ultimo_segmento_api(valor):
-
-    if not valor:
-        return ""
-
-    texto = str(valor).strip().rstrip("/")
-
-    return normalizar_nome(
-        texto.split("/")[-1]
-    )
-
-
-def carregar_dados_forma(
-    id_api
-):
-    """
-    Carrega dados da ficha da forma sem perder o sprite específico.
-
-    O pokemon-form informa qual é a espécie relacionada. Usamos a
-    espécie apenas para obter tipos, habilidades, stats etc.; os sprites
-    continuam vindo do recurso da forma.
-    """
-
-    if not id_api:
-        return None
-
-    valor = str(
-        id_api
-    ).strip()
-
-    if not valor:
-        return None
-
-    dados_form = buscar_forma(
-        valor
-    )
-
-    if dados_form is not None:
-
-        relacionado = (
-            dados_form
-            .get(
-                "pokemon",
-                {}
-            )
-            .get(
-                "name"
-            )
-        )
-
-        # Tenta usar a ficha da própria forma quando a API oferece
-        # um Pokémon-form também acessível pelo endpoint /pokemon.
-        dados_diretos = buscar_pokemon(
-            _nome_ultimo_segmento_api(valor)
-        )
-
-        if dados_diretos:
-
-            dados = dict(
-                dados_diretos
-            )
-
-            dados["_sprites_forma"] = extrair_sprites_forma_api(
-                dados_form
-            ) or obter_sprites(
-                dados_diretos
-            )
-
-            dados["_dados_forma_api"] = dados_form
-
-            return dados
-
-        # Caso clássico: pokemon-form existe, mas /pokemon não possui
-        # aquela forma como recurso próprio. Aqui usamos a espécie-base
-        # somente para dados de ficha.
-        if relacionado:
-
-            dados_base = buscar_pokemon(
-                relacionado
-            )
-
-            if dados_base is not None:
-
-                dados = dict(
-                    dados_base
-                )
-
-                dados["_sprites_forma"] = extrair_sprites_forma_api(
-                    dados_form
-                )
-
-                dados["_dados_forma_api"] = dados_form
-                dados["_nome_forma_api"] = dados_form.get(
-                    "name"
-                )
-
-                return dados
-
-    # Última tentativa: o próprio ID pode ser um Pokémon válido.
-    dados = buscar_pokemon(
-        valor
-    )
-
-    if dados is not None:
-
-        dados = dict(
-            dados
-        )
-
-        dados["_sprites_forma"] = obter_sprites(
-            dados
-        )
-
-        dados["_dados_forma_api"] = None
-
-        return dados
-
-    return None
 
 
 def carregar_imagem_local(caminho):
@@ -3671,6 +2901,9 @@ opcoes = [
     "-- Selecione um Pokémon --"
 ] + nomes_pokemons
 
+if "Zygarde" not in opcoes:
+    opcoes.append("Zygarde")
+
 
 # ============================================================
 # DESCOBRIR IDENTIFICADOR
@@ -3788,14 +3021,21 @@ if pokemon is None:
 
 if pokemon is None:
 
+    pokemon = dados_fallback_pokemon(identificador)
+
+if pokemon is None:
+
+    pokemon = buscar_pokemon(nome_selecionado)
+
+if pokemon is None:
+
     st.error(
         "❌ Pokémon não encontrado: "
         f"**{identificador}**"
     )
 
     st.info(
-        "💡 Verifique o identificador "
-        "utilizado pela PokéAPI."
+        "💡 Verifique o identificador utilizado pela PokéAPI ou atualize a página."
     )
 
     st.stop()
@@ -3841,6 +3081,14 @@ if not nome_especie:
 especie = buscar_especie(
     nome_especie
 )
+
+if especie is None and normalizar_nome(nome_especie) == "zygarde":
+    especie = {
+        "name": "zygarde",
+        "gender_rate": -1,
+        "egg_groups": [],
+        "varieties": [],
+    }
 
 
 forma_focada = st.session_state.get("forma_focada_dados")
@@ -3980,16 +3228,19 @@ with col1:
 
         if urls_forma.get("2d"):
             st.caption("🟦 2D específico da forma")
-            st.image(urls_forma["2d"], width=220)
+            st.image(urls_forma["2d"], width=420)
+        else:
+            st.info("🟦 2D específico desta forma indisponível.")
 
         if urls_forma.get("visual_3d"):
-            st.caption("🟩 Modelo / render específico da forma")
-            st.image(urls_forma["visual_3d"], width=220)
-        elif urls_forma.get("animado"):
-            st.caption("🟩 Animado específico da forma")
-            st.image(urls_forma["animado"], width=220)
+            st.caption("🎮 Render / modelo específico da forma")
+            st.image(urls_forma["visual_3d"], width=420)
         else:
-            st.info("🟩 Nenhuma imagem 3D/animada específica disponível para esta forma.")
+            st.info("🎮 Render / modelo específico desta forma indisponível.")
+
+        if urls_forma.get("animado"):
+            st.caption("🎞️ Sprite animado específico da forma")
+            st.image(urls_forma["animado"], width=420)
 
     else:
 
