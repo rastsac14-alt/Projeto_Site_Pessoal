@@ -1,0 +1,36 @@
+[
+    {
+        "chave": "1_4_1",
+        "nome": "Bulbander",
+        "pokemon_a": "#001 — Bulbasaur",
+        "pokemon_b": "#004 — Charmander",
+        "head": "bulbasaur",
+        "body": "charmander",
+        "head_id": 1,
+        "body_id": 4,
+        "tipos": [
+            "poison",
+            "fire"
+        ],
+        "tipos_pt": [
+            "Veneno",
+            "Fogo"
+        ],
+        "estilo": "Equilibrada",
+        "habilidade": "Síntese Adaptativa",
+        "stats": [
+            42,
+            50,
+            46,
+            62,
+            58,
+            55
+        ],
+        "descricao": "Fusão customizada de bulbasaur + charmander, carregada de uma fonte externa de sprites.",
+        "categoria": "Fusão Customizada",
+        "fonte": "Custom Bitbucket",
+        "url": "https://bitbucket.org/infinitefusionsprites/customsprites/raw/main/CustomBattlers/1.4.png",
+        "variante": 1,
+        "arquivo_imagem": "assets\\fusoes_favoritas\\bulbander_1_4_1.png"
+    }
+]

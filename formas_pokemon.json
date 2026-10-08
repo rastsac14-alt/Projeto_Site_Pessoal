@@ -1,0 +1,2973 @@
+{  "venusaur": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Venusaur",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "venusaur-mega"
+            }
+        ],
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Venusaur",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "id_api": "venusaur-gmax"
+            }
+        ]
+    },
+    "basculegion": {
+        "variantes": [
+            {
+                "nome": "Basculegion Fêmea",
+                "categoria": "Variação de Gênero",
+                "regiao": "Hisui",
+                "origem": "Pokémon Legends: Arceus",
+                "id_api": "basculegion-female"
+            }
+        ]
+    },
+    "toxtricity": {
+        "formas_especiais": [
+            {
+                "nome": "Toxtricity Forma Aguda",
+                "categoria": "Forma",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "toxtricity-amped"
+            },
+            {
+                "nome": "Toxtricity Forma Grave",
+                "categoria": "Forma",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "toxtricity-low-key"
+            }
+        ],
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Toxtricity",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "toxtricity-amped-gmax"
+            },
+            {
+                "nome": "Gigantamax Toxtricity Forma Grave",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "toxtricity-low-key-gmax"
+            }
+        ]
+    },
+    "charizard": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Charizard X",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "charizard-mega-x"
+            },
+            {
+                "nome": "Mega Charizard Y",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "charizard-mega-y"
+            }
+        ],
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Charizard",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "id_api": "charizard-gmax"
+            }
+        ]
+    },
+    "blastoise": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Blastoise",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "blastoise-mega"
+            }
+        ],
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Blastoise",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "id_api": "blastoise-gmax"
+            }
+        ]
+    },
+    "butterfree": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Butterfree",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "id_api": "butterfree-gmax"
+            }
+        ]
+    },
+    "beedrill": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Beedrill",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "beedrill-mega"
+            }
+        ]
+    },
+    "pidgeot": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Pidgeot",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "pidgeot-mega"
+            }
+        ]
+    },
+    "rattata": {
+        "formas_regionais": [
+            {
+                "nome": "Rattata de Alola",
+                "categoria": "Forma Regional",
+                "regiao": "Alola",
+                "id_api": "rattata-alola"
+            }
+        ]
+    },
+    "raticate": {
+        "formas_regionais": [
+            {
+                "nome": "Raticate de Alola",
+                "categoria": "Forma Regional",
+                "regiao": "Alola",
+                "id_api": "raticate-alola"
+            }
+        ]
+    },
+    "pikachu": {
+        "formas_especiais": [
+            {
+                "nome": "Pikachu Cosplay",
+                "categoria": "Forma Especial",
+                "regiao": "Hoenn",
+                "id_api": "pikachu-cosplay"
+            },
+            {
+                "nome": "Pikachu Rock Star",
+                "categoria": "Forma Especial",
+                "regiao": "Hoenn",
+                "id_api": "pikachu-rock-star"
+            },
+            {
+                "nome": "Pikachu Belle",
+                "categoria": "Forma Especial",
+                "regiao": "Hoenn",
+                "id_api": "pikachu-belle"
+            },
+            {
+                "nome": "Pikachu Pop Star",
+                "categoria": "Forma Especial",
+                "regiao": "Hoenn",
+                "id_api": "pikachu-pop-star"
+            },
+            {
+                "nome": "Pikachu Ph.D.",
+                "categoria": "Forma Especial",
+                "regiao": "Hoenn",
+                "id_api": "pikachu-phd"
+            },
+            {
+                "nome": "Pikachu Libre",
+                "categoria": "Forma Especial",
+                "regiao": "Hoenn",
+                "id_api": "pikachu-libre"
+            },
+            {
+                "nome": "Pikachu de Boné Original",
+                "categoria": "Forma de Boné",
+                "regiao": "Kanto",
+                "id_api": "pikachu-original-cap"
+            },
+            {
+                "nome": "Pikachu de Boné de Hoenn",
+                "categoria": "Forma de Boné",
+                "regiao": "Hoenn",
+                "id_api": "pikachu-hoenn-cap"
+            },
+            {
+                "nome": "Pikachu de Boné de Sinnoh",
+                "categoria": "Forma de Boné",
+                "regiao": "Sinnoh",
+                "id_api": "pikachu-sinnoh-cap"
+            },
+            {
+                "nome": "Pikachu de Boné de Unova",
+                "categoria": "Forma de Boné",
+                "regiao": "Unova",
+                "id_api": "pikachu-unova-cap"
+            },
+            {
+                "nome": "Pikachu de Boné de Kalos",
+                "categoria": "Forma de Boné",
+                "regiao": "Kalos",
+                "id_api": "pikachu-kalos-cap"
+            },
+            {
+                "nome": "Pikachu de Boné de Alola",
+                "categoria": "Forma de Boné",
+                "regiao": "Alola",
+                "id_api": "pikachu-alola-cap"
+            },
+            {
+                "nome": "Pikachu de Boné Parceiro",
+                "categoria": "Forma de Boné",
+                "regiao": "Kanto",
+                "id_api": "pikachu-partner-cap"
+            },
+            {
+                "nome": "Pikachu de Boné Mundial",
+                "categoria": "Forma de Boné",
+                "regiao": "Mundial",
+                "id_api": "pikachu-world-cap"
+            }
+        ],
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Pikachu",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "id_api": "pikachu-gmax"
+            }
+        ]
+    },
+    "raichu": {
+        "formas_regionais": [
+            {
+                "nome": "Raichu de Alola",
+                "categoria": "Forma Regional",
+                "regiao": "Alola",
+                "id_api": "raichu-alola"
+            }
+        ],
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Raichu X",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos / Mega Dimension",
+                "id_api": "raichu-mega-x"
+            },
+            {
+                "nome": "Mega Raichu Y",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos / Mega Dimension",
+                "id_api": "raichu-mega-y"
+            }
+        ]
+    },
+    "sandshrew": {
+        "formas_regionais": [
+            {
+                "nome": "Sandshrew de Alola",
+                "categoria": "Forma Regional",
+                "regiao": "Alola",
+                "id_api": "sandshrew-alola"
+            }
+        ]
+    },
+    "sandslash": {
+        "formas_regionais": [
+            {
+                "nome": "Sandslash de Alola",
+                "categoria": "Forma Regional",
+                "regiao": "Alola",
+                "id_api": "sandslash-alola"
+            }
+        ]
+    },
+    "vulpix": {
+        "formas_regionais": [
+            {
+                "nome": "Vulpix de Alola",
+                "categoria": "Forma Regional",
+                "regiao": "Alola",
+                "id_api": "vulpix-alola"
+            }
+        ]
+    },
+    "ninetales": {
+        "formas_regionais": [
+            {
+                "nome": "Ninetales de Alola",
+                "categoria": "Forma Regional",
+                "regiao": "Alola",
+                "id_api": "ninetales-alola"
+            }
+        ]
+    },
+    "diglett": {
+        "formas_regionais": [
+            {
+                "nome": "Diglett de Alola",
+                "categoria": "Forma Regional",
+                "regiao": "Alola",
+                "id_api": "diglett-alola"
+            }
+        ]
+    },
+    "dugtrio": {
+        "formas_regionais": [
+            {
+                "nome": "Dugtrio de Alola",
+                "categoria": "Forma Regional",
+                "regiao": "Alola",
+                "id_api": "dugtrio-alola"
+            }
+        ]
+    },
+    "meowth": {
+        "formas_regionais": [
+            {
+                "nome": "Meowth de Alola",
+                "categoria": "Forma Regional",
+                "regiao": "Alola",
+                "id_api": "meowth-alola"
+            },
+            {
+                "nome": "Meowth de Galar",
+                "categoria": "Forma Regional",
+                "regiao": "Galar",
+                "id_api": "meowth-galar"
+            }
+        ],
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Meowth",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "id_api": "meowth-gmax"
+            }
+        ]
+    },
+    "persian": {
+        "formas_regionais": [
+            {
+                "nome": "Persian de Alola",
+                "categoria": "Forma Regional",
+                "regiao": "Alola",
+                "id_api": "persian-alola"
+            }
+        ]
+    },
+    "growlithe": {
+        "formas_regionais": [
+            {
+                "nome": "Growlithe de Hisui",
+                "categoria": "Forma Regional",
+                "regiao": "Hisui",
+                "id_api": "growlithe-hisui"
+            }
+        ]
+    },
+    "arcanine": {
+        "formas_regionais": [
+            {
+                "nome": "Arcanine de Hisui",
+                "categoria": "Forma Regional",
+                "regiao": "Hisui",
+                "id_api": "arcanine-hisui"
+            }
+        ]
+    },
+    "geodude": {
+        "formas_regionais": [
+            {
+                "nome": "Geodude de Alola",
+                "categoria": "Forma Regional",
+                "regiao": "Alola",
+                "id_api": "geodude-alola"
+            }
+        ]
+    },
+    "graveler": {
+        "formas_regionais": [
+            {
+                "nome": "Graveler de Alola",
+                "categoria": "Forma Regional",
+                "regiao": "Alola",
+                "id_api": "graveler-alola"
+            }
+        ]
+    },
+    "golem": {
+        "formas_regionais": [
+            {
+                "nome": "Golem de Alola",
+                "categoria": "Forma Regional",
+                "regiao": "Alola",
+                "id_api": "golem-alola"
+            }
+        ]
+    },
+    "ponyta": {
+        "formas_regionais": [
+            {
+                "nome": "Ponyta de Galar",
+                "categoria": "Forma Regional",
+                "regiao": "Galar",
+                "id_api": "ponyta-galar"
+            }
+        ]
+    },
+    "rapidash": {
+        "formas_regionais": [
+            {
+                "nome": "Rapidash de Galar",
+                "categoria": "Forma Regional",
+                "regiao": "Galar",
+                "id_api": "rapidash-galar"
+            }
+        ]
+    },
+    "slowpoke": {
+        "formas_regionais": [
+            {
+                "nome": "Slowpoke de Galar",
+                "categoria": "Forma Regional",
+                "regiao": "Galar",
+                "id_api": "slowpoke-galar"
+            }
+        ]
+    },
+    "slowbro": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Slowbro",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "slowbro-mega"
+            }
+        ],
+        "formas_regionais": [
+            {
+                "nome": "Slowbro de Galar",
+                "categoria": "Forma Regional",
+                "regiao": "Galar",
+                "id_api": "slowbro-galar"
+            }
+        ]
+    },
+    "farfetchd": {
+        "formas_regionais": [
+            {
+                "nome": "Farfetch'd de Galar",
+                "categoria": "Forma Regional",
+                "regiao": "Galar",
+                "id_api": "farfetchd-galar"
+            }
+        ]
+    },
+    "grimer": {
+        "formas_regionais": [
+            {
+                "nome": "Grimer de Alola",
+                "categoria": "Forma Regional",
+                "regiao": "Alola",
+                "id_api": "grimer-alola"
+            }
+        ]
+    },
+    "muk": {
+        "formas_regionais": [
+            {
+                "nome": "Muk de Alola",
+                "categoria": "Forma Regional",
+                "regiao": "Alola",
+                "id_api": "muk-alola"
+            }
+        ]
+    },
+    "gengar": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Gengar",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "gengar-mega"
+            }
+        ],
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Gengar",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "id_api": "gengar-gmax"
+            }
+        ]
+    },
+    "kingler": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Kingler",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "id_api": "kingler-gmax"
+            }
+        ]
+    },
+    "voltorb": {
+        "formas_regionais": [
+            {
+                "nome": "Voltorb de Hisui",
+                "categoria": "Forma Regional",
+                "regiao": "Hisui",
+                "id_api": "voltorb-hisui"
+            }
+        ]
+    },
+    "electrode": {
+        "formas_regionais": [
+            {
+                "nome": "Electrode de Hisui",
+                "categoria": "Forma Regional",
+                "regiao": "Hisui",
+                "id_api": "electrode-hisui"
+            }
+        ]
+    },
+    "exeggutor": {
+        "formas_regionais": [
+            {
+                "nome": "Exeggutor de Alola",
+                "categoria": "Forma Regional",
+                "regiao": "Alola",
+                "id_api": "exeggutor-alola"
+            }
+        ]
+    },
+    "marowak": {
+        "formas_regionais": [
+            {
+                "nome": "Marowak de Alola",
+                "categoria": "Forma Regional",
+                "regiao": "Alola",
+                "id_api": "marowak-alola"
+            }
+        ]
+    },
+    "weezing": {
+        "formas_regionais": [
+            {
+                "nome": "Weezing de Galar",
+                "categoria": "Forma Regional",
+                "regiao": "Galar",
+                "id_api": "weezing-galar"
+            }
+        ]
+    },
+    "mr-mime": {
+        "formas_regionais": [
+            {
+                "nome": "Mr. Mime de Galar",
+                "categoria": "Forma Regional",
+                "regiao": "Galar",
+                "id_api": "mr-mime-galar"
+            }
+        ]
+    },
+    "tauros": {
+        "formas_regionais": [
+            {
+                "nome": "Tauros de Paldea - Raça de Combate",
+                "categoria": "Forma Regional",
+                "regiao": "Paldea",
+                "id_api": "tauros-paldea-combat-breed"
+            },
+            {
+                "nome": "Tauros de Paldea - Raça de Chamas",
+                "categoria": "Forma Regional",
+                "regiao": "Paldea",
+                "id_api": "tauros-paldea-blaze-breed"
+            },
+            {
+                "nome": "Tauros de Paldea - Raça de Aquática",
+                "categoria": "Forma Regional",
+                "regiao": "Paldea",
+                "id_api": "tauros-paldea-aqua-breed"
+            }
+        ]
+    },
+    "articuno": {
+        "formas_regionais": [
+            {
+                "nome": "Articuno de Galar",
+                "categoria": "Forma Regional",
+                "regiao": "Galar",
+                "id_api": "articuno-galar"
+            }
+        ]
+    },
+    "zapdos": {
+        "formas_regionais": [
+            {
+                "nome": "Zapdos de Galar",
+                "categoria": "Forma Regional",
+                "regiao": "Galar",
+                "id_api": "zapdos-galar"
+            }
+        ]
+    },
+    "moltres": {
+        "formas_regionais": [
+            {
+                "nome": "Moltres de Galar",
+                "categoria": "Forma Regional",
+                "regiao": "Galar",
+                "id_api": "moltres-galar"
+            }
+        ]
+    },
+    "mewtwo": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Mewtwo X",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "mewtwo-mega-x"
+            },
+            {
+                "nome": "Mega Mewtwo Y",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "mewtwo-mega-y"
+            }
+        ],
+        "outras_formas": [
+            {
+                "id_api": "shadow-mewtwo",
+                "nome": "Shadow Mewtwo",
+                "tipo": [
+                    "Psíquico",
+                    "Lutador"
+                ],
+                "categoria": "Forma Shadow",
+                "regiao": "Pokkén",
+                "jogo": "Pokkén Tournament",
+                "imagem_local": "imagens/formas/shadow_mewtwo.png",
+                "descricao": "Uma manifestação especial de Mewtwo conhecida como Shadow Mewtwo no universo de Pokkén."
+            }
+        ]
+    },
+    "lugia": {
+        "outras_formas": [
+            {
+                "id_api": "shadow-lugia",
+                "nome": "Shadow Lugia",
+                "apelido": "XD001",
+                "tipo": [
+                    "Psíquico",
+                    "Voador"
+                ],
+                "categoria": "Forma Shadow",
+                "regiao": "Orre",
+                "jogo": "Pokémon XD: Gale of Darkness",
+                "geracao": "Geração III",
+                "imagem_local": "imagens/formas/shadow_lugia.png",
+                "descricao": "Lugia transformado em um Pokémon Shadow através do processo de corrupção utilizado em Pokémon XD: Gale of Darkness."
+            }
+        ]
+    },
+    "clefable": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Clefable",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos / Lumiose",
+                "id_api": "clefable-mega"
+            }
+        ]
+    },
+    "victreebel": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Victreebel",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos / Lumiose",
+                "id_api": "victreebel-mega"
+            }
+        ]
+    },
+    "dragonite": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Dragonite",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos / Lumiose",
+                "id_api": "dragonite-mega"
+            }
+        ]
+    },
+    "starmie": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Starmie",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos / Lumiose",
+                "id_api": "starmie-mega"
+            }
+        ]
+    },
+    "meganium": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Meganium",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos / Lumiose",
+                "id_api": "meganium-mega"
+            }
+        ]
+    },
+    "feraligatr": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Feraligatr",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos / Lumiose",
+                "id_api": "feraligatr-mega"
+            }
+        ]
+    },
+    "chikorita": {},
+    "bayleef": {},
+    "cyndaquil": {},
+    "quilava": {},
+    "typhlosion": {
+        "formas_regionais": [
+            {
+                "nome": "Typhlosion de Hisui",
+                "categoria": "Forma Regional",
+                "regiao": "Hisui",
+                "id_api": "typhlosion-hisui"
+            }
+        ]
+    },
+    "totodile": {},
+    "croconaw": {},
+    "sentret": {},
+    "furret": {},
+    "hoothoot": {},
+    "noctowl": {},
+    "ledyba": {},
+    "ledian": {},
+    "spinarak": {},
+    "ariados": {},
+    "crobat": {},
+    "chinchou": {},
+    "lanturn": {},
+    "pichu": {
+        "formas_especiais": [
+            {
+                "nome": "Pichu Spiky-eared",
+                "categoria": "Forma Especial",
+                "regiao": "Johto",
+                "id_api": "pichu-spiky-eared"
+            }
+        ]
+    },
+    "cleffa": {},
+    "igglybuff": {},
+    "togepi": {},
+    "togetic": {},
+    "togekiss": {},
+    "natu": {},
+    "xatu": {},
+    "mareep": {},
+    "flaaffy": {},
+    "ampharos": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Ampharos",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "ampharos-mega"
+            }
+        ]
+    },
+    "bellossom": {},
+    "marill": {},
+    "azumarill": {},
+    "sudowoodo": {},
+    "politoed": {},
+    "hoppip": {},
+    "skiploom": {},
+    "jumpluff": {},
+    "aipom": {},
+    "sunkern": {},
+    "sunflora": {},
+    "yanma": {},
+    "wooper": {
+        "formas_regionais": [
+            {
+                "nome": "Wooper de Paldea",
+                "categoria": "Forma Regional",
+                "regiao": "Paldea",
+                "id_api": "wooper-paldea"
+            }
+        ]
+    },
+    "quagsire": {},
+    "umbreon": {},
+    "espeon": {},
+    "murkrow": {},
+    "slowking": {
+        "formas_regionais": [
+            {
+                "nome": "Slowking de Galar",
+                "categoria": "Forma Regional",
+                "regiao": "Galar",
+                "id_api": "slowking-galar"
+            }
+        ]
+    },
+    "misdreavus": {},
+    "unown": {},
+    "wobbuffet": {},
+    "girafarig": {},
+    "pineco": {},
+    "forretress": {},
+    "dunsparce": {},
+    "gligar": {},
+    "steelix": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Steelix",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "steelix-mega"
+            }
+        ]
+    },
+    "snubbull": {},
+    "granbull": {},
+    "qwilfish": {
+        "formas_regionais": [
+            {
+                "nome": "Qwilfish de Hisui",
+                "categoria": "Forma Regional",
+                "regiao": "Hisui",
+                "id_api": "qwilfish-hisui"
+            }
+        ]
+    },
+    "scizor": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Scizor",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "scizor-mega"
+            }
+        ]
+    },
+    "shuckle": {},
+    "heracross": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Heracross",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "heracross-mega"
+            }
+        ]
+    },
+    "sneasel": {
+        "formas_regionais": [
+            {
+                "nome": "Sneasel de Hisui",
+                "categoria": "Forma Regional",
+                "regiao": "Hisui",
+                "id_api": "sneasel-hisui"
+            }
+        ]
+    },
+    "teddiursa": {},
+    "ursaring": {},
+    "slugma": {},
+    "magcargo": {},
+    "swinub": {},
+    "piloswine": {},
+    "corsola": {
+        "formas_regionais": [
+            {
+                "nome": "Corsola de Galar",
+                "categoria": "Forma Regional",
+                "regiao": "Galar",
+                "id_api": "corsola-galar"
+            }
+        ]
+    },
+    "remoraid": {},
+    "octillery": {},
+    "delibird": {},
+    "mantine": {},
+    "houndour": {},
+    "houndoom": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Houndoom",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "houndoom-mega"
+            }
+        ]
+    },
+    "kingdra": {},
+    "phanpy": {},
+    "donphan": {},
+    "stantler": {
+        "formas_regionais": [
+            {
+                "nome": "Wyrdeer",
+                "categoria": "Evolução de Forma Regional",
+                "regiao": "Hisui",
+                "id_api": "wyrdeer"
+            }
+        ]
+    },
+    "smeargle": {},
+    "tyranitar": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Tyranitar",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "tyranitar-mega"
+            }
+        ]
+    },
+    "ho-oh": {},
+    "celebi": {},
+    "kangaskhan": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Kangaskhan",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "kangaskhan-mega"
+            }
+        ]
+    },
+    "pinsir": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Pinsir",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "pinsir-mega"
+            }
+        ]
+    },
+    "gyarados": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Gyarados",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "gyarados-mega"
+            }
+        ]
+    },
+    "aerodactyl": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Aerodactyl",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "aerodactyl-mega"
+            }
+        ]
+    },
+    "skarmory": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Skarmory",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "id_api": "skarmory-mega"
+            }
+        ]
+    },
+    "sceptile": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Sceptile",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon Omega Ruby / Alpha Sapphire",
+                "id_api": "sceptile-mega"
+            }
+        ]
+    },
+    "blaziken": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Blaziken",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon X / Y",
+                "id_api": "blaziken-mega"
+            }
+        ]
+    },
+    "swampert": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Swampert",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon Omega Ruby / Alpha Sapphire",
+                "id_api": "swampert-mega"
+            }
+        ]
+    },
+    "gardevoir": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Gardevoir",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon X / Y",
+                "id_api": "gardevoir-mega"
+            }
+        ]
+    },
+    "sableye": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Sableye",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon Omega Ruby / Alpha Sapphire",
+                "id_api": "sableye-mega"
+            }
+        ]
+    },
+    "mawile": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Mawile",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon X / Y",
+                "id_api": "mawile-mega"
+            }
+        ]
+    },
+    "aggron": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Aggron",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon X / Y",
+                "id_api": "aggron-mega"
+            }
+        ]
+    },
+    "medicham": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Medicham",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon X / Y",
+                "id_api": "medicham-mega"
+            }
+        ]
+    },
+    "manectric": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Manectric",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon X / Y",
+                "id_api": "manectric-mega"
+            }
+        ]
+    },
+    "sharpedo": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Sharpedo",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon Omega Ruby / Alpha Sapphire",
+                "id_api": "sharpedo-mega"
+            }
+        ]
+    },
+    "camerupt": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Camerupt",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon Omega Ruby / Alpha Sapphire",
+                "id_api": "camerupt-mega"
+            }
+        ]
+    },
+    "altaria": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Altaria",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon Omega Ruby / Alpha Sapphire",
+                "id_api": "altaria-mega"
+            }
+        ]
+    },
+    "banette": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Banette",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon X / Y",
+                "id_api": "banette-mega"
+            }
+        ]
+    },
+    "absol": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Absol",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon X / Y",
+                "id_api": "absol-mega"
+            }
+        ],
+        "mega_evolucoes_z": [
+            {
+                "nome": "Mega Absol Z",
+                "categoria": "Mega Evolução Z",
+                "regiao": "Hoenn",
+                "origem": "Pokémon Legends: Z-A - Mega Dimension",
+                "id_api": "absol-mega-z"
+            }
+        ]
+    },
+    "glalie": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Glalie",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon X / Y",
+                "id_api": "glalie-mega"
+            }
+        ]
+    },
+    "salamence": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Salamence",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon Omega Ruby / Alpha Sapphire",
+                "id_api": "salamence-mega"
+            }
+        ]
+    },
+    "metagross": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Metagross",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon Omega Ruby / Alpha Sapphire",
+                "id_api": "metagross-mega"
+            }
+        ]
+    },
+    "latias": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Latias",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon Omega Ruby / Alpha Sapphire",
+                "id_api": "latias-mega"
+            }
+        ]
+    },
+    "latios": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Latios",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon Omega Ruby / Alpha Sapphire",
+                "id_api": "latios-mega"
+            }
+        ]
+    },
+    "rayquaza": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Rayquaza",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon Omega Ruby / Alpha Sapphire",
+                "id_api": "rayquaza-mega"
+            }
+        ]
+    },
+    "chimecho": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Chimecho",
+                "categoria": "Mega Evolução",
+                "regiao": "Hoenn",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "chimecho-mega"
+            }
+        ]
+    },
+    "zigzagoon": {
+        "formas_regionais": [
+            {
+                "nome": "Zigzagoon de Galar",
+                "categoria": "Forma Regional",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword / Shield",
+                "id_api": "zigzagoon-galar"
+            }
+        ]
+    },
+    "linoone": {
+        "formas_regionais": [
+            {
+                "nome": "Linoone de Galar",
+                "categoria": "Forma Regional",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword / Shield",
+                "id_api": "linoone-galar"
+            }
+        ]
+    },
+    "castform": {
+        "formas_especiais": [
+            {
+                "nome": "Castform - Forma Sol",
+                "categoria": "Forma Climática",
+                "regiao": "Hoenn",
+                "id_api": "castform-sunny"
+            },
+            {
+                "nome": "Castform - Forma Chuva",
+                "categoria": "Forma Climática",
+                "regiao": "Hoenn",
+                "id_api": "castform-rainy"
+            },
+            {
+                "nome": "Castform - Forma Neve",
+                "categoria": "Forma Climática",
+                "regiao": "Hoenn",
+                "id_api": "castform-snowy"
+            }
+        ]
+    },
+    "kyogre": {
+        "formas_especiais": [
+            {
+                "nome": "Kyogre Primal",
+                "categoria": "Reversão Primal",
+                "regiao": "Hoenn",
+                "origem": "Pokémon Omega Ruby / Alpha Sapphire",
+                "id_api": "kyogre-primal"
+            }
+        ]
+    },
+    "groudon": {
+        "formas_especiais": [
+            {
+                "nome": "Groudon Primal",
+                "categoria": "Reversão Primal",
+                "regiao": "Hoenn",
+                "origem": "Pokémon Omega Ruby / Alpha Sapphire",
+                "id_api": "groudon-primal"
+            }
+        ]
+    },
+    "deoxys": {
+        "formas_especiais": [
+            {
+                "nome": "Deoxys - Forma Normal",
+                "categoria": "Forma",
+                "regiao": "Hoenn",
+                "id_api": "deoxys-normal"
+            },
+            {
+                "nome": "Deoxys - Forma Ataque",
+                "categoria": "Forma",
+                "regiao": "Hoenn",
+                "id_api": "deoxys-attack"
+            },
+            {
+                "nome": "Deoxys - Forma Defesa",
+                "categoria": "Forma",
+                "regiao": "Hoenn",
+                "id_api": "deoxys-defense"
+            },
+            {
+                "nome": "Deoxys - Forma Velocidade",
+                "categoria": "Forma",
+                "regiao": "Hoenn",
+                "id_api": "deoxys-speed"
+            }
+        ]
+    },
+    "zorua": {
+        "formas_regionais": [
+            {
+                "nome": "Zorua de Hisui",
+                "categoria": "Forma Regional",
+                "regiao": "Hisui",
+                "origem": "Pokémon Legends: Arceus",
+                "id_api": "zorua-hisui"
+            }
+        ]
+    },
+    "lucario": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Lucario",
+                "categoria": "Mega Evolução",
+                "regiao": "Sinnoh",
+                "origem": "Pokémon X / Y",
+                "id_api": "lucario-mega"
+            }
+        ],
+        "mega_evolucoes_z": [
+            {
+                "nome": "Mega Lucario Z",
+                "categoria": "Mega Evolução Z",
+                "regiao": "Sinnoh",
+                "origem": "Pokémon Legends: Z-A - Mega Dimension",
+                "id_api": "lucario-mega-z"
+            }
+        ]
+    },
+    "garchomp": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Garchomp",
+                "categoria": "Mega Evolução",
+                "regiao": "Sinnoh",
+                "origem": "Pokémon X / Y",
+                "id_api": "garchomp-mega"
+            }
+        ],
+        "mega_evolucoes_z": [
+            {
+                "nome": "Mega Garchomp Z",
+                "categoria": "Mega Evolução Z",
+                "regiao": "Sinnoh",
+                "origem": "Pokémon Legends: Z-A - Mega Dimension",
+                "id_api": "garchomp-mega-z"
+            }
+        ]
+    },
+    "gallade": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Gallade",
+                "categoria": "Mega Evolução",
+                "regiao": "Sinnoh",
+                "origem": "Pokémon Omega Ruby / Alpha Sapphire",
+                "id_api": "gallade-mega"
+            }
+        ]
+    },
+    "zoroark": {
+        "formas_regionais": [
+            {
+                "nome": "Zoroark de Hisui",
+                "categoria": "Forma Regional",
+                "regiao": "Hisui",
+                "origem": "Pokémon Legends: Arceus",
+                "id_api": "zoroark-hisui"
+            }
+        ]
+    },
+    "zoruark": {
+        "formas_regionais": [
+            {
+                "nome": "Zorua de Hisui",
+                "categoria": "Forma Regional",
+                "regiao": "Hisui",
+                "origem": "Pokémon Legends: Arceus",
+                "id_api": "zoroark-hisui"
+            }
+        ]
+    },
+    "braviary": {
+        "formas_regionais": [
+            {
+                "nome": "Braviary de Hisui",
+                "categoria": "Forma Regional",
+                "regiao": "Hisui",
+                "origem": "Pokémon Legends: Arceus",
+                "id_api": "braviary-hisui"
+            }
+        ]
+    },
+    "stoutland": {
+        "formas_regionais": []
+    },
+    "basculin": {
+        "formas_regionais": [
+            {
+                "nome": "Basculin de Hisui",
+                "categoria": "Forma Regional",
+                "regiao": "Hisui",
+                "origem": "Pokémon Legends: Arceus",
+                "id_api": "basculin-white-striped"
+            }
+        ]
+    },
+    "bergmite": {
+        "formas_regionais": [
+            {
+                "nome": "Bergmite de Hisui",
+                "categoria": "Forma Regional",
+                "regiao": "Hisui",
+                "origem": "Pokémon Legends: Arceus",
+                "id_api": "bergmite"
+            }
+        ]
+    },
+    "avalugg": {
+        "formas_regionais": [
+            {
+                "nome": "Avalugg de Hisui",
+                "categoria": "Forma Regional",
+                "regiao": "Hisui",
+                "origem": "Pokémon Legends: Arceus",
+                "id_api": "avalugg-hisui"
+            }
+        ]
+    },
+    "giratina": {
+        "formas_especiais": [
+            {
+                "nome": "Giratina Forma Alterada",
+                "categoria": "Forma",
+                "regiao": "Sinnoh",
+                "id_api": "giratina-altered"
+            },
+            {
+                "nome": "Giratina Forma Origem",
+                "categoria": "Forma",
+                "regiao": "Sinnoh",
+                "id_api": "giratina-origin"
+            }
+        ]
+    },
+    "dialga": {
+        "formas_especiais": [
+            {
+                "nome": "Dialga Forma Origem",
+                "categoria": "Forma Origem",
+                "regiao": "Hisui",
+                "origem": "Pokémon Legends: Arceus",
+                "id_api": "dialga-origin"
+            }
+        ]
+    },
+    "palkia": {
+        "formas_especiais": [
+            {
+                "nome": "Palkia Forma Origem",
+                "categoria": "Forma Origem",
+                "regiao": "Hisui",
+                "origem": "Pokémon Legends: Arceus",
+                "id_api": "palkia-origin"
+            }
+        ]
+    },
+    "shaymin": {
+        "formas_especiais": [
+            {
+                "nome": "Shaymin Forma Celeste",
+                "categoria": "Forma",
+                "regiao": "Sinnoh",
+                "id_api": "shaymin-sky"
+            }
+        ]
+    },
+    "arceus": {
+        "formas_especiais": [
+            {
+                "nome": "Arceus - Mudança de Tipo",
+                "categoria": "Mudança de Tipo",
+                "regiao": "Sinnoh",
+                "origem": "Pokémon Legends: Arceus",
+                "id_api": "arceus"
+            }
+        ]
+    },
+    "tornadus": {
+        "formas_especiais": [
+            {
+                "nome": "Tornadus Forma Incarnate",
+                "categoria": "Forma",
+                "regiao": "Unova",
+                "id_api": "tornadus-incarnate"
+            },
+            {
+                "nome": "Tornadus Forma Therian",
+                "categoria": "Forma",
+                "regiao": "Unova",
+                "id_api": "tornadus-therian"
+            }
+        ]
+    },
+    "thundurus": {
+        "formas_especiais": [
+            {
+                "nome": "Thundurus Forma Incarnate",
+                "categoria": "Forma",
+                "regiao": "Unova",
+                "id_api": "thundurus-incarnate"
+            },
+            {
+                "nome": "Thundurus Forma Therian",
+                "categoria": "Forma",
+                "regiao": "Unova",
+                "id_api": "thundurus-therian"
+            }
+        ]
+    },
+    "landorus": {
+        "formas_especiais": [
+            {
+                "nome": "Landorus Forma Incarnate",
+                "categoria": "Forma",
+                "regiao": "Unova",
+                "id_api": "landorus-incarnate"
+            },
+            {
+                "nome": "Landorus Forma Therian",
+                "categoria": "Forma",
+                "regiao": "Unova",
+                "id_api": "landorus-therian"
+            }
+        ]
+    },
+    "keldeo": {
+        "formas_especiais": [
+            {
+                "nome": "Keldeo Ordinary Form",
+                "categoria": "Forma",
+                "regiao": "Unova",
+                "id_api": "keldeo-ordinary"
+            },
+            {
+                "nome": "Keldeo Resolute Form",
+                "categoria": "Forma",
+                "regiao": "Unova",
+                "id_api": "keldeo-resolute"
+            }
+        ]
+    },
+    "meloetta": {
+        "formas_especiais": [
+            {
+                "nome": "Meloetta Forma Aria",
+                "categoria": "Forma",
+                "regiao": "Unova",
+                "id_api": "meloetta-aria"
+            },
+            {
+                "nome": "Meloetta Forma Pirouette",
+                "categoria": "Forma",
+                "regiao": "Unova",
+                "id_api": "meloetta-pirouette"
+            }
+        ]
+    },
+    "kyurem": {
+        "formas_especiais": [
+            {
+                "nome": "Kyurem Normal",
+                "categoria": "Forma",
+                "regiao": "Unova",
+                "id_api": "kyurem"
+            },
+            {
+                "nome": "Black Kyurem",
+                "categoria": "Fusão",
+                "regiao": "Unova",
+                "id_api": "kyurem-black"
+            },
+            {
+                "nome": "White Kyurem",
+                "categoria": "Fusão",
+                "regiao": "Unova",
+                "id_api": "kyurem-white"
+            }
+        ]
+    },
+    "genesect": {
+        "formas_especiais": [
+            {
+                "nome": "Genesect Normal",
+                "categoria": "Forma",
+                "regiao": "Unova",
+                "id_api": "genesect"
+            },
+            {
+                "nome": "Genesect Shock Drive",
+                "categoria": "Drive",
+                "regiao": "Unova",
+                "id_api": "genesect-shock"
+            },
+            {
+                "nome": "Genesect Burn Drive",
+                "categoria": "Drive",
+                "regiao": "Unova",
+                "id_api": "genesect-burn"
+            },
+            {
+                "nome": "Genesect Chill Drive",
+                "categoria": "Drive",
+                "regiao": "Unova",
+                "id_api": "genesect-chill"
+            },
+            {
+                "nome": "Genesect Douse Drive",
+                "categoria": "Drive",
+                "regiao": "Unova",
+                "id_api": "genesect-douse"
+            }
+        ]
+    },
+    "emboar": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Emboar",
+                "categoria": "Mega Evolução",
+                "regiao": "Unova",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "emboar-mega"
+            }
+        ]
+    },
+    "excadrill": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Excadrill",
+                "categoria": "Mega Evolução",
+                "regiao": "Unova",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "excadrill-mega"
+            }
+        ]
+    },
+    "scolipede": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Scolipede",
+                "categoria": "Mega Evolução",
+                "regiao": "Unova",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "scolipede-mega"
+            }
+        ]
+    },
+    "scrafty": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Scrafty",
+                "categoria": "Mega Evolução",
+                "regiao": "Unova",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "scrafty-mega"
+            }
+        ]
+    },
+    "eelektross": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Eelektross",
+                "categoria": "Mega Evolução",
+                "regiao": "Unova",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "eelektross-mega"
+            }
+        ]
+    },
+    "chandelure": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Chandelure",
+                "categoria": "Mega Evolução",
+                "regiao": "Unova",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "chandelure-mega"
+            }
+        ]
+    },
+    "golurk": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Golurk",
+                "categoria": "Mega Evolução",
+                "regiao": "Unova",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "golurk-mega"
+            }
+        ]
+    },
+    "oshawott": {
+        "formas_regionais": []
+    },
+    "dewott": {
+        "formas_regionais": []
+    },
+    "samurott": {
+        "formas_regionais": [
+            {
+                "nome": "Samurott de Hisui",
+                "categoria": "Forma Regional",
+                "regiao": "Hisui",
+                "origem": "Pokémon Legends: Arceus",
+                "id_api": "samurott-hisui"
+            }
+        ]
+    },
+    "darumaka": {
+        "formas_regionais": [
+            {
+                "nome": "Darumaka de Galar",
+                "categoria": "Forma Regional",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword / Shield",
+                "id_api": "darumaka-galar"
+            }
+        ]
+    },
+    "darmanitan": {
+        "formas_regionais": [
+            {
+                "nome": "Darmanitan de Galar",
+                "categoria": "Forma Regional",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword / Shield",
+                "id_api": "darmanitan-galar-standard"
+            },
+            {
+                "nome": "Darmanitan de Galar - Forma Zen",
+                "categoria": "Transformação",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword / Shield",
+                "id_api": "darmanitan-galar-zen"
+            }
+        ],
+        "formas_especiais": [
+            {
+                "nome": "Darmanitan Forma Zen",
+                "categoria": "Transformação",
+                "regiao": "Unova",
+                "origem": "Pokémon Black / White",
+                "id_api": "darmanitan-zen"
+            }
+        ]
+    },
+    "yamask": {
+        "formas_regionais": [
+            {
+                "nome": "Yamask de Galar",
+                "categoria": "Forma Regional",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword / Shield",
+                "id_api": "yamask-galar"
+            }
+        ]
+    },
+    "stunfisk": {
+        "formas_regionais": [
+            {
+                "nome": "Stunfisk de Galar",
+                "categoria": "Forma Regional",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword / Shield",
+                "id_api": "stunfisk-galar"
+            }
+        ]
+    },
+    "lilligant": {
+        "formas_regionais": [
+            {
+                "nome": "Lilligant de Hisui",
+                "categoria": "Forma Regional",
+                "regiao": "Hisui",
+                "origem": "Pokémon Legends: Arceus",
+                "id_api": "lilligant-hisui"
+            }
+        ]
+    },
+    "deerling": {
+        "formas_especiais": [
+            {
+                "nome": "Deerling Primavera",
+                "categoria": "Forma Sazonal",
+                "regiao": "Unova",
+                "origem": "Pokémon Black / White",
+                "id_api": "deerling-spring"
+            },
+            {
+                "nome": "Deerling Verão",
+                "categoria": "Forma Sazonal",
+                "regiao": "Unova",
+                "origem": "Pokémon Black / White",
+                "id_api": "deerling-summer"
+            },
+            {
+                "nome": "Deerling Outono",
+                "categoria": "Forma Sazonal",
+                "regiao": "Unova",
+                "origem": "Pokémon Black / White",
+                "id_api": "deerling-autumn"
+            },
+            {
+                "nome": "Deerling Inverno",
+                "categoria": "Forma Sazonal",
+                "regiao": "Unova",
+                "origem": "Pokémon Black / White",
+                "id_api": "deerling-winter"
+            }
+        ]
+    },
+    "sawsbuck": {
+        "formas_especiais": [
+            {
+                "nome": "Sawsbuck Primavera",
+                "categoria": "Forma Sazonal",
+                "regiao": "Unova",
+                "origem": "Pokémon Black / White",
+                "id_api": "sawsbuck-spring"
+            },
+            {
+                "nome": "Sawsbuck Verão",
+                "categoria": "Forma Sazonal",
+                "regiao": "Unova",
+                "origem": "Pokémon Black / White",
+                "id_api": "sawsbuck-summer"
+            },
+            {
+                "nome": "Sawsbuck Outono",
+                "categoria": "Forma Sazonal",
+                "regiao": "Unova",
+                "origem": "Pokémon Black / White",
+                "id_api": "sawsbuck-autumn"
+            },
+            {
+                "nome": "Sawsbuck Inverno",
+                "categoria": "Forma Sazonal",
+                "regiao": "Unova",
+                "origem": "Pokémon Black / White",
+                "id_api": "sawsbuck-winter"
+            }
+        ]
+    },
+    "floette": {
+        "formas_especiais": [
+            {
+                "nome": "Floette Flor Eterna",
+                "categoria": "Forma Especial",
+                "regiao": "Kalos",
+                "origem": "Pokémon X / Y",
+                "id_api": "floette-eternal"
+            }
+        ]
+    },
+    "furfrou": {
+        "formas_especiais": [
+            {
+                "nome": "Furfrou Natural",
+                "categoria": "Forma",
+                "regiao": "Kalos",
+                "id_api": "furfrou"
+            },
+            {
+                "nome": "Furfrou Heart Trim",
+                "categoria": "Corte",
+                "regiao": "Kalos",
+                "id_api": "furfrou-heart"
+            },
+            {
+                "nome": "Furfrou Star Trim",
+                "categoria": "Corte",
+                "regiao": "Kalos",
+                "id_api": "furfrou-star"
+            },
+            {
+                "nome": "Furfrou Diamond Trim",
+                "categoria": "Corte",
+                "regiao": "Kalos",
+                "id_api": "furfrou-diamond"
+            },
+            {
+                "nome": "Furfrou Debutante Trim",
+                "categoria": "Corte",
+                "regiao": "Kalos",
+                "id_api": "furfrou-debutante"
+            },
+            {
+                "nome": "Furfrou Matron Trim",
+                "categoria": "Corte",
+                "regiao": "Kalos",
+                "id_api": "furfrou-matron"
+            },
+            {
+                "nome": "Furfrou Dandy Trim",
+                "categoria": "Corte",
+                "regiao": "Kalos",
+                "id_api": "furfrou-dandy"
+            },
+            {
+                "nome": "Furfrou La Reine Trim",
+                "categoria": "Corte",
+                "regiao": "Kalos",
+                "id_api": "furfrou-la-reine"
+            },
+            {
+                "nome": "Furfrou Kabuki Trim",
+                "categoria": "Corte",
+                "regiao": "Kalos",
+                "id_api": "furfrou-kabuki"
+            },
+            {
+                "nome": "Furfrou Pharaoh Trim",
+                "categoria": "Corte",
+                "regiao": "Kalos",
+                "id_api": "furfrou-pharaoh"
+            }
+        ]
+    },
+    "diancie": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Diancie",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "origem": "Pokémon Omega Ruby / Alpha Sapphire",
+                "id_api": "diancie-mega"
+            }
+        ]
+    },
+    "lopunny": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Lopunny",
+                "categoria": "Mega Evolução",
+                "regiao": "Sinnoh",
+                "origem": "Pokémon Omega Ruby / Alpha Sapphire",
+                "id_api": "lopunny-mega"
+            }
+        ]
+    },
+    "meowstic": {
+        "formas_especiais": [
+            {
+                "nome": "Meowstic Macho",
+                "categoria": "Forma",
+                "regiao": "Kalos",
+                "id_api": "meowstic-male"
+            },
+            {
+                "nome": "Meowstic Fêmea",
+                "categoria": "Forma",
+                "regiao": "Kalos",
+                "id_api": "meowstic-female"
+            }
+        ],
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Meowstic",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "meowstic-mega"
+            }
+        ]
+    },
+    "zygarde": {
+        "formas_especiais": [
+            {
+                "nome": "Zygarde 10%",
+                "categoria": "Forma",
+                "regiao": "Kalos",
+                "id_api": "zygarde-10"
+            },
+            {
+                "nome": "Zygarde 50%",
+                "categoria": "Forma",
+                "regiao": "Kalos",
+                "id_api": "zygarde-50"
+            },
+            {
+                "nome": "Zygarde Completo",
+                "categoria": "Transformação",
+                "regiao": "Kalos",
+                "id_api": "zygarde-complete"
+            }
+        ],
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Zygarde",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "zygarde-mega"
+            }
+        ]
+    },
+    "hoopa": {
+        "formas_especiais": [
+            {
+                "nome": "Hoopa Confinado",
+                "categoria": "Forma",
+                "regiao": "Kalos",
+                "origem": "Pokémon X / Y",
+                "id_api": "hoopa"
+            },
+            {
+                "nome": "Hoopa Libertado",
+                "categoria": "Transformação",
+                "regiao": "Kalos",
+                "origem": "Prison Bottle",
+                "id_api": "hoopa-unbound"
+            }
+        ]
+    },
+    "chesnaught": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Chesnaught",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "chesnaught-mega"
+            }
+        ]
+    },
+    "delphox": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Delphox",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "delphox-mega"
+            }
+        ]
+    },
+    "greninja": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Greninja",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "greninja-mega"
+            }
+        ],
+        "formas_especiais": [
+            {
+                "nome": "Greninja Ash",
+                "categoria": "Forma Especial",
+                "regiao": "Kalos",
+                "origem": "Pokémon Sun / Moon",
+                "id_api": "greninja-ash"
+            }
+        ]
+    },
+    "malamar": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Malamar",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "malamar-mega"
+            }
+        ]
+    },
+    "dragalge": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Dragalge",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "dragalge-mega"
+            }
+        ]
+    },
+    "hawlucha": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Hawlucha",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "hawlucha-mega"
+            }
+        ]
+    },
+    "crabominable": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Crabominable",
+                "categoria": "Mega Evolução",
+                "regiao": "Alola",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "crabominable-mega"
+            }
+        ]
+    },
+    "golisopod": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Golisopod",
+                "categoria": "Mega Evolução",
+                "regiao": "Alola",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "golisopod-mega"
+            }
+        ]
+    },
+    "drampa": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Drampa",
+                "categoria": "Mega Evolução",
+                "regiao": "Alola",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "drampa-mega"
+            }
+        ]
+    },
+    "zeraora": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Zeraora",
+                "categoria": "Mega Evolução",
+                "regiao": "Alola",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "zeraora-mega"
+            }
+        ]
+    },
+    "melmetal": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Melmetal",
+                "categoria": "Gigantamax",
+                "regiao": "Alola",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "melmetal-gmax"
+            }
+        ]
+    },
+    "decidueye": {
+        "formas": [
+            {
+                "nome": "Decidueye de Hisui",
+                "categoria": "Forma Regional",
+                "regiao": "Hisui",
+                "origem": "Pokémon Legends: Arceus",
+                "id_api": "decidueye-hisui"
+            }
+        ]
+    },
+    "lycanroc": {
+        "formas": [
+            {
+                "nome": "Lycanroc Crepúsculo",
+                "categoria": "Forma Especial",
+                "regiao": "Alola",
+                "origem": "Pokémon Sun e Moon",
+                "id_api": "lycanroc-dusk"
+            },
+            {
+                "nome": "Lycanroc Noturno",
+                "categoria": "Forma",
+                "regiao": "Alola",
+                "origem": "Pokémon Sun e Moon",
+                "id_api": "lycanroc-midnight"
+            }
+        ]
+    },
+    "oricorio": {
+        "formas": [
+            {
+                "nome": "Oricorio Estilo Baile",
+                "categoria": "Forma",
+                "regiao": "Alola",
+                "origem": "Pokémon Sun e Moon",
+                "id_api": "oricorio-baile"
+            },
+            {
+                "nome": "Oricorio Estilo Pom-Pom",
+                "categoria": "Forma",
+                "regiao": "Alola",
+                "origem": "Pokémon Sun e Moon",
+                "id_api": "oricorio-pom-pom"
+            },
+            {
+                "nome": "Oricorio Estilo Pa'u",
+                "categoria": "Forma",
+                "regiao": "Alola",
+                "origem": "Pokémon Sun e Moon",
+                "id_api": "oricorio-pau"
+            },
+            {
+                "nome": "Oricorio Estilo Sensu",
+                "categoria": "Forma",
+                "regiao": "Alola",
+                "origem": "Pokémon Sun e Moon",
+                "id_api": "oricorio-sensu"
+            }
+        ]
+    },
+    "silvally": {
+        "formas": [
+            {
+                "nome": "Silvally",
+                "categoria": "Forma",
+                "regiao": "Alola",
+                "origem": "Pokémon Sun e Moon",
+                "id_api": "silvally"
+            }
+        ]
+    },
+    "necrozma": {
+        "fusoes": [
+            {
+                "nome": "Necrozma Dusk Mane",
+                "categoria": "Fusão",
+                "regiao": "Alola",
+                "origem": "Pokémon Ultra Sun e Ultra Moon",
+                "id_api": "necrozma-dusk-mane"
+            },
+            {
+                "nome": "Necrozma Dawn Wings",
+                "categoria": "Fusão",
+                "regiao": "Alola",
+                "origem": "Pokémon Ultra Sun e Ultra Moon",
+                "id_api": "necrozma-dawn-wings"
+            },
+            {
+                "nome": "Ultra Necrozma",
+                "categoria": "Transformação",
+                "regiao": "Alola",
+                "origem": "Pokémon Ultra Sun e Ultra Moon",
+                "id_api": "necrozma-ultra"
+            }
+        ]
+    },
+    "solgaleo": {
+        "fusoes": [
+            {
+                "nome": "Necrozma Dusk Mane",
+                "categoria": "Fusão",
+                "regiao": "Alola",
+                "origem": "Pokémon Ultra Sun e Ultra Moon",
+                "id_api": "necrozma-dusk-mane"
+            }
+        ]
+    },
+    "lunala": {
+        "fusoes": [
+            {
+                "nome": "Necrozma Dawn Wings",
+                "categoria": "Fusão",
+                "regiao": "Alola",
+                "origem": "Pokémon Ultra Sun e Ultra Moon",
+                "id_api": "necrozma-dawn-wings"
+            }
+        ]
+    },
+    "pyroar": {
+        "formas_especiais": [
+            {
+                "nome": "Pyroar Fêmea",
+                "id_api": "pyroar-female",
+                "categoria": "Diferença de gênero",
+                "regiao": "Kalos",
+                "origem": "Pokémon X e Y"
+            }
+        ],
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Pyroar",
+                "id_api": "pyroar-mega",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos",
+                "origem": "Pokémon Legends: Z-A - Mega Dimension"
+            }
+        ]
+    },
+    "machamp": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Machamp",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "machamp-gmax"
+            }
+        ]
+    },
+    "lapras": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Lapras",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "lapras-gmax"
+            }
+        ]
+    },
+    "eevee": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Eevee",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "eevee-gmax"
+            }
+        ]
+    },
+    "snorlax": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Snorlax",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "snorlax-gmax"
+            }
+        ]
+    },
+    "garbodor": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Garbodor",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "garbodor-gmax"
+            }
+        ]
+    },
+    "rillaboom": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Rillaboom",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "rillaboom-gmax"
+            }
+        ]
+    },
+    "cinderace": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Cinderace",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "cinderace-gmax"
+            }
+        ]
+    },
+    "inteleon": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Inteleon",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "inteleon-gmax"
+            }
+        ]
+    },
+    "corviknight": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Corviknight",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "corviknight-gmax"
+            }
+        ]
+    },
+    "orbeetle": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Orbeetle",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "orbeetle-gmax"
+            }
+        ]
+    },
+    "drednaw": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Drednaw",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "drednaw-gmax"
+            }
+        ]
+    },
+    "coalossal": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Coalossal",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "coalossal-gmax"
+            }
+        ]
+    },
+    "flapple": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Flapple",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "flapple-gmax"
+            }
+        ]
+    },
+    "appletun": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Appletun",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "appletun-gmax"
+            }
+        ]
+    },
+    "sandaconda": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Sandaconda",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "sandaconda-gmax"
+            }
+        ]
+    },
+    "centiskorch": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Centiskorch",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "centiskorch-gmax"
+            }
+        ]
+    },
+    "hatterene": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Hatterene",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "hatterene-gmax"
+            }
+        ]
+    },
+    "morpeko": {
+        "formas": [
+            {
+                "nome": "Morpeko Fome",
+                "categoria": "Forma",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "morpeko-hangry"
+            }
+        ]
+    },
+    "grimmsnarl": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Grimmsnarl",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "grimmsnarl-gmax"
+            }
+        ]
+    },
+    "alcremie": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Alcremie",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "alcremie-gmax"
+            }
+        ]
+    },
+    "copperajah": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Copperajah",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "copperajah-gmax"
+            }
+        ]
+    },
+    "duraludon": {
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Duraludon",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "duraludon-gmax"
+            }
+        ]
+    },
+    "aegislash": {
+        "formas_especiais": [
+            {
+                "nome": "Aegislash Forma Espada",
+                "categoria": "Forma de Batalha",
+                "regiao": "Kalos",
+                "origem": "Pokémon X / Y",
+                "id_api": "aegislash-blade"
+            }
+        ]
+    },
+    "zacian": {
+        "formas_especiais": [
+            {
+                "nome": "Zacian Crowned Sword",
+                "categoria": "Forma Especial",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "zacian-crowned"
+            }
+        ]
+    },
+    "zamazenta": {
+        "formas_especiais": [
+            {
+                "nome": "Zamazenta Crowned Shield",
+                "categoria": "Forma Especial",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "zamazenta-crowned"
+            }
+        ]
+    },
+    "eternatus": {
+        "transformacoes": [
+            {
+                "nome": "Eternamax Eternatus",
+                "categoria": "Transformação",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "eternatus-eternamax"
+            }
+        ]
+    },
+    "calyrex": {
+        "fusoes": [
+            {
+                "nome": "Calyrex Ice Rider",
+                "categoria": "Fusão",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "calyrex-ice"
+            },
+            {
+                "nome": "Calyrex Shadow Rider",
+                "categoria": "Fusão",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "calyrex-shadow"
+            }
+        ]
+    },
+    "glastrier": {
+        "fusoes": [
+            {
+                "nome": "Calyrex Ice Rider",
+                "categoria": "Fusão",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "calyrex-ice"
+            }
+        ]
+    },
+    "spectrier": {
+        "fusoes": [
+            {
+                "nome": "Calyrex Shadow Rider",
+                "categoria": "Fusão",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "calyrex-shadow"
+            }
+        ]
+    },
+    "falinks": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Falinks",
+                "categoria": "Mega Evolução",
+                "regiao": "Galar",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "falinks-mega"
+            }
+        ]
+    },
+    "oinkologne": {
+        "variantes": [
+            {
+                "nome": "Oinkologne Macho",
+                "categoria": "Variação de Gênero",
+                "regiao": "Paldea",
+                "origem": "Pokémon Scarlet e Violet",
+                "id_api": "oinkologne-male"
+            },
+            {
+                "nome": "Oinkologne Fêmea",
+                "categoria": "Variação de Gênero",
+                "regiao": "Paldea",
+                "origem": "Pokémon Scarlet e Violet",
+                "id_api": "oinkologne-female"
+            }
+        ]
+    },
+    "maushold": {
+        "variantes": [
+            {
+                "nome": "Maushold - Family of Four",
+                "categoria": "Variação",
+                "regiao": "Paldea",
+                "origem": "Pokémon Scarlet e Violet",
+                "id_api": "maushold-family-of-four"
+            },
+            {
+                "nome": "Maushold - Family of Three",
+                "categoria": "Variação",
+                "regiao": "Paldea",
+                "origem": "Pokémon Scarlet e Violet",
+                "id_api": "maushold-family-of-three"
+            }
+        ]
+    },
+    "dudunsparce": {
+        "variantes": [
+            {
+                "nome": "Dudunsparce - Two-Segment",
+                "categoria": "Variação",
+                "regiao": "Paldea",
+                "origem": "Pokémon Scarlet e Violet",
+                "id_api": "dudunsparce-two-segment"
+            },
+            {
+                "nome": "Dudunsparce - Three-Segment",
+                "categoria": "Variação",
+                "regiao": "Paldea",
+                "origem": "Pokémon Scarlet e Violet",
+                "id_api": "dudunsparce-three-segment"
+            }
+        ]
+    },
+    "palafin": {
+        "formas_especiais": [
+            {
+                "nome": "Palafin Hero Form",
+                "categoria": "Forma Especial",
+                "regiao": "Paldea",
+                "origem": "Pokémon Scarlet e Violet",
+                "id_api": "palafin-hero"
+            }
+        ]
+    },
+    "tatsugiri": {
+        "variantes": [
+            {
+                "nome": "Tatsugiri Curly Form",
+                "categoria": "Variação",
+                "regiao": "Paldea",
+                "origem": "Pokémon Scarlet e Violet",
+                "id_api": "tatsugiri-curly"
+            },
+            {
+                "nome": "Tatsugiri Droopy Form",
+                "categoria": "Variação",
+                "regiao": "Paldea",
+                "origem": "Pokémon Scarlet e Violet",
+                "id_api": "tatsugiri-droopy"
+            },
+            {
+                "nome": "Tatsugiri Stretchy Form",
+                "categoria": "Variação",
+                "regiao": "Paldea",
+                "origem": "Pokémon Scarlet e Violet",
+                "id_api": "tatsugiri-stretchy"
+            }
+        ],
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Tatsugiri",
+                "categoria": "Mega Evolução",
+                "regiao": "Paldea",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "tatsugiri-mega"
+            }
+        ]
+    },
+    "squawkabilly": {
+        "variantes": [
+            {
+                "nome": "Squawkabilly Green Plumage",
+                "categoria": "Variação",
+                "regiao": "Paldea",
+                "origem": "Pokémon Scarlet e Violet",
+                "id_api": "squawkabilly-green-plumage"
+            },
+            {
+                "nome": "Squawkabilly Blue Plumage",
+                "categoria": "Variação",
+                "regiao": "Paldea",
+                "origem": "Pokémon Scarlet e Violet",
+                "id_api": "squawkabilly-blue-plumage"
+            },
+            {
+                "nome": "Squawkabilly Yellow Plumage",
+                "categoria": "Variação",
+                "regiao": "Paldea",
+                "origem": "Pokémon Scarlet e Violet",
+                "id_api": "squawkabilly-yellow-plumage"
+            },
+            {
+                "nome": "Squawkabilly White Plumage",
+                "categoria": "Variação",
+                "regiao": "Paldea",
+                "origem": "Pokémon Scarlet e Violet",
+                "id_api": "squawkabilly-white-plumage"
+            }
+        ]
+    },
+    "gimmighoul": {
+        "formas_especiais": [
+            {
+                "nome": "Gimmighoul Chest Form",
+                "categoria": "Forma Especial",
+                "regiao": "Paldea",
+                "origem": "Pokémon Scarlet e Violet",
+                "id_api": "gimmighoul"
+            },
+            {
+                "nome": "Gimmighoul Roaming Form",
+                "categoria": "Forma Especial",
+                "regiao": "Paldea",
+                "origem": "Pokémon Scarlet e Violet",
+                "id_api": "gimmighoul-roaming"
+            }
+        ]
+    },
+    "koraidon": {
+        "formas_especiais": [
+            {
+                "nome": "Koraidon - Apex Build",
+                "categoria": "Forma Especial",
+                "regiao": "Paldea",
+                "origem": "Pokémon Scarlet e Violet",
+                "id_api": "koraidon"
+            }
+        ]
+    },
+    "miraidon": {
+        "formas_especiais": [
+            {
+                "nome": "Miraidon - Ultimate Mode",
+                "categoria": "Forma Especial",
+                "regiao": "Paldea",
+                "origem": "Pokémon Scarlet e Violet",
+                "id_api": "miraidon"
+            }
+        ]
+    },
+    "ogerpon": {
+        "formas_especiais": [
+            {
+                "nome": "Ogerpon Teal Mask",
+                "categoria": "Forma Especial",
+                "regiao": "Paldea",
+                "origem": "The Hidden Treasure of Area Zero",
+                "id_api": "ogerpon"
+            },
+            {
+                "nome": "Ogerpon Wellspring Mask",
+                "categoria": "Forma Especial",
+                "regiao": "Paldea",
+                "origem": "The Hidden Treasure of Area Zero",
+                "id_api": "ogerpon-wellspring-mask"
+            },
+            {
+                "nome": "Ogerpon Hearthflame Mask",
+                "categoria": "Forma Especial",
+                "regiao": "Paldea",
+                "origem": "The Hidden Treasure of Area Zero",
+                "id_api": "ogerpon-hearthflame-mask"
+            },
+            {
+                "nome": "Ogerpon Cornerstone Mask",
+                "categoria": "Forma Especial",
+                "regiao": "Paldea",
+                "origem": "The Hidden Treasure of Area Zero",
+                "id_api": "ogerpon-cornerstone-mask"
+            }
+        ]
+    },
+    "terapagos": {
+        "formas_especiais": [
+            {
+                "nome": "Terapagos Terastal Form",
+                "categoria": "Transformação",
+                "regiao": "Paldea",
+                "origem": "The Hidden Treasure of Area Zero",
+                "id_api": "terapagos-terastal"
+            },
+            {
+                "nome": "Terapagos Stellar Form",
+                "categoria": "Transformação",
+                "regiao": "Paldea",
+                "origem": "The Hidden Treasure of Area Zero",
+                "id_api": "terapagos-stellar"
+            }
+        ]
+    },
+    "scovillain": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Scovillain",
+                "categoria": "Mega Evolução",
+                "regiao": "Paldea",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "scovillain-mega"
+            }
+        ]
+    },
+    "glimmora": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Glimmora",
+                "categoria": "Mega Evolução",
+                "regiao": "Paldea",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "glimmora-mega"
+            }
+        ]
+    },
+    "baxcalibur": {
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Baxcalibur",
+                "categoria": "Mega Evolução",
+                "regiao": "Paldea",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "baxcalibur-mega"
+            }
+        ]
+    },
+    "ursaluna": {
+        "formas_especiais": [
+            {
+                "nome": "Ursaluna Bloodmoon",
+                "categoria": "Forma Especial",
+                "regiao": "Kitakami",
+                "origem": "Pokémon Scarlet e Violet - The Teal Mask",
+                "id_api": "ursaluna-bloodmoon"
+            }
+        ]
+    },
+    "urshifu": {
+        "formas_especiais": [
+            {
+                "nome": "Urshifu Estilo Golpe Decisivo",
+                "categoria": "Forma",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword / Shield - The Isle of Armor",
+                "id_api": "urshifu-single-strike"
+            },
+            {
+                "nome": "Urshifu Estilo Golpe Fluido",
+                "categoria": "Forma",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword / Shield - The Isle of Armor",
+                "id_api": "urshifu-rapid-strike"
+            }
+        ],
+        "gigantamax": [
+            {
+                "nome": "Gigantamax Urshifu Single Strike",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "urshifu-single-strike-gmax"
+            },
+            {
+                "nome": "Gigantamax Urshifu Rapid Strike",
+                "categoria": "Gigantamax",
+                "regiao": "Galar",
+                "origem": "Pokémon Sword e Shield",
+                "id_api": "urshifu-rapid-strike-gmax"
+            }
+        ]
+    }
+}
