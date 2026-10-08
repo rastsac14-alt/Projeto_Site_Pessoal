@@ -253,9 +253,17 @@ def buscar_pokemon(identificador):
         "https://pokeapi.co/"
     ):
 
-        return requisicao_api(
+        dados = requisicao_api(
             valor
         )
+
+        if dados is not None:
+            return dados
+
+        try:
+            return dados_fallback_pokemon(valor)
+        except NameError:
+            return None
 
     if valor.isdigit():
 
@@ -264,9 +272,17 @@ def buscar_pokemon(identificador):
             f"pokemon/{valor}"
         )
 
-        return requisicao_api(
+        dados = requisicao_api(
             url
         )
+
+        if dados is not None:
+            return dados
+
+        try:
+            return dados_fallback_pokemon(valor)
+        except NameError:
+            return None
 
     nome = normalizar_nome(
         valor
@@ -277,9 +293,17 @@ def buscar_pokemon(identificador):
         f"pokemon/{nome}"
     )
 
-    return requisicao_api(
+    dados = requisicao_api(
         url
     )
+
+    if dados is not None:
+        return dados
+
+    try:
+        return dados_fallback_pokemon(nome)
+    except NameError:
+        return None
 
 
 # ============================================================
@@ -321,7 +345,7 @@ DADOS_FALLBACK_POKEMON = {
                     "front_default": "https://play.pokemonshowdown.com/sprites/home/zygarde.png"
                 },
                 "showdown": {
-                    "front_default": "https://play.pokemonshowdown.com/sprites/afd/zygarde.png"
+                    "front_default": "zygarde.png"
                 },
             },
         },
@@ -1405,46 +1429,195 @@ def _slug_forma_showdown(valor):
 SHOWDOWN_HOME_BASE = "https://play.pokemonshowdown.com/sprites/home/"
 SHOWDOWN_HOME_CENTERED_BASE = "https://play.pokemonshowdown.com/sprites/home-centered/"
 SHOWDOWN_DEX_BASE = "https://play.pokemonshowdown.com/sprites/dex/"
-SHOWDOWN_AFD_BASE = "https://play.pokemonshowdown.com/sprites/afd/"
 SHOWDOWN_2D_BASE = "https://play.pokemonshowdown.com/sprites/gen5/"
 SHOWDOWN_ANIM_BASE = "https://play.pokemonshowdown.com/sprites/ani/"
 
 
 FORMAS_FONTES_ESPECIAIS = {
-    "zygarde-mega": {
-        "2d": "https://archives.bulbagarden.net/media/upload/8/8c/0718Zygarde-Mega.png",
-        "visual_3d": "https://archives.bulbagarden.net/media/upload/5/53/HOME0718M_s.png",
+    # ========================================================
+    # FORMAS NOVAS / Z-A
+    #
+    # NÃO usamos os sprites "gen5/home/dex" do Showdown como
+    # fonte principal destas formas. Alguns desses arquivos são
+    # fanmade/experimentais e, no caso de Mega Lucario Z, podem
+    # mostrar o meme "HATSUNE MIKU!" em vez da arte oficial.
+    #
+    # Aqui usamos arte oficial/arquivada da forma exata.
+    # ========================================================
+
+    "lucario-mega-z": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0448Lucario-Mega_Z_ZA.png",
+        "visual_3d": None,
         "animado": None,
     },
+
+    "garchomp-mega-z": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0445Garchomp-Mega_Z_ZA.png",
+        "visual_3d": None,
+        "animado": None,
+    },
+
+    "absol-mega-z": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0359Absol-Mega_Z.png",
+        "visual_3d": None,
+        "animado": None,
+    },
+
+    "zygarde-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0718Zygarde-Mega.png",
+        "visual_3d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0718M.png",
+        "animado": None,
+    },
+
+    "floette-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0670Floette-Mega.png",
+        "visual_3d": None,
+        "animado": None,
+    },
+
+    "raichu-mega-x": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0026Raichu-Mega_X_ZA.png",
+        "visual_3d": None,
+        "animado": None,
+    },
+
+    "raichu-mega-y": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0026Raichu-Mega_Y_ZA.png",
+        "visual_3d": None,
+        "animado": None,
+    },
+
+    # Megas novas de Pokémon Legends: Z-A / conteúdo relacionado.
+    "dragonite-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0149Dragonite-Mega_ZA.png",
+    },
+    "victreebel-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0071Victreebel-Mega_ZA.png",
+    },
+    "starmie-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0121Starmie-Mega.png",
+    },
+    "clefable-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0036Clefable-Mega.png",
+    },
+    "meganium-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0154Meganium-Mega_ZA.png",
+    },
+    "feraligatr-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0160Feraligatr-Mega_ZA.png",
+    },
+    "skarmory-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0227Skarmory-Mega.png",
+    },
+    "chimecho-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0358Chimecho-Mega.png",
+    },
+    "staraptor-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0398Staraptor-Mega.png",
+    },
+    "froslass-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0478Froslass-Mega.png",
+    },
+    "heatran-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0485Heatran-Mega.png",
+    },
+    "darkrai-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0491Darkrai-Mega.png",
+    },
+    "emboar-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0500Emboar-Mega_ZA.png",
+    },
+    "excadrill-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0530Excadrill-Mega.png",
+    },
+    "scolipede-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0545Scolipede-Mega.png",
+    },
+    "scrafty-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0560Scrafty-Mega.png",
+    },
+    "eelektross-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0604Eelektross-Mega_ZA.png",
+    },
+    "chandelure-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0609Chandelure-Mega.png",
+    },
+    "golurk-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0623Golurk-Mega.png",
+    },
+    "chesnaught-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0652Chesnaught-Mega_ZA.png",
+    },
+    "delphox-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0655Delphox-Mega_ZA.png",
+    },
+    "greninja-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0658Greninja-Mega_ZA.png",
+    },
+    "pyroar-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0668Pyroar-Mega.png",
+    },
+    "meowstic-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0678Meowstic-Mega.png",
+    },
+    "meowstic-m-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0678Meowstic-Mega.png",
+    },
+    "meowstic-f-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0678Meowstic-Mega.png",
+    },
+    "malamar-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0687Malamar-Mega_ZA.png",
+    },
+    "barbaracle-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0689Barbaracle-Mega.png",
+    },
+    "dragalge-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0691Dragalge-Mega.png",
+    },
+    "hawlucha-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0701Hawlucha-Mega_ZA.png",
+    },
+    "crabominable-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0740Crabominable-Mega.png",
+    },
+    "golisopod-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0768Golisopod-Mega.png",
+    },
+    "drampa-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0780Drampa-Mega.png",
+    },
+    "magearna-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0801Magearna-Mega.png",
+    },
+    "magearna-original-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0801Magearna-Original_Mega.png",
+    },
+    "zeraora-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0807Zeraora-Mega_ZA.png",
+    },
+    "falinks-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0870Falinks-Mega.png",
+    },
+    "scovillain-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0952Scovillain-Mega.png",
+    },
+    "glimmora-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0970Glimmora-Mega.png",
+    },
+    "tatsugiri-curly-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0978Tatsugiri-Curly_Mega.png",
+    },
+    "tatsugiri-droopy-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0978Tatsugiri-Droopy_Mega.png",
+    },
+    "tatsugiri-stretchy-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0978Tatsugiri-Stretchy_Mega.png",
+    },
+    "baxcalibur-mega": {
+        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0998Baxcalibur-Mega_ZA.png",
+    },
 }
-
-
-def _slug_forma_showdown(valor):
-    if not valor:
-        return []
-
-    slug = normalizar_nome(valor)
-    candidatos = []
-
-    def adicionar(item):
-        item = normalizar_nome(item)
-        if item and item not in candidatos:
-            candidatos.append(item)
-
-    adicionar(slug.replace("-mega-z", "-megaz"))
-    adicionar(slug.replace("-mega-x", "-megax"))
-    adicionar(slug.replace("-mega-y", "-megay"))
-    adicionar(slug.replace("-mega-m", "-mmega"))
-    adicionar(slug.replace("-mega-f", "-fmega"))
-    adicionar(slug.replace("-trim", ""))
-    adicionar(slug.replace("-form", ""))
-    adicionar(slug.replace("-gigantamax", "-gmax"))
-    adicionar(slug.replace("-gmax", "-gigantamax"))
-    adicionar(slug.replace("-female", "-f"))
-    adicionar(slug.replace("-male", "-m"))
-    adicionar(slug)
-
-    return candidatos
 
 
 @st.cache_data(ttl=86400, show_spinner=False)
@@ -1455,9 +1628,10 @@ def url_imagem_disponivel(url):
     try:
         resposta = requests.get(
             url,
-            timeout=8,
+            timeout=12,
             stream=True,
             headers={"User-Agent": "KAYZAC-Master-Pokemon/1.0"},
+            allow_redirects=True,
         )
         content_type = resposta.headers.get("content-type", "").lower()
         ok = resposta.status_code == 200 and (
@@ -1478,66 +1652,48 @@ def primeiro_url_disponivel(urls):
     return None
 
 
-def _urls_por_slug(slug):
-    return {
-        "2d": [
-            SHOWDOWN_DEX_BASE + slug + ".png",
-            SHOWDOWN_AFD_BASE + slug + ".png",
-            SHOWDOWN_HOME_BASE + slug + ".png",
-            SHOWDOWN_2D_BASE + slug + ".png",
-        ],
-        "render": [
-            SHOWDOWN_HOME_CENTERED_BASE + slug + ".png",
-            SHOWDOWN_HOME_BASE + slug + ".png",
-        ],
-        "animado": [
-            SHOWDOWN_ANIM_BASE + slug + ".gif",
-        ],
-    }
-
-
 @st.cache_data(ttl=21600, show_spinner=False)
 def urls_showdown_forma(id_api, nome_forma):
-    for valor in (id_api, nome_forma):
-        chave = normalizar_nome(valor or "")
-        if chave in FORMAS_FONTES_ESPECIAIS:
-            dados = dict(FORMAS_FONTES_ESPECIAIS[chave])
-            dados.setdefault("slug", chave)
-            return dados
+    """
+    Resolve IMAGEM ESPECÍFICA da forma com segurança.
 
-    candidatos = []
-    for valor in (id_api, nome_forma):
-        for slug in _slug_forma_showdown(valor):
-            if slug not in candidatos:
-                candidatos.append(slug)
+    Apesar do nome histórico da função, esta versão NÃO usa mais
+    as pastas gen5/dex/home/afd do Showdown como fallback.
 
-    if not candidatos:
+    Para formas especiais conhecidas, usa a arte oficial/arquivada.
+    Para as demais, usa somente o sprite específico preservado pelo
+    endpoint pokemon-form da PokéAPI (tratado em mostrar_sprites_forma).
+    """
+
+    valor = str(id_api).strip() if id_api else str(nome_forma).strip()
+
+    if not valor:
         return {"2d": None, "visual_3d": None, "animado": None, "slug": None}
 
-    melhor_2d = None
-    melhor_render = None
-    melhor_animado = None
-    slug_escolhido = candidatos[0]
+    chave = normalizar_nome(valor)
+    dados = FORMAS_FONTES_ESPECIAIS.get(chave)
 
-    for slug in candidatos:
-        urls = _urls_por_slug(slug)
+    if dados:
+        resultado = dict(dados)
+        resultado.setdefault("2d", None)
+        resultado.setdefault("visual_3d", None)
+        resultado.setdefault("animado", None)
+        resultado["slug"] = chave
 
-        if melhor_2d is None:
-            melhor_2d = primeiro_url_disponivel(urls["2d"])
-        if melhor_render is None:
-            melhor_render = primeiro_url_disponivel(urls["render"])
-        if melhor_animado is None:
-            melhor_animado = primeiro_url_disponivel(urls["animado"])
+        # Mesmo sendo uma fonte de arquivo oficial/arquivado,
+        # só usamos a URL se ela realmente responder como imagem.
+        for campo in ("2d", "visual_3d", "animado"):
+            url = resultado.get(campo)
+            if url and not url_imagem_disponivel(url):
+                resultado[campo] = None
 
-        if melhor_2d and melhor_render and melhor_animado:
-            slug_escolhido = slug
-            break
+        return resultado
 
     return {
-        "2d": melhor_2d,
-        "visual_3d": melhor_render,
-        "animado": melhor_animado,
-        "slug": slug_escolhido,
+        "2d": None,
+        "visual_3d": None,
+        "animado": None,
+        "slug": chave,
     }
 
 
@@ -1557,6 +1713,8 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
     urls = urls_showdown_forma(id_api, nome)
     sprites_forma = (dados.get("_sprites_forma", {}) if dados else {}) or {}
 
+    # Somente sprites do recurso pokemon-form.
+    # A espécie-base NÃO participa desta galeria.
     pixel_normal = sprites_forma.get("pixel_normal")
     pixel_shiny = sprites_forma.get("pixel_shiny")
     pixel_female = sprites_forma.get("pixel_normal_female")
@@ -1654,26 +1812,13 @@ def procurar_imagem_local_forma(
     id_api,
     nome_forma
 ):
-    """
-    Procura automaticamente imagens locais sem exigir que o JSON tenha
-    o campo imagem_local.
+    """Procura somente arquivos locais com o identificador da forma."""
 
-    Exemplos aceitos:
-    imagens/formas/lucario-mega-z.png
-    imagens/formas/lucario-megaz.png
-    imagens/formas/furfrou-heart.png
-    imagens/formas/pyroar-f.png
-    """
-
+    valores = [id_api] if id_api else [nome_forma]
     candidatos = []
 
-    for valor in (
-        id_api,
-        nome_forma
-    ):
-
+    for valor in valores:
         for slug in _slug_forma_showdown(valor):
-
             if slug not in candidatos:
                 candidatos.append(slug)
 
@@ -1691,15 +1836,9 @@ def procurar_imagem_local_forma(
     )
 
     for pasta in pastas:
-
         for slug in candidatos:
-
             for extensao in extensoes:
-
-                caminho = pasta / (
-                    slug + extensao
-                )
-
+                caminho = pasta / (slug + extensao)
                 if caminho.exists():
                     return caminho
 
