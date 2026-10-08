@@ -1484,76 +1484,121 @@ def url_imagem_disponivel(url):
 @st.cache_data(ttl=21600, show_spinner=False)
 def resolver_fontes_forma(id_api, nome_forma):
     """
-    Resolve canais visuais de uma forma SEM fallback genérico.
+    Resolve as imagens EXATAS da forma.
 
-    Ordem:
-    1) fonte especial explicitamente cadastrada;
-    2) sprites do próprio pokemon-form da PokéAPI;
-    3) imagem local explícita.
+    Fonte principal para formas que possuem registro numérico na PokéAPI:
+    repositório oficial de sprites da PokéAPI no GitHub.
 
-    O Showdown não entra nesta resolução para formas especiais.
+    Isso evita duas fontes de problemas que tivemos antes:
+    - URLs de MediaWiki com hash de pasta errado;
+    - fallbacks do Showdown que podiam apontar para sprites experimentais.
+
+    A imagem é montada pelo ID numérico da PRÓPRIA forma, não pelo ID
+    da espécie-base.
     """
+
     chave = normalizar_nome(id_api or nome_forma or "")
     especiais = FORMAS_FONTES_ESPECIAIS.get(chave, {})
 
-    resultado = {
-        "2d": especiais.get("2d"),
-        "2d_high": especiais.get("2d_high"),
-        "home": especiais.get("home"),
-        "home_shiny": especiais.get("home_shiny"),
-        "shiny": especiais.get("shiny"),
-        "animado": especiais.get("animado"),
-        "slug": chave,
-    }
+    resultado = dict(especiais)
+    resultado.setdefault("2d", None)
+    resultado.setdefault("2d_high", None)
+    resultado.setdefault("home", None)
+    resultado.setdefault("home_shiny", None)
+    resultado.setdefault("shiny", None)
+    resultado.setdefault("animado", None)
+    resultado["slug"] = chave
 
-    # Verifica cada fonte. Uma URL quebrada não bloqueia as demais.
-    for campo in ("2d", "2d_high", "home", "home_shiny", "shiny", "animado"):
-        valor = resultado.get(campo)
-        if isinstance(valor, (list, tuple)):
-            escolhido = None
-            for candidato in valor:
-                if candidato and url_imagem_disponivel(candidato):
-                    escolhido = candidato
-                    break
-            resultado[campo] = escolhido
-        elif valor and not url_imagem_disponivel(valor):
-            resultado[campo] = None
+    # --------------------------------------------------------
+    # ID NUMÉRICO DA FORMA
+    # --------------------------------------------------------
+    id_forma = None
+
+    try:
+        dados_forma = buscar_pokemon_form(id_api or nome_forma)
+    except Exception:
+        dados_forma = None
+
+    if isinstance(dados_forma, dict):
+        valor_id = dados_forma.get("id")
+        try:
+            if valor_id is not None:
+                id_forma = int(valor_id)
+        except (TypeError, ValueError):
+            id_forma = None
+
+    # --------------------------------------------------------
+    # POKEAPI SPRITES — FORMA EXATA
+    # --------------------------------------------------------
+    if id_forma is not None:
+        base = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon"
+
+        # Sprite 2D pequeno/pixel da própria forma.
+        resultado["2d_api"] = f"{base}/{id_forma}.png"
+
+        # Artwork de alta resolução da própria forma.
+        resultado["2d_high"] = (
+            resultado.get("2d_high")
+            or f"{base}/other/official-artwork/{id_forma}.png"
+        )
+
+        # Render Pokémon HOME da própria forma.
+        resultado["home"] = (
+            f"{base}/other/home/{id_forma}.png"
+        )
+
+        # Shiny 2D da própria forma.
+        resultado["shiny_api"] = (
+            f"{base}/shiny/{id_forma}.png"
+        )
+
+        # O repositório da PokéAPI não possui HOME Shiny para todas as
+        # formas. Quando já temos uma fonte especial válida, ela continua.
+
+        # Sprite Showdown só será usado quando já estiver explicitamente
+        # cadastrado em uma fonte especial; não fazemos descoberta genérica.
+
+    else:
+        resultado.setdefault("2d_api", None)
+        resultado.setdefault("shiny_api", None)
 
     return resultado
 
-
 def urls_showdown_forma(id_api, nome_forma):
-    """Compatibilidade com código antigo: usa o resolvedor atual de fontes."""
+    """Compatibilidade com código antigo.
+
+    Apesar do nome histórico, agora usa o resolvedor seguro baseado no
+    ID numérico da forma/PokéAPI, sem procurar sprites aleatórios.
+    """
     return resolver_fontes_forma(id_api, nome_forma)
 
 
 def obter_fontes_forma(id_api, nome_forma, dados=None):
-    """Combina fonte especial com sprites EXCLUSIVOS de pokemon-form."""
+    """Combina fontes especiais com sprites EXCLUSIVOS da forma.
+
+    A espécie-base nunca entra como fallback visual.
+    """
     fontes = resolver_fontes_forma(id_api, nome_forma)
     sprites_forma = (dados.get("_sprites_forma", {}) if dados else {}) or {}
 
-    # Os sprites da API são específicos da forma e têm prioridade sobre
-    # qualquer fallback externo para 2D/shiny.
+    # Sprites diretamente preservados do endpoint pokemon-form.
+    # Eles têm prioridade quando existem; caso contrário, mantemos
+    # os sprites numéricos exatos resolvidos pela PokéAPI/GitHub.
     if sprites_forma.get("pixel_normal"):
         fontes["2d_api"] = sprites_forma.get("pixel_normal")
-    else:
-        fontes["2d_api"] = None
 
     if sprites_forma.get("pixel_shiny"):
         fontes["shiny_api"] = sprites_forma.get("pixel_shiny")
-    else:
-        fontes["shiny_api"] = None
 
     if sprites_forma.get("pixel_normal_female"):
         fontes["2d_api_female"] = sprites_forma.get("pixel_normal_female")
-    else:
-        fontes["2d_api_female"] = None
 
     if sprites_forma.get("pixel_shiny_female"):
         fontes["shiny_api_female"] = sprites_forma.get("pixel_shiny_female")
-    else:
-        fontes["shiny_api_female"] = None
 
+    # Se o endpoint tiver um ID numérico, o resolvedor já trouxe fontes
+    # externas EXATAS para a mesma forma. Elas são usadas apenas quando
+    # o endpoint não forneceu aquele canal.
     return fontes
 
 
@@ -1576,9 +1621,9 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
     st.markdown("### 🟦 2D da forma")
 
     url_2d = (
-        fontes.get("2d_api_female")
+        fontes.get("2d_high")
+        or fontes.get("2d_api_female")
         or fontes.get("2d_api")
-        or fontes.get("2d_high")
         or fontes.get("2d")
     )
 
@@ -3417,26 +3462,42 @@ with col1:
 
     if forma_focada:
 
-        urls_forma = urls_showdown_forma(
+        fontes_forma_topo = obter_fontes_forma(
             forma_focada.get("id_api"),
-            forma_focada.get("nome")
+            forma_focada.get("nome"),
+            dados_forma_focada or pokemon,
         )
 
-        if urls_forma.get("2d"):
+        url_topo_2d = (
+            fontes_forma_topo.get("2d_high")
+            or fontes_forma_topo.get("2d_api_female")
+            or fontes_forma_topo.get("2d_api")
+            or fontes_forma_topo.get("2d")
+        )
+
+        if url_topo_2d:
             st.caption("🟦 2D específico da forma")
-            st.image(urls_forma["2d"], width=420)
+            st.image(url_topo_2d, width=420)
         else:
             st.info("🟦 2D específico desta forma indisponível.")
 
-        if urls_forma.get("visual_3d"):
-            st.caption("🎮 Render / modelo específico da forma")
-            st.image(urls_forma["visual_3d"], width=420)
+        home_topo = fontes_forma_topo.get("home")
+        if home_topo:
+            st.caption("🏠 Pokémon HOME específico da forma")
+            st.image(home_topo, width=420)
         else:
-            st.info("🎮 Render / modelo específico desta forma indisponível.")
+            st.info("🏠 Pokémon HOME específico desta forma indisponível.")
 
-        if urls_forma.get("animado"):
-            st.caption("🎞️ Sprite animado específico da forma")
-            st.image(urls_forma["animado"], width=420)
+        shiny_topo = (
+            fontes_forma_topo.get("shiny_api_female")
+            or fontes_forma_topo.get("shiny_api")
+            or fontes_forma_topo.get("shiny")
+        )
+        if shiny_topo:
+            st.caption("✨ Shiny específico da forma")
+            st.image(shiny_topo, width=420)
+        else:
+            st.info("✨ Shiny específico desta forma indisponível.")
 
     else:
 
