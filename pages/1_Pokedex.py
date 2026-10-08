@@ -1661,6 +1661,30 @@ def resolver_fontes_forma(id_api, nome_forma):
         resultado[campo] = valor
 
     # --------------------------------------------------------
+    # CORREÇÕES DIRETAS PARA LUCARIO
+    # --------------------------------------------------------
+    # Mega Lucario normal: HOME via PokeAPI sprites (forma 10059) e
+    # animação específica no Showdown.
+    # Mega Lucario Z: HOME/animação via fontes específicas da forma.
+    # Estas URLs não dependem do ID de PokemonForm.
+    FONTES_LUCARIO_TESTE = {
+        "lucario-mega": {
+            "home": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/10059.png",
+            "home_shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/10059.png",
+            "animado": "https://play.pokemonshowdown.com/sprites/ani/lucario-mega.gif",
+        },
+        "lucario-mega-z": {
+            "home": "https://image.pokemon-wiki.org/images_id/10310__other__home__front_default.png",
+            "home_shiny": "https://image.pokemon-wiki.org/images_id/10310__other__home__front_shiny.png",
+            "animado": "https://image.pokemon-wiki.org/images_id/10310__other__showdown__front_default.gif",
+        },
+    }
+
+    fontes_lucario = FONTES_LUCARIO_TESTE.get(chave, {})
+    for campo, valor in fontes_lucario.items():
+        resultado[campo] = valor
+
+    # --------------------------------------------------------
     # 2) Recurso /pokemon EXATO.
     # --------------------------------------------------------
     dados_pokemon = _obter_dados_pokemon_exatos(chave)
