@@ -1495,6 +1495,11 @@ def resolver_fontes_forma(id_api, nome_forma):
     return resultado
 
 
+def urls_showdown_forma(id_api, nome_forma):
+    """Compatibilidade com código antigo: usa o resolvedor atual de fontes."""
+    return resolver_fontes_forma(id_api, nome_forma)
+
+
 def obter_fontes_forma(id_api, nome_forma, dados=None):
     """Combina fonte especial com sprites EXCLUSIVOS de pokemon-form."""
     fontes = resolver_fontes_forma(id_api, nome_forma)
