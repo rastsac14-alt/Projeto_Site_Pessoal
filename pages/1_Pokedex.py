@@ -1622,21 +1622,16 @@ def _sprites_exatos_da_forma(dados):
 
 @st.cache_data(ttl=21600, show_spinner=False)
 def resolver_fontes_forma(id_api, nome_forma):
-    """Resolve imagens EXATAS sem jamais usar o ID de PokemonForm como ID de Pokémon.
+    """Resolve imagens exatas da forma.
 
-    A versão anterior cometia um erro estrutural: pegava ``pokemon-form.id`` e
-    montava ``/sprites/pokemon/{id}.png``. O ID de PokemonForm e o ID do
-    recurso Pokémon são coisas diferentes; a própria documentação da PokéAPI
-    mostra que o PokemonForm contém seus sprites em URLs próprias.
-
-    Agora a ordem segura é:
-    1. fonte explícita e verificada para a forma;
-    2. recurso /pokemon com nome EXATO (quando existir);
-    3. recurso /pokemon-form com nome EXATO;
-    4. nada.
-
-    Nunca usamos espécie-base, ID numérico de PokemonForm, Showdown gen5 ou AFD
-    como fallback.
+    Regra importante desta versão:
+    - fontes especiais oficiais/arquivadas continuam sendo prioridade;
+    - sprites do /pokemon e /pokemon-form só entram quando o nome é EXATO;
+    - para HOME e ANIMADO do Showdown, NÃO fazemos requests de validação no
+      servidor do Streamlit. Essa validação estava fazendo os arquivos
+      desaparecerem porque o Cloud pode bloquear/recusar essas URLs.
+    - usamos somente slugs explicitamente verificados; nunca usamos
+      AFD/gen5 como fallback.
     """
 
     chave = normalizar_nome(id_api or nome_forma or "")
@@ -1663,13 +1658,10 @@ def resolver_fontes_forma(id_api, nome_forma):
     )
 
     for campo, valor in especiais.items():
-        if campo in resultado:
-            resultado[campo] = valor
-        else:
-            resultado[campo] = valor
+        resultado[campo] = valor
 
     # --------------------------------------------------------
-    # 2) Recurso /pokemon EXATO, se existir.
+    # 2) Recurso /pokemon EXATO.
     # --------------------------------------------------------
     dados_pokemon = _obter_dados_pokemon_exatos(chave)
 
@@ -1690,7 +1682,116 @@ def resolver_fontes_forma(id_api, nome_forma):
             if valor and not resultado.get(campo):
                 resultado[campo] = valor
 
-    # Verifica URLs diretas de listas/strings sem trocar a identidade da forma.
+    # --------------------------------------------------------
+    # 4) HOME / HOME SHINY / ANIMADO
+    # --------------------------------------------------------
+    # O problema das versões anteriores: requests.get() contra o servidor
+    # do Showdown era usado como "teste". No Streamlit Cloud isso pode falhar,
+    # mesmo que o arquivo exista e abra normalmente no navegador.
+    #
+    # Portanto, para fontes verificadas, entregamos a URL diretamente.
+    # --------------------------------------------------------
+
+    SHOWDOWN_HOME_EXATOS = {
+        # Forma clássica usada como nosso teste principal.
+        "lucario-mega",
+
+        # Megas novas/atualizadas presentes no índice HOME atual.
+        "floette-mega",
+        "greninja-mega",
+        "eelektross-mega",
+        "malamar-mega",
+        "meowstic-fmega",
+        "meowstic-mmega",
+        "chandelure-mega",
+        "excadrill-mega",
+        "drampa-mega",
+        "falinks-mega",
+        "victreebel-mega",
+
+        # Megas clássicas comuns na mesma fonte.
+        "garchomp-mega",
+        "absol-mega",
+        "dragonite-mega",
+        "feraligatr-mega",
+        "meganium-mega",
+        "scrafty-mega",
+        "golurk-mega",
+        "dragalge-mega",
+        "hawlucha-mega",
+        "golisopod-mega",
+        "pyroar-mega",
+    }
+
+    SHOWDOWN_ANIM_EXATOS = {
+        "lucario-mega",
+        "floette-mega",
+        "greninja-mega",
+        "eelektross-mega",
+        "malamar-mega",
+        "meowstic-fmega",
+        "meowstic-mmega",
+        "chandelure-mega",
+        "excadrill-mega",
+        "drampa-mega",
+        "falinks-mega",
+        "victreebel-mega",
+    }
+
+    e_forma_z = (
+        chave.endswith("-mega-z")
+        or "-megaz" in chave
+        or chave.endswith("-z")
+    )
+
+    candidatos_slug = _slug_forma_showdown(chave)
+    if not candidatos_slug and chave:
+        candidatos_slug = [chave]
+
+    # Quando o identificador já corresponde diretamente ao arquivo, o slug
+    # principal é o próprio identificador. Para Mega X/Y e equivalentes,
+    # _slug_forma_showdown já coloca o nome real do arquivo primeiro.
+    slug_principal = candidatos_slug[0] if candidatos_slug else chave
+
+    # HOME normal: somente slugs verificados e somente formas não-Z.
+    if (
+        not resultado.get("home")
+        and not e_forma_z
+        and slug_principal in SHOWDOWN_HOME_EXATOS
+    ):
+        resultado["home"] = (
+            f"https://play.pokemonshowdown.com/sprites/home/"
+            f"{slug_principal}.png"
+        )
+        resultado["slug"] = slug_principal
+
+    # HOME Shiny: mesma regra, agora sem validação de rede.
+    if (
+        not resultado.get("home_shiny")
+        and not e_forma_z
+        and slug_principal in SHOWDOWN_HOME_EXATOS
+    ):
+        resultado["home_shiny"] = (
+            f"https://play.pokemonshowdown.com/sprites/home-shiny/"
+            f"{slug_principal}.png"
+        )
+
+    # Animado: somente slugs cuja existência foi verificada na coleção atual.
+    if (
+        not resultado.get("animado")
+        and slug_principal in SHOWDOWN_ANIM_EXATOS
+    ):
+        resultado["animado"] = (
+            f"https://play.pokemonshowdown.com/sprites/ani/"
+            f"{slug_principal}.gif"
+        )
+
+    # --------------------------------------------------------
+    # 5) NÃO valida novamente HOME/ANIMADO por requests.
+    #    Essa foi a causa do desaparecimento das imagens nas versões
+    #    anteriores. Para listas de fonte especial, escolhemos a primeira
+    #    alternativa conhecida sem transformar a falha em "nenhuma imagem".
+    # --------------------------------------------------------
     for campo in (
         "2d",
         "2d_high",
@@ -1706,19 +1807,11 @@ def resolver_fontes_forma(id_api, nome_forma):
         valor = resultado.get(campo)
 
         if isinstance(valor, (list, tuple)):
-            escolhido = None
-            for candidato in valor:
-                if candidato and url_imagem_disponivel(candidato):
-                    escolhido = candidato
-                    break
-            resultado[campo] = escolhido
-
-        elif valor:
-            if not url_imagem_disponivel(valor):
-                resultado[campo] = None
+            # Não fazemos uma requisição para cada candidato.
+            # A fonte foi cadastrada em ordem de preferência.
+            resultado[campo] = valor[0] if valor else None
 
     return resultado
-
 
 def urls_showdown_forma(id_api, nome_forma):
     """Compatibilidade com código antigo.
