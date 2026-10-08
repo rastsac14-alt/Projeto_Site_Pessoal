@@ -1433,7 +1433,15 @@ SHOWDOWN_2D_BASE = "https://play.pokemonshowdown.com/sprites/gen5/"
 SHOWDOWN_ANIM_BASE = "https://play.pokemonshowdown.com/sprites/ani/"
 
 
-FORMAS_FONTES_ESPECIAIS = {"lucario-mega-z": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0448Lucario-Mega_Z_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0448Lucario-Mega_Z_ZA.png", "home": [
+FORMAS_FONTES_ESPECIAIS = {
+    # Mega Lucario clássico: arte oficial de alta resolução e HOME direto.
+    "lucario-mega": {
+        "2d": "https://archives.bulbagarden.net/media/upload/c/cb/0448Lucario-Mega.png",
+        "2d_high": "https://archives.bulbagarden.net/media/upload/c/cb/0448Lucario-Mega.png",
+        "home": "https://archives.bulbagarden.net/media/upload/e/7/HOME0448M.png",
+        "home_shiny": "https://archives.bulbagarden.net/media/upload/f/9/HOME0448M_s.png",
+    },
+"lucario-mega-z": {"2d": "https://archives.bulbagarden.net/media/upload/7/7c/0448Lucario-Mega_Z_ZA.png", "2d_high": "https://archives.bulbagarden.net/media/upload/7/7c/0448Lucario-Mega_Z_ZA.png", "home": [
             "https://archives.bulbagarden.net/media/upload/3/39/HOME0448MZ.png",
             "https://www.pokepedia.fr/wiki/Special:Redirect/file/Sprite_0448_M%C3%A9ga_Z_HOME.png",
         ],
@@ -1482,87 +1490,235 @@ def url_imagem_disponivel(url):
 
 
 @st.cache_data(ttl=21600, show_spinner=False)
-def resolver_fontes_forma(id_api, nome_forma):
+def _normalizar_url_media_bulbagarden(url):
+    """Converte Redirect/file do Bulbagarden em URL direta de mídia.
+
+    Isso evita respostas HTML do redirect e preserva a URL exata do arquivo.
     """
-    Resolve as imagens EXATAS da forma.
+    if not url:
+        return url
 
-    Fonte principal para formas que possuem registro numérico na PokéAPI:
-    repositório oficial de sprites da PokéAPI no GitHub.
+    marcador = "/wiki/Special:Redirect/file/"
 
-    Isso evita duas fontes de problemas que tivemos antes:
-    - URLs de MediaWiki com hash de pasta errado;
-    - fallbacks do Showdown que podiam apontar para sprites experimentais.
+    if marcador not in url:
+        return url
 
-    A imagem é montada pelo ID numérico da PRÓPRIA forma, não pelo ID
-    da espécie-base.
+    try:
+        import hashlib
+        from urllib.parse import unquote
+
+        nome_arquivo = unquote(url.split(marcador, 1)[1])
+        digest = hashlib.md5(nome_arquivo.encode("utf-8")).hexdigest()
+        return (
+            "https://archives.bulbagarden.net/media/upload/"
+            f"{digest[0]}/{digest[:2]}/{nome_arquivo}"
+        )
+    except Exception:
+        return url
+
+
+def _normalizar_fontes_especiais(dados):
+    """Normaliza strings/listas de URLs da tabela de fontes especiais."""
+    resultado = {}
+
+    for chave, valor in (dados or {}).items():
+        if isinstance(valor, (list, tuple)):
+            resultado[chave] = [
+                _normalizar_url_media_bulbagarden(str(item))
+                for item in valor
+                if item
+            ]
+        elif isinstance(valor, str):
+            resultado[chave] = _normalizar_url_media_bulbagarden(valor)
+        else:
+            resultado[chave] = valor
+
+    return resultado
+
+
+@st.cache_data(ttl=86400, show_spinner=False)
+def _obter_dados_pokemon_exatos(nome_forma):
+    """Busca um recurso /pokemon somente se o nome retornado for EXATO."""
+    chave = normalizar_nome(nome_forma or "")
+
+    if not chave:
+        return None
+
+    try:
+        dados = buscar_pokemon(chave)
+    except Exception:
+        return None
+
+    if not isinstance(dados, dict):
+        return None
+
+    nome_retorno = normalizar_nome(dados.get("name", ""))
+
+    if nome_retorno != chave:
+        return None
+
+    return dados
+
+
+@st.cache_data(ttl=86400, show_spinner=False)
+def _obter_dados_forma_exatos(nome_forma):
+    """Busca /pokemon-form e só aceita quando o nome da forma é EXATO."""
+    chave = normalizar_nome(nome_forma or "")
+
+    if not chave:
+        return None
+
+    try:
+        dados = buscar_pokemon_form(chave)
+    except Exception:
+        return None
+
+    if not isinstance(dados, dict):
+        return None
+
+    nome_retorno = normalizar_nome(dados.get("name", ""))
+
+    if nome_retorno != chave:
+        return None
+
+    return dados
+
+
+def _sprites_exatos_do_pokemon(dados):
+    """Extrai canais visuais do recurso /pokemon exato."""
+    if not isinstance(dados, dict):
+        return {}
+
+    sprites = dados.get("sprites", {}) or {}
+    outros = sprites.get("other", {}) or {}
+    home = outros.get("home", {}) or {}
+    artwork = outros.get("official-artwork", {}) or {}
+
+    return {
+        "2d_api": _texto_url(sprites.get("front_default")),
+        "2d_api_female": _texto_url(sprites.get("front_female")),
+        "2d_high": _texto_url(artwork.get("front_default")),
+        "shiny_api": _texto_url(sprites.get("front_shiny")),
+        "shiny_api_female": _texto_url(sprites.get("front_shiny_female")),
+        "home": _texto_url(home.get("front_default")),
+        "home_shiny": _texto_url(home.get("front_shiny")),
+    }
+
+
+def _sprites_exatos_da_forma(dados):
+    """Extrai SOMENTE os sprites do recurso /pokemon-form exato."""
+    if not isinstance(dados, dict):
+        return {}
+
+    sprites = dados.get("sprites", {}) or {}
+
+    return {
+        "2d_api": _texto_url(sprites.get("front_default")),
+        "2d_api_female": _texto_url(sprites.get("front_female")),
+        "shiny_api": _texto_url(sprites.get("front_shiny")),
+        "shiny_api_female": _texto_url(sprites.get("front_shiny_female")),
+    }
+
+
+@st.cache_data(ttl=21600, show_spinner=False)
+def resolver_fontes_forma(id_api, nome_forma):
+    """Resolve imagens EXATAS sem jamais usar o ID de PokemonForm como ID de Pokémon.
+
+    A versão anterior cometia um erro estrutural: pegava ``pokemon-form.id`` e
+    montava ``/sprites/pokemon/{id}.png``. O ID de PokemonForm e o ID do
+    recurso Pokémon são coisas diferentes; a própria documentação da PokéAPI
+    mostra que o PokemonForm contém seus sprites em URLs próprias.
+
+    Agora a ordem segura é:
+    1. fonte explícita e verificada para a forma;
+    2. recurso /pokemon com nome EXATO (quando existir);
+    3. recurso /pokemon-form com nome EXATO;
+    4. nada.
+
+    Nunca usamos espécie-base, ID numérico de PokemonForm, Showdown gen5 ou AFD
+    como fallback.
     """
 
     chave = normalizar_nome(id_api or nome_forma or "")
-    especiais = FORMAS_FONTES_ESPECIAIS.get(chave, {})
 
-    resultado = dict(especiais)
-    resultado.setdefault("2d", None)
-    resultado.setdefault("2d_high", None)
-    resultado.setdefault("home", None)
-    resultado.setdefault("home_shiny", None)
-    resultado.setdefault("shiny", None)
-    resultado.setdefault("animado", None)
-    resultado["slug"] = chave
-
-    # --------------------------------------------------------
-    # ID NUMÉRICO DA FORMA
-    # --------------------------------------------------------
-    id_forma = None
-
-    try:
-        dados_forma = buscar_pokemon_form(id_api or nome_forma)
-    except Exception:
-        dados_forma = None
-
-    if isinstance(dados_forma, dict):
-        valor_id = dados_forma.get("id")
-        try:
-            if valor_id is not None:
-                id_forma = int(valor_id)
-        except (TypeError, ValueError):
-            id_forma = None
+    resultado = {
+        "2d": None,
+        "2d_high": None,
+        "2d_api": None,
+        "2d_api_female": None,
+        "home": None,
+        "home_shiny": None,
+        "shiny": None,
+        "shiny_api": None,
+        "shiny_api_female": None,
+        "animado": None,
+        "slug": chave,
+    }
 
     # --------------------------------------------------------
-    # POKEAPI SPRITES — FORMA EXATA
+    # 1) Fontes especiais explicitamente cadastradas.
     # --------------------------------------------------------
-    if id_forma is not None:
-        base = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon"
+    especiais = _normalizar_fontes_especiais(
+        FORMAS_FONTES_ESPECIAIS.get(chave, {})
+    )
 
-        # Sprite 2D pequeno/pixel da própria forma.
-        resultado["2d_api"] = f"{base}/{id_forma}.png"
+    for campo, valor in especiais.items():
+        if campo in resultado:
+            resultado[campo] = valor
+        else:
+            resultado[campo] = valor
 
-        # Artwork de alta resolução da própria forma.
-        resultado["2d_high"] = (
-            resultado.get("2d_high")
-            or f"{base}/other/official-artwork/{id_forma}.png"
-        )
+    # --------------------------------------------------------
+    # 2) Recurso /pokemon EXATO, se existir.
+    # --------------------------------------------------------
+    dados_pokemon = _obter_dados_pokemon_exatos(chave)
 
-        # Render Pokémon HOME da própria forma.
-        resultado["home"] = (
-            f"{base}/other/home/{id_forma}.png"
-        )
+    if dados_pokemon:
+        fontes_pokemon = _sprites_exatos_do_pokemon(dados_pokemon)
+        for campo, valor in fontes_pokemon.items():
+            if valor and not resultado.get(campo):
+                resultado[campo] = valor
 
-        # Shiny 2D da própria forma.
-        resultado["shiny_api"] = (
-            f"{base}/shiny/{id_forma}.png"
-        )
+    # --------------------------------------------------------
+    # 3) Recurso /pokemon-form EXATO.
+    # --------------------------------------------------------
+    dados_forma = _obter_dados_forma_exatos(chave)
 
-        # O repositório da PokéAPI não possui HOME Shiny para todas as
-        # formas. Quando já temos uma fonte especial válida, ela continua.
+    if dados_forma:
+        fontes_forma = _sprites_exatos_da_forma(dados_forma)
+        for campo, valor in fontes_forma.items():
+            if valor and not resultado.get(campo):
+                resultado[campo] = valor
 
-        # Sprite Showdown só será usado quando já estiver explicitamente
-        # cadastrado em uma fonte especial; não fazemos descoberta genérica.
+    # Verifica URLs diretas de listas/strings sem trocar a identidade da forma.
+    for campo in (
+        "2d",
+        "2d_high",
+        "2d_api",
+        "2d_api_female",
+        "home",
+        "home_shiny",
+        "shiny",
+        "shiny_api",
+        "shiny_api_female",
+        "animado",
+    ):
+        valor = resultado.get(campo)
 
-    else:
-        resultado.setdefault("2d_api", None)
-        resultado.setdefault("shiny_api", None)
+        if isinstance(valor, (list, tuple)):
+            escolhido = None
+            for candidato in valor:
+                if candidato and url_imagem_disponivel(candidato):
+                    escolhido = candidato
+                    break
+            resultado[campo] = escolhido
+
+        elif valor:
+            if not url_imagem_disponivel(valor):
+                resultado[campo] = None
 
     return resultado
+
 
 def urls_showdown_forma(id_api, nome_forma):
     """Compatibilidade com código antigo.
