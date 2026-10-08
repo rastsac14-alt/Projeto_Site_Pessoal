@@ -355,58 +355,57 @@ def buscar_pokemon_form(id_api):
 
 @st.cache_data(ttl=3600)
 def buscar_forma(id_api):
-    """Carrega uma forma sem substituir seus sprites pelos da espécie-base."""
-    valor = str(id_api).strip()
+    """
+    Busca a forma no endpoint pokemon-form.
+
+    IMPORTANTE: não transforma automaticamente a forma na espécie-base.
+    A ficha base pode continuar sendo buscada separadamente, mas os
+    sprites da forma ficam preservados em _sprites_forma.
+    """
+
+    if not id_api:
+        return None
+
+    valor = str(
+        id_api
+    ).strip()
+
     if not valor:
         return None
 
-    if valor.startswith("https://pokeapi.co/"):
-        dados = requisicao_api(valor)
-        if dados is None:
-            return None
-        if "stats" not in dados and "pokemon" in dados:
-            relacionado = dados.get("pokemon", {}).get("name")
-            base = buscar_pokemon(relacionado) if relacionado else None
-            if base:
-                resultado = dict(base)
-                sprites_forma = dados.get("sprites") or {}
-                resultado["sprites"] = sprites_forma
-                resultado["_sprites_sao_da_forma"] = bool(sprites_forma)
-                resultado["_pokemon_form"] = dados
-                return resultado
-        return dados
+    # URL direta para pokemon-form.
+    if valor.startswith(
+        "https://pokeapi.co/api/v2/pokemon-form/"
+    ):
 
-    # Procuramos primeiro o registro pokemon-form. Isso evita que uma
-    # forma especial seja confundida com a espécie-base.
-    dados_form = buscar_pokemon_form(valor)
-    if dados_form is not None:
-        relacionado = dados_form.get("pokemon", {}).get("name")
-        base = buscar_pokemon(relacionado) if relacionado else None
-        if base:
-            resultado = dict(base)
-            sprites_forma = dados_form.get("sprites") or {}
-            resultado["sprites"] = sprites_forma
-            resultado["_sprites_sao_da_forma"] = bool(sprites_forma)
-            resultado["_pokemon_form"] = dados_form
-            return resultado
-        if dados_form.get("sprites"):
-            return {
-                "name": valor,
-                "sprites": dados_form.get("sprites", {}),
-                "types": [],
-                "abilities": [],
-                "stats": [],
-                "_sprites_sao_da_forma": True,
-                "_pokemon_form": dados_form,
-            }
+        return requisicao_api(
+            valor
+        )
 
-    dados = buscar_pokemon(valor)
-    if dados is not None:
-        resultado = dict(dados)
-        resultado["_sprites_sao_da_forma"] = False
-        return resultado
+    nome = valor.rstrip("/").split("/")[-1]
 
-    return None
+    if nome.isdigit():
+
+        url = (
+            "https://pokeapi.co/api/v2/"
+            f"pokemon-form/{nome}"
+        )
+
+    else:
+
+        nome = normalizar_nome(
+            nome
+        )
+
+        url = (
+            "https://pokeapi.co/api/v2/"
+            f"pokemon-form/{nome}"
+        )
+
+    return requisicao_api(
+        url
+    )
+
 
 # ============================================================
 # BUSCAR LOCAIS
@@ -835,89 +834,58 @@ def obter_metodos_aprendizado(
 # SPRITES
 # ============================================================
 
+def _texto_url(valor):
+
+    if valor is None:
+        return None
+
+    valor = str(valor).strip()
+
+    return valor if valor else None
+
+
 def obter_sprites(pokemon):
+    """
+    Sprites do Pokémon principal.
+
+    Esta função continua usando os dados normais da PokéAPI.
+    Para FORMAS, existe uma função separada abaixo que nunca
+    herda silenciosamente o sprite da espécie-base.
+    """
 
     sprites = pokemon.get(
         "sprites",
         {}
-    )
+    ) or {}
 
     outros = sprites.get(
         "other",
         {}
-    )
+    ) or {}
 
     showdown = outros.get(
         "showdown",
         {}
-    )
+    ) or {}
 
     artwork = outros.get(
         "official-artwork",
         {}
-    )
+    ) or {}
 
     return {
-
-        "pixel_normal":
-            sprites.get(
-                "front_default"
-            ),
-
-        "pixel_normal_female":
-            sprites.get(
-                "front_female"
-            ),
-
-        "3d_normal":
-            showdown.get(
-                "front_default"
-            ),
-
-        "3d_normal_female":
-            showdown.get(
-                "front_female"
-            ),
-
-        "artwork_normal":
-            artwork.get(
-                "front_default"
-            ),
-
-        "artwork_normal_female":
-            artwork.get(
-                "front_female"
-            ),
-
-        "pixel_shiny":
-            sprites.get(
-                "front_shiny"
-            ),
-
-        "pixel_shiny_female":
-            sprites.get(
-                "front_shiny_female"
-            ),
-
-        "3d_shiny":
-            showdown.get(
-                "front_shiny"
-            ),
-
-        "3d_shiny_female":
-            showdown.get(
-                "front_shiny_female"
-            ),
-
-        "artwork_shiny":
-            artwork.get(
-                "front_shiny"
-            ),
-
-        "artwork_shiny_female":
-            artwork.get(
-                "front_shiny"
-            )
+        "pixel_normal": _texto_url(sprites.get("front_default")),
+        "pixel_normal_female": _texto_url(sprites.get("front_female")),
+        "3d_normal": _texto_url(showdown.get("front_default")),
+        "3d_normal_female": _texto_url(showdown.get("front_female")),
+        "artwork_normal": _texto_url(artwork.get("front_default")),
+        "artwork_normal_female": _texto_url(artwork.get("front_female")),
+        "pixel_shiny": _texto_url(sprites.get("front_shiny")),
+        "pixel_shiny_female": _texto_url(sprites.get("front_shiny_female")),
+        "3d_shiny": _texto_url(showdown.get("front_shiny")),
+        "3d_shiny_female": _texto_url(showdown.get("front_shiny_female")),
+        "artwork_shiny": _texto_url(artwork.get("front_shiny")),
+        "artwork_shiny_female": _texto_url(artwork.get("front_shiny_female")),
     }
 
 
@@ -934,7 +902,8 @@ def eh_femea(pokemon):
 
     return (
         "female" in nome
-        or "-f" in nome
+        or nome.endswith("-f")
+        or "-f-" in nome
     )
 
 
@@ -963,6 +932,13 @@ def mostrar_imagem(
 
 
 def mostrar_sprites(pokemon):
+    """
+    Galeria normal de um Pokémon.
+
+    Esta função pode usar os sprites normais/femininos da espécie.
+    NÃO deve ser usada para uma forma especial que tenha sido
+    carregada apenas através do pokemon-form.
+    """
 
     sprites = obter_sprites(
         pokemon
@@ -990,14 +966,13 @@ def mostrar_sprites(pokemon):
             (
                 sprites["pixel_normal_female"]
                 if femea
-                and sprites.get(
-                    "pixel_normal_female"
-                )
+                and sprites.get("pixel_normal_female")
                 else sprites["pixel_normal"]
             ),
             (
                 "🟦 Pixel 2D ♀️"
                 if femea
+                and sprites.get("pixel_normal_female")
                 else "🟦 Pixel 2D"
             ),
             180
@@ -1009,17 +984,13 @@ def mostrar_sprites(pokemon):
             (
                 sprites["3d_normal_female"]
                 if femea
-                and sprites.get(
-                    "3d_normal_female"
-                )
+                and sprites.get("3d_normal_female")
                 else sprites["3d_normal"]
             ),
             (
                 "🟩 3D / Showdown ♀️"
                 if femea
-                and sprites.get(
-                    "3d_normal_female"
-                )
+                and sprites.get("3d_normal_female")
                 else "🟩 3D / Showdown"
             ),
             180
@@ -1031,17 +1002,13 @@ def mostrar_sprites(pokemon):
             (
                 sprites["artwork_normal_female"]
                 if femea
-                and sprites.get(
-                    "artwork_normal_female"
-                )
+                and sprites.get("artwork_normal_female")
                 else sprites["artwork_normal"]
             ),
             (
                 "🎨 Artwork Oficial ♀️"
                 if femea
-                and sprites.get(
-                    "artwork_normal_female"
-                )
+                and sprites.get("artwork_normal_female")
                 else "🎨 Artwork Oficial"
             ),
             180
@@ -1065,14 +1032,13 @@ def mostrar_sprites(pokemon):
             (
                 sprites["pixel_shiny_female"]
                 if femea
-                and sprites.get(
-                    "pixel_shiny_female"
-                )
+                and sprites.get("pixel_shiny_female")
                 else sprites["pixel_shiny"]
             ),
             (
                 "🟦 Pixel 2D Shiny ♀️"
                 if femea
+                and sprites.get("pixel_shiny_female")
                 else "🟦 Pixel 2D Shiny"
             ),
             180
@@ -1084,17 +1050,13 @@ def mostrar_sprites(pokemon):
             (
                 sprites["3d_shiny_female"]
                 if femea
-                and sprites.get(
-                    "3d_shiny_female"
-                )
+                and sprites.get("3d_shiny_female")
                 else sprites["3d_shiny"]
             ),
             (
                 "🟩 3D Shiny ♀️"
                 if femea
-                and sprites.get(
-                    "3d_shiny_female"
-                )
+                and sprites.get("3d_shiny_female")
                 else "🟩 3D Shiny"
             ),
             180
@@ -1107,6 +1069,302 @@ def mostrar_sprites(pokemon):
             "🎨 Artwork Shiny",
             180
         )
+
+
+# ============================================================
+# SPRITES ESPECÍFICOS DE FORMAS
+# ============================================================
+
+def extrair_sprites_forma_api(dados_forma):
+    """
+    Extrai EXCLUSIVAMENTE os sprites do recurso pokemon-form.
+
+    Isso é importante porque o recurso pokemon-form pode apontar
+    para a espécie-base em "pokemon". O sprite, porém, pertence
+    à própria forma e não deve ser substituído pelo da espécie-base.
+    """
+
+    if not dados_forma:
+        return {}
+
+    sprites = dados_forma.get(
+        "sprites",
+        {}
+    ) or {}
+
+    return {
+        "pixel_normal": _texto_url(sprites.get("front_default")),
+        "pixel_normal_female": _texto_url(sprites.get("front_female")),
+        "pixel_shiny": _texto_url(sprites.get("front_shiny")),
+        "pixel_shiny_female": _texto_url(sprites.get("front_shiny_female")),
+        "back_normal": _texto_url(sprites.get("back_default")),
+        "back_shiny": _texto_url(sprites.get("back_shiny")),
+    }
+
+
+def _slug_forma_showdown(valor):
+    """Cria nomes compatíveis com os nomes de arquivos do Showdown."""
+
+    if not valor:
+        return []
+
+    slug = normalizar_nome(valor)
+
+    candidatos = []
+
+    def adicionar(item):
+        item = normalizar_nome(item)
+        if item and item not in candidatos:
+            candidatos.append(item)
+
+    adicionar(slug)
+
+    # Mega X / Y / Z
+    adicionar(slug.replace("-mega-x", "-megax"))
+    adicionar(slug.replace("-mega-y", "-megay"))
+    adicionar(slug.replace("-mega-z", "-megaz"))
+
+    # Mega formas do Meowstic e nomenclaturas parecidas.
+    adicionar(slug.replace("-mega-m", "-mmega"))
+    adicionar(slug.replace("-mega-f", "-fmega"))
+
+    # G-Max
+    adicionar(slug.replace("-gigantamax", "-gmax"))
+    adicionar(slug.replace("-gmax", "-gigantamax"))
+
+    # Sexo / forma feminina.
+    adicionar(slug.replace("-female", "-f"))
+    adicionar(slug.replace("-male", "-m"))
+
+    # Alguns IDs antigos usam "-female" dentro de nomes de forma.
+    if slug.endswith("-female"):
+        adicionar(slug[:-7] + "-f")
+
+    return candidatos
+
+
+@st.cache_data(ttl=21600)
+def localizar_sprite_showdown(candidatos):
+    """
+    Procura um sprite 2D alternativo no repositório público do
+    Pokémon Showdown. O servidor do site faz a verificação; o
+    navegador do usuário não precisa fazer chamadas extras.
+
+    A prioridade é a coleção gen5, que atualmente possui sprites
+    atualizados para várias formas recentes, incluindo várias
+    Mega Evoluções e cortes do Furfrou.
+    """
+
+    if not candidatos:
+        return None
+
+    bases = (
+        "https://play.pokemonshowdown.com/sprites/gen5/",
+        "https://play.pokemonshowdown.com/sprites/dex/",
+    )
+
+    for base in bases:
+
+        for slug in candidatos:
+
+            url = (
+                base
+                + slug
+                + ".png"
+            )
+
+            try:
+
+                resposta = requests.get(
+                    url,
+                    timeout=4,
+                    stream=True
+                )
+
+                status = resposta.status_code
+                resposta.close()
+
+                if status == 200:
+                    return url
+
+            except requests.RequestException:
+
+                continue
+
+    return None
+
+
+def obter_sprite_forma_alternativo(
+    id_api,
+    nome_forma
+):
+    """
+    Retorna um sprite 2D alternativo quando a PokéAPI não fornece
+    a imagem específica da forma.
+    """
+
+    candidatos = []
+
+    for valor in (
+        id_api,
+        nome_forma
+    ):
+
+        for slug in _slug_forma_showdown(valor):
+
+            if slug not in candidatos:
+                candidatos.append(slug)
+
+    return localizar_sprite_showdown(
+        tuple(candidatos)
+    )
+
+
+def mostrar_sprites_forma(
+    forma,
+    dados,
+    id_api,
+    nome
+):
+    """
+    Exibição dedicada às FORMAS.
+
+    ORDEM DE PRIORIDADE:
+    1. imagem local cadastrada no JSON;
+    2. sprite específico do pokemon-form na PokéAPI;
+    3. sprite 2D alternativo do Pokémon Showdown;
+    4. mensagem de imagem indisponível.
+
+    Em NENHUM momento esta função usa o sprite da espécie-base
+    como se fosse a forma especial.
+    """
+
+    # --------------------------------------------------------
+    # 1) IMAGEM LOCAL
+    # --------------------------------------------------------
+
+    imagem_local = forma.get(
+        "imagem_local"
+    )
+
+    caminho_local = carregar_imagem_local(
+        imagem_local
+    )
+
+    if caminho_local is None:
+
+        caminho_local = procurar_imagem_local_forma(
+            id_api,
+            nome
+        )
+
+    if caminho_local is not None:
+
+        with st.expander(
+            "📸 Imagem da forma"
+        ):
+
+            st.image(
+                str(caminho_local),
+                width=320
+            )
+
+            st.caption(
+                "🖼️ Imagem local específica desta forma."
+            )
+
+        return
+
+    # --------------------------------------------------------
+    # 2) SPRITE ESPECÍFICO DA POKÉAPI
+    # --------------------------------------------------------
+
+    sprites_forma = dados.get(
+        "_sprites_forma",
+        {}
+    ) or {}
+
+    pixel_normal = sprites_forma.get(
+        "pixel_normal"
+    )
+
+    pixel_shiny = sprites_forma.get(
+        "pixel_shiny"
+    )
+
+    pixel_female = sprites_forma.get(
+        "pixel_normal_female"
+    )
+
+    pixel_shiny_female = sprites_forma.get(
+        "pixel_shiny_female"
+    )
+
+    if pixel_normal or pixel_shiny or pixel_female or pixel_shiny_female:
+
+        with st.expander(
+            "📸 Sprites específicos da forma (PokéAPI)"
+        ):
+
+            c1, c2 = st.columns(2)
+
+            with c1:
+
+                mostrar_imagem(
+                    pixel_female or pixel_normal,
+                    "🟦 2D da forma ♀️"
+                    if pixel_female
+                    else "🟦 2D da forma",
+                    220
+                )
+
+            with c2:
+
+                mostrar_imagem(
+                    pixel_shiny_female or pixel_shiny,
+                    "✨ 2D Shiny da forma ♀️"
+                    if pixel_shiny_female
+                    else "✨ 2D Shiny da forma",
+                    220
+                )
+
+        return
+
+    # --------------------------------------------------------
+    # 3) FALLBACK 2D DO POKÉMON SHOWDOWN
+    # --------------------------------------------------------
+
+    sprite_alternativo = obter_sprite_forma_alternativo(
+        id_api,
+        nome
+    )
+
+    if sprite_alternativo:
+
+        with st.expander(
+            "📸 Sprite 2D alternativo"
+        ):
+
+            st.image(
+                sprite_alternativo,
+                width=320
+            )
+
+            st.caption(
+                "🟦 Sprite 2D alternativo • Pokémon Showdown"
+            )
+
+        return
+
+    # --------------------------------------------------------
+    # 4) NADA DISPONÍVEL
+    # --------------------------------------------------------
+
+    st.info(
+        "⚠️ Ainda não existe uma imagem específica disponível "
+        "nas fontes utilizadas para esta forma.\n\n"
+        "A Pokédex não vai mostrar o sprite da espécie-base no lugar."
+    )
 
 
 # ============================================================
@@ -1707,138 +1965,249 @@ def mostrar_arvore_evolutiva(
 # FORMAS
 # ============================================================
 
+def _nome_ultimo_segmento_api(valor):
+
+    if not valor:
+        return ""
+
+    texto = str(valor).strip().rstrip("/")
+
+    return normalizar_nome(
+        texto.split("/")[-1]
+    )
+
+
 def carregar_dados_forma(
     id_api
 ):
-    """Carrega dados da forma preservando a origem dos sprites."""
+    """
+    Carrega dados da ficha da forma sem perder o sprite específico.
+
+    O pokemon-form informa qual é a espécie relacionada. Usamos a
+    espécie apenas para obter tipos, habilidades, stats etc.; os sprites
+    continuam vindo do recurso da forma.
+    """
+
     if not id_api:
         return None
-    valor = str(id_api).strip()
+
+    valor = str(
+        id_api
+    ).strip()
+
     if not valor:
         return None
-    return buscar_forma(valor)
+
+    dados_form = buscar_forma(
+        valor
+    )
+
+    if dados_form is not None:
+
+        relacionado = (
+            dados_form
+            .get(
+                "pokemon",
+                {}
+            )
+            .get(
+                "name"
+            )
+        )
+
+        # Tenta usar a ficha da própria forma quando a API oferece
+        # um Pokémon-form também acessível pelo endpoint /pokemon.
+        dados_diretos = buscar_pokemon(
+            _nome_ultimo_segmento_api(valor)
+        )
+
+        if dados_diretos:
+
+            dados = dict(
+                dados_diretos
+            )
+
+            dados["_sprites_forma"] = extrair_sprites_forma_api(
+                dados_form
+            ) or obter_sprites(
+                dados_diretos
+            )
+
+            dados["_dados_forma_api"] = dados_form
+
+            return dados
+
+        # Caso clássico: pokemon-form existe, mas /pokemon não possui
+        # aquela forma como recurso próprio. Aqui usamos a espécie-base
+        # somente para dados de ficha.
+        if relacionado:
+
+            dados_base = buscar_pokemon(
+                relacionado
+            )
+
+            if dados_base is not None:
+
+                dados = dict(
+                    dados_base
+                )
+
+                dados["_sprites_forma"] = extrair_sprites_forma_api(
+                    dados_form
+                )
+
+                dados["_dados_forma_api"] = dados_form
+                dados["_nome_forma_api"] = dados_form.get(
+                    "name"
+                )
+
+                return dados
+
+    # Última tentativa: o próprio ID pode ser um Pokémon válido.
+    dados = buscar_pokemon(
+        valor
+    )
+
+    if dados is not None:
+
+        dados = dict(
+            dados
+        )
+
+        dados["_sprites_forma"] = obter_sprites(
+            dados
+        )
+
+        dados["_dados_forma_api"] = None
+
+        return dados
+
+    return None
+
 
 def carregar_imagem_local(caminho):
     """
-    Converte o caminho cadastrado no JSON em um caminho
-    absoluto dentro do projeto.
+    Converte o caminho cadastrado no JSON em um caminho absoluto dentro
+    do projeto.
     """
-    if not caminho:
-        return None
-
-    caminho = str(caminho).strip()
 
     if not caminho:
         return None
 
-    caminho_path = Path(caminho)
+    caminho = str(
+        caminho
+    ).strip()
+
+    if not caminho:
+        return None
+
+    caminho_path = Path(
+        caminho
+    )
 
     if caminho_path.is_absolute():
-        return caminho_path if caminho_path.exists() else None
+
+        return (
+            caminho_path
+            if caminho_path.exists()
+            else None
+        )
 
     candidato = BASE_DIR / caminho_path
 
     if candidato.exists():
         return candidato
 
-    # Compatibilidade caso o JSON use apenas o nome do arquivo.
-    candidato = BASE_DIR / "imagens" / "formas" / caminho_path.name
+    candidato = (
+        BASE_DIR
+        / "imagens"
+        / "formas"
+        / caminho_path.name
+    )
 
     if candidato.exists():
         return candidato
 
-    pasta_formas = BASE_DIR / "imagens" / "formas"
+    return None
 
-    if pasta_formas.exists():
-        stem = caminho_path.stem
-        for extensao in (".png", ".webp", ".jpg", ".jpeg"):
-            candidato = pasta_formas / f"{stem}{extensao}"
-            if candidato.exists():
-                return candidato
+
+def procurar_imagem_local_forma(
+    id_api,
+    nome_forma
+):
+    """
+    Procura automaticamente imagens locais sem exigir que o JSON tenha
+    o campo imagem_local.
+
+    Exemplos aceitos:
+    imagens/formas/lucario-mega-z.png
+    imagens/formas/lucario-megaz.png
+    imagens/formas/furfrou-heart.png
+    imagens/formas/pyroar-f.png
+    """
+
+    candidatos = []
+
+    for valor in (
+        id_api,
+        nome_forma
+    ):
+
+        for slug in _slug_forma_showdown(valor):
+
+            if slug not in candidatos:
+                candidatos.append(slug)
+
+    extensoes = (
+        ".png",
+        ".webp",
+        ".jpg",
+        ".jpeg",
+        ".gif",
+    )
+
+    pastas = (
+        BASE_DIR / "imagens" / "formas",
+        BASE_DIR / "imagens",
+    )
+
+    for pasta in pastas:
+
+        for slug in candidatos:
+
+            for extensao in extensoes:
+
+                caminho = pasta / (
+                    slug + extensao
+                )
+
+                if caminho.exists():
+                    return caminho
 
     return None
 
 
-
-def obter_sprites_forma(dados):
-    """Retorna apenas sprites comprovadamente pertencentes à forma."""
-    if not dados or not dados.get("_sprites_sao_da_forma", False):
-        return {}
-    return dados.get("sprites", {}) or {}
-
-
-def mostrar_sprites_forma(dados, forma):
-    """Mostra somente imagens específicas da forma; nunca usa a base como fallback."""
-    sprites = obter_sprites_forma(dados)
-
-    if not sprites:
-        st.info(
-            "🖼️ **Imagem específica desta forma indisponível.** "
-            "A Pokédex não mostrará o sprite da espécie-base no lugar. "
-            "Você pode adicionar uma imagem local em `imagens/formas/`."
-        )
-        return
-
-    outros = sprites.get("other", {}) or {}
-    showdown = outros.get("showdown", {}) or {}
-    artwork = outros.get("official-artwork", {}) or {}
-
-    pixel = sprites.get("front_default")
-    pixel_shiny = sprites.get("front_shiny")
-    showdown_normal = showdown.get("front_default")
-    showdown_shiny = showdown.get("front_shiny")
-    artwork_normal = artwork.get("front_default")
-    artwork_shiny = artwork.get("front_shiny")
-
-    st.markdown("#### 📸 Imagens específicas da forma")
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        mostrar_imagem(pixel, "🟦 Pixel 2D", 180)
-    with col2:
-        mostrar_imagem(showdown_normal, "🟩 3D / Showdown", 180)
-    with col3:
-        mostrar_imagem(artwork_normal, "🎨 Artwork Oficial", 180)
-
-    if pixel_shiny or showdown_shiny or artwork_shiny:
-        st.markdown("#### ✨ Shiny da forma")
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            mostrar_imagem(pixel_shiny, "🟦 Pixel 2D Shiny", 180)
-        with col2:
-            mostrar_imagem(showdown_shiny, "🟩 3D / Showdown Shiny", 180)
-        with col3:
-            mostrar_imagem(artwork_shiny, "🎨 Artwork Shiny", 180)
-
 def mostrar_sprites_local_forma(forma):
-    """
-    Mostra uma imagem cadastrada manualmente no JSON.
-    Usado para formas que não existem na PokéAPI, como
-    algumas formas especiais de projetos/spin-offs.
-    """
-    caminho = forma.get("imagem_local")
+    """Compatibilidade com chamadas antigas."""
 
-    if not caminho:
+    caminho = carregar_imagem_local(
+        forma.get("imagem_local")
+    )
+
+    if caminho is None:
         return False
 
-    imagem = carregar_imagem_local(caminho)
-
-    if imagem is None:
-        st.warning(
-            "⚠️ A imagem local foi cadastrada, mas não foi "
-            f"encontrada: `{caminho}`"
-        )
-        return False
-
-    with st.expander("📸 Ver imagem da forma"):
+    with st.expander(
+        "📸 Ver imagem da forma"
+    ):
 
         st.image(
-            str(imagem),
+            str(caminho),
             width=300
         )
 
         st.caption(
-            f"Imagem local: `{caminho}`"
+            "🖼️ Imagem local específica desta forma."
         )
 
     return True
@@ -1969,7 +2338,7 @@ def mostrar_forma(
         dados_vieram_da_api = False
 
         # --------------------------------------------------------
-        # PRIMEIRO: tenta carregar pela PokéAPI.
+        # PRIMEIRO: tenta carregar a forma mantendo os sprites dela.
         # --------------------------------------------------------
 
         if id_api:
@@ -1986,8 +2355,7 @@ def mostrar_forma(
                 dados_vieram_da_api = True
 
         # --------------------------------------------------------
-        # SEGUNDO: se não existir na PokéAPI, usa os dados
-        # cadastrados manualmente no formas_pokemon.json.
+        # SEGUNDO: se não existir na API, usa o JSON local.
         # --------------------------------------------------------
 
         if dados is None:
@@ -1996,8 +2364,6 @@ def mostrar_forma(
                 forma
             )
 
-            # Para formas puramente locais, não mostramos
-            # erro: a imagem e os dados do JSON continuam válidos.
             if not imagem_local and not forma.get("tipo") and not forma.get("tipos"):
 
                 st.warning(
@@ -2019,9 +2385,6 @@ def mostrar_forma(
             "name"
         )
 
-        # Formas locais/spin-off podem não ter uma ficha
-        # própria na PokéAPI, então o botão só aparece
-        # quando existe um Pokémon real para abrir.
         if (
             dados_vieram_da_api
             and nome_pokemon_forma
@@ -2135,24 +2498,15 @@ def mostrar_forma(
             )
 
         # ====================================================
-        # SPRITES / IMAGEM
+        # SPRITES / IMAGEM DA FORMA
         # ====================================================
 
-        imagem_local_exibida = False
-
-        if imagem_local:
-            imagem_local_exibida = mostrar_sprites_local_forma(
-                forma
-            )
-
-        if not imagem_local_exibida:
-            with st.expander(
-                "📸 Ver imagens específicas da forma"
-            ):
-                mostrar_sprites_forma(
-                    dados,
-                    forma
-                )
+        mostrar_sprites_forma(
+            forma,
+            dados,
+            id_api,
+            nome
+        )
 
 
 def obter_categorias_formas(
