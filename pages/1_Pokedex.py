@@ -1433,195 +1433,11 @@ SHOWDOWN_2D_BASE = "https://play.pokemonshowdown.com/sprites/gen5/"
 SHOWDOWN_ANIM_BASE = "https://play.pokemonshowdown.com/sprites/ani/"
 
 
-FORMAS_FONTES_ESPECIAIS = {
-    # ========================================================
-    # FORMAS NOVAS / Z-A
-    #
-    # NÃO usamos os sprites "gen5/home/dex" do Showdown como
-    # fonte principal destas formas. Alguns desses arquivos são
-    # fanmade/experimentais e, no caso de Mega Lucario Z, podem
-    # mostrar o meme "HATSUNE MIKU!" em vez da arte oficial.
-    #
-    # Aqui usamos arte oficial/arquivada da forma exata.
-    # ========================================================
-
-    "lucario-mega-z": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0448Lucario-Mega_Z_ZA.png",
-        "visual_3d": None,
-        "animado": None,
-    },
-
-    "garchomp-mega-z": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0445Garchomp-Mega_Z_ZA.png",
-        "visual_3d": None,
-        "animado": None,
-    },
-
-    "absol-mega-z": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0359Absol-Mega_Z.png",
-        "visual_3d": None,
-        "animado": None,
-    },
-
-    "zygarde-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0718Zygarde-Mega.png",
-        "visual_3d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0718M.png",
-        "animado": None,
-    },
-
-    "floette-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0670Floette-Mega.png",
-        "visual_3d": None,
-        "animado": None,
-    },
-
-    "raichu-mega-x": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0026Raichu-Mega_X_ZA.png",
-        "visual_3d": None,
-        "animado": None,
-    },
-
-    "raichu-mega-y": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0026Raichu-Mega_Y_ZA.png",
-        "visual_3d": None,
-        "animado": None,
-    },
-
-    # Megas novas de Pokémon Legends: Z-A / conteúdo relacionado.
-    "dragonite-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0149Dragonite-Mega_ZA.png",
-    },
-    "victreebel-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0071Victreebel-Mega_ZA.png",
-    },
-    "starmie-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0121Starmie-Mega.png",
-    },
-    "clefable-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0036Clefable-Mega.png",
-    },
-    "meganium-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0154Meganium-Mega_ZA.png",
-    },
-    "feraligatr-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0160Feraligatr-Mega_ZA.png",
-    },
-    "skarmory-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0227Skarmory-Mega.png",
-    },
-    "chimecho-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0358Chimecho-Mega.png",
-    },
-    "staraptor-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0398Staraptor-Mega.png",
-    },
-    "froslass-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0478Froslass-Mega.png",
-    },
-    "heatran-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0485Heatran-Mega.png",
-    },
-    "darkrai-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0491Darkrai-Mega.png",
-    },
-    "emboar-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0500Emboar-Mega_ZA.png",
-    },
-    "excadrill-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0530Excadrill-Mega.png",
-    },
-    "scolipede-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0545Scolipede-Mega.png",
-    },
-    "scrafty-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0560Scrafty-Mega.png",
-    },
-    "eelektross-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0604Eelektross-Mega_ZA.png",
-    },
-    "chandelure-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0609Chandelure-Mega.png",
-    },
-    "golurk-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0623Golurk-Mega.png",
-    },
-    "chesnaught-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0652Chesnaught-Mega_ZA.png",
-    },
-    "delphox-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0655Delphox-Mega_ZA.png",
-    },
-    "greninja-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0658Greninja-Mega_ZA.png",
-    },
-    "pyroar-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0668Pyroar-Mega.png",
-    },
-    "meowstic-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0678Meowstic-Mega.png",
-    },
-    "meowstic-m-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0678Meowstic-Mega.png",
-    },
-    "meowstic-f-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0678Meowstic-Mega.png",
-    },
-    "malamar-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0687Malamar-Mega_ZA.png",
-    },
-    "barbaracle-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0689Barbaracle-Mega.png",
-    },
-    "dragalge-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0691Dragalge-Mega.png",
-    },
-    "hawlucha-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0701Hawlucha-Mega_ZA.png",
-    },
-    "crabominable-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0740Crabominable-Mega.png",
-    },
-    "golisopod-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0768Golisopod-Mega.png",
-    },
-    "drampa-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0780Drampa-Mega.png",
-    },
-    "magearna-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0801Magearna-Mega.png",
-    },
-    "magearna-original-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0801Magearna-Original_Mega.png",
-    },
-    "zeraora-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0807Zeraora-Mega_ZA.png",
-    },
-    "falinks-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0870Falinks-Mega.png",
-    },
-    "scovillain-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0952Scovillain-Mega.png",
-    },
-    "glimmora-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0970Glimmora-Mega.png",
-    },
-    "tatsugiri-curly-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0978Tatsugiri-Curly_Mega.png",
-    },
-    "tatsugiri-droopy-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0978Tatsugiri-Droopy_Mega.png",
-    },
-    "tatsugiri-stretchy-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0978Tatsugiri-Stretchy_Mega.png",
-    },
-    "baxcalibur-mega": {
-        "2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0998Baxcalibur-Mega_ZA.png",
-    },
-}
-
+FORMAS_FONTES_ESPECIAIS = {"lucario-mega-z": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0448Lucario-Mega_Z_ZA.png", "visual_3d": None, "animado": None, "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0448Lucario-Mega_Z_ZA.png"}, "garchomp-mega-z": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0445Garchomp-Mega_Z_ZA.png", "visual_3d": None, "animado": None, "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0445Garchomp-Mega_Z_ZA.png"}, "absol-mega-z": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0359Absol-Mega_Z.png", "visual_3d": None, "animado": None}, "zygarde-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0718Zygarde-Mega.png", "visual_3d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0718M.png", "animado": None, "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0718M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0718M_s.png"}, "floette-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0670Floette-Mega.png", "visual_3d": None, "animado": None, "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0670M.png", "home_shiny": None}, "raichu-mega-x": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0026Raichu-Mega_X_ZA.png", "visual_3d": None, "animado": None, "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0026Raichu-Mega_X_ZA.png"}, "raichu-mega-y": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0026Raichu-Mega_Y_ZA.png", "visual_3d": None, "animado": None, "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0026Raichu-Mega_Y_ZA.png"}, "dragonite-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0149Dragonite-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0149Dragonite-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0149M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0149M_s.png"}, "victreebel-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0071Victreebel-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0071Victreebel-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0071M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0071M_s.png"}, "starmie-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0121Starmie-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0121M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0121M_s.png"}, "clefable-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0036Clefable-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0036M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0036M_s.png"}, "meganium-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0154Meganium-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0154Meganium-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0154M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0154M_s.png"}, "feraligatr-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0160Feraligatr-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0160Feraligatr-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0160M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0160M_s.png"}, "skarmory-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0227Skarmory-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0227M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0227M_s.png"}, "chimecho-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0358Chimecho-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0358M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0358M_s.png"}, "staraptor-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0398Staraptor-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0398M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0398M_s.png"}, "froslass-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0478Froslass-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0478M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0478M_s.png"}, "heatran-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0485Heatran-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0485M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0485M_s.png"}, "darkrai-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0491Darkrai-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0491M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0491M_s.png"}, "emboar-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0500Emboar-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0500Emboar-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0500M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0500M_s.png"}, "excadrill-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0530Excadrill-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0530M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0530M_s.png"}, "scolipede-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0545Scolipede-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0545M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0545M_s.png"}, "scrafty-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0560Scrafty-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0560M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0560M_s.png"}, "eelektross-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0604Eelektross-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0604Eelektross-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0604M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0604M_s.png"}, "chandelure-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0609Chandelure-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0609M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0609M_s.png"}, "golurk-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0623Golurk-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0623M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0623M_s.png"}, "chesnaught-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0652Chesnaught-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0652Chesnaught-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0652M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0652M_s.png"}, "delphox-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0655Delphox-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0655Delphox-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0655M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0655M_s.png"}, "greninja-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0658Greninja-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0658Greninja-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0658M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0658M_s.png"}, "pyroar-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0668Pyroar-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0668M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0668M_s.png"}, "meowstic-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0678Meowstic-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0678M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0678M_s.png"}, "meowstic-m-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0678Meowstic-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0678M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0678M_s.png"}, "meowstic-f-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0678Meowstic-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0678M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0678M_s.png"}, "malamar-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0687Malamar-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0687Malamar-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0687M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0687M_s.png"}, "barbaracle-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0689Barbaracle-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0689M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0689M_s.png"}, "dragalge-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0691Dragalge-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0691M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0691M_s.png"}, "hawlucha-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0701Hawlucha-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0701Hawlucha-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0701M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0701M_s.png"}, "crabominable-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0740Crabominable-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0740M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0740M_s.png"}, "golisopod-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0768Golisopod-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0768M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0768M_s.png"}, "drampa-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0780Drampa-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0780M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0780M_s.png"}, "magearna-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0801Magearna-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0801M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0801M_s.png"}, "magearna-original-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0801Magearna-Original_Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0801M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0801M_s.png"}, "zeraora-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0807Zeraora-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0807Zeraora-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0807M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0807M_s.png"}, "falinks-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0870Falinks-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0870M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0870M_s.png"}, "scovillain-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0952Scovillain-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0952M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0952M_s.png"}, "glimmora-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0970Glimmora-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0970M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0970M_s.png"}, "tatsugiri-curly-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0978Tatsugiri-Curly_Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0978M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0978M_s.png"}, "tatsugiri-droopy-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0978Tatsugiri-Droopy_Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0978M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0978M_s.png"}, "tatsugiri-stretchy-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0978Tatsugiri-Stretchy_Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0978M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0978M_s.png"}, "baxcalibur-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0998Baxcalibur-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0998Baxcalibur-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0998M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0998M_s.png"}}
 
 @st.cache_data(ttl=86400, show_spinner=False)
 def url_imagem_disponivel(url):
+    """Confirma que a URL responde com um arquivo de imagem."""
     if not url:
         return False
 
@@ -1644,122 +1460,173 @@ def url_imagem_disponivel(url):
         return False
 
 
-@st.cache_data(ttl=86400, show_spinner=False)
-def primeiro_url_disponivel(urls):
-    for url in urls:
-        if url and url_imagem_disponivel(url):
-            return url
-    return None
-
-
 @st.cache_data(ttl=21600, show_spinner=False)
-def urls_showdown_forma(id_api, nome_forma):
+def resolver_fontes_forma(id_api, nome_forma):
     """
-    Resolve IMAGEM ESPECÍFICA da forma com segurança.
+    Resolve canais visuais de uma forma SEM fallback genérico.
 
-    Apesar do nome histórico da função, esta versão NÃO usa mais
-    as pastas gen5/dex/home/afd do Showdown como fallback.
+    Ordem:
+    1) fonte especial explicitamente cadastrada;
+    2) sprites do próprio pokemon-form da PokéAPI;
+    3) imagem local explícita.
 
-    Para formas especiais conhecidas, usa a arte oficial/arquivada.
-    Para as demais, usa somente o sprite específico preservado pelo
-    endpoint pokemon-form da PokéAPI (tratado em mostrar_sprites_forma).
+    O Showdown não entra nesta resolução para formas especiais.
     """
+    chave = normalizar_nome(id_api or nome_forma or "")
+    especiais = FORMAS_FONTES_ESPECIAIS.get(chave, {})
 
-    valor = str(id_api).strip() if id_api else str(nome_forma).strip()
-
-    if not valor:
-        return {"2d": None, "visual_3d": None, "animado": None, "slug": None}
-
-    chave = normalizar_nome(valor)
-    dados = FORMAS_FONTES_ESPECIAIS.get(chave)
-
-    if dados:
-        resultado = dict(dados)
-        resultado.setdefault("2d", None)
-        resultado.setdefault("visual_3d", None)
-        resultado.setdefault("animado", None)
-        resultado["slug"] = chave
-
-        # Mesmo sendo uma fonte de arquivo oficial/arquivado,
-        # só usamos a URL se ela realmente responder como imagem.
-        for campo in ("2d", "visual_3d", "animado"):
-            url = resultado.get(campo)
-            if url and not url_imagem_disponivel(url):
-                resultado[campo] = None
-
-        return resultado
-
-    return {
-        "2d": None,
-        "visual_3d": None,
-        "animado": None,
+    resultado = {
+        "2d": especiais.get("2d"),
+        "2d_high": especiais.get("2d_high"),
+        "home": especiais.get("home"),
+        "home_shiny": especiais.get("home_shiny"),
+        "shiny": especiais.get("shiny"),
+        "animado": especiais.get("animado"),
         "slug": chave,
     }
 
+    # Verifica as fontes especiais em separado. Uma fonte quebrada não
+    # bloqueia as demais.
+    for campo in ("2d", "2d_high", "home", "home_shiny", "shiny", "animado"):
+        url = resultado.get(campo)
+        if url and not url_imagem_disponivel(url):
+            resultado[campo] = None
 
-def obter_sprite_forma_alternativo(id_api, nome_forma):
-    return urls_showdown_forma(id_api, nome_forma).get("2d")
+    return resultado
+
+
+def obter_fontes_forma(id_api, nome_forma, dados=None):
+    """Combina fonte especial com sprites EXCLUSIVOS de pokemon-form."""
+    fontes = resolver_fontes_forma(id_api, nome_forma)
+    sprites_forma = (dados.get("_sprites_forma", {}) if dados else {}) or {}
+
+    # Os sprites da API são específicos da forma e têm prioridade sobre
+    # qualquer fallback externo para 2D/shiny.
+    if sprites_forma.get("pixel_normal"):
+        fontes["2d_api"] = sprites_forma.get("pixel_normal")
+    else:
+        fontes["2d_api"] = None
+
+    if sprites_forma.get("pixel_shiny"):
+        fontes["shiny_api"] = sprites_forma.get("pixel_shiny")
+    else:
+        fontes["shiny_api"] = None
+
+    if sprites_forma.get("pixel_normal_female"):
+        fontes["2d_api_female"] = sprites_forma.get("pixel_normal_female")
+    else:
+        fontes["2d_api_female"] = None
+
+    if sprites_forma.get("pixel_shiny_female"):
+        fontes["shiny_api_female"] = sprites_forma.get("pixel_shiny_female")
+    else:
+        fontes["shiny_api_female"] = None
+
+    return fontes
 
 
 def mostrar_sprites_forma(forma, dados, id_api, nome):
-    """Mostra somente imagens específicas da forma."""
+    """Galeria completa da forma sem usar imagens da espécie-base."""
 
     imagem_local = forma.get("imagem_local")
     caminho_local = carregar_imagem_local(imagem_local)
 
-    if caminho_local is None:
-        caminho_local = procurar_imagem_local_forma(id_api, nome)
-
-    urls = urls_showdown_forma(id_api, nome)
-    sprites_forma = (dados.get("_sprites_forma", {}) if dados else {}) or {}
-
-    # Somente sprites do recurso pokemon-form.
-    # A espécie-base NÃO participa desta galeria.
-    pixel_normal = sprites_forma.get("pixel_normal")
-    pixel_shiny = sprites_forma.get("pixel_shiny")
-    pixel_female = sprites_forma.get("pixel_normal_female")
-    pixel_shiny_female = sprites_forma.get("pixel_shiny_female")
+    fontes = obter_fontes_forma(id_api, nome, dados)
 
     if caminho_local is not None:
-        with st.expander("📸 Imagem da forma", expanded=True):
-            st.image(str(caminho_local), width=420)
+        with st.expander("📸 Imagem local da forma", expanded=True):
+            st.image(str(caminho_local), width=520)
             st.caption("🖼️ Imagem local específica desta forma.")
-        return
 
-    st.markdown("### 📸 Visual da forma")
-    col1, col2 = st.columns(2)
+    # --------------------------------------------------------
+    # 2D / ARTWORK
+    # --------------------------------------------------------
+    st.markdown("### 🟦 2D da forma")
 
-    with col1:
-        url_2d = pixel_female or pixel_normal or urls.get("2d")
-        if url_2d:
-            mostrar_imagem(
-                url_2d,
-                "🟦 2D específico da forma ♀️" if pixel_female else "🟦 2D específico da forma",
-                360,
-            )
-        else:
-            st.info("2D específico desta forma indisponível.")
+    url_2d = (
+        fontes.get("2d_api_female")
+        or fontes.get("2d_api")
+        or fontes.get("2d_high")
+        or fontes.get("2d")
+    )
 
-    with col2:
-        render = urls.get("visual_3d")
-        if render:
-            st.caption("🎮 Render / modelo HOME da forma")
-            st.image(render, width=360)
-        else:
-            st.info("🎮 Render / modelo HOME específico indisponível.")
-
-    if urls.get("animado"):
-        st.divider()
-        st.caption("🎞️ Sprite animado específico • Pokémon Showdown")
-        st.image(urls["animado"], width=360)
-
-    if pixel_shiny_female or pixel_shiny:
-        st.divider()
+    if url_2d:
         mostrar_imagem(
-            pixel_shiny_female or pixel_shiny,
-            "✨ 2D Shiny específico da forma ♀️" if pixel_shiny_female else "✨ 2D Shiny específico da forma",
-            320,
+            url_2d,
+            "🟦 2D específico da forma",
+            420,
         )
+    else:
+        st.info("🟦 2D específico desta forma indisponível.")
+
+    # --------------------------------------------------------
+    # HOME / RENDER
+    # --------------------------------------------------------
+    st.markdown("### 🏠 Pokémon HOME")
+
+    home = fontes.get("home")
+    if home:
+        mostrar_imagem(
+            home,
+            "🏠 Render específico da forma • Pokémon HOME",
+            360,
+        )
+    else:
+        st.info("🏠 Render específico desta forma no HOME indisponível.")
+
+    # --------------------------------------------------------
+    # SHINY
+    # --------------------------------------------------------
+    st.markdown("### ✨ Shiny da forma")
+
+    shiny = (
+        fontes.get("shiny_api_female")
+        or fontes.get("shiny_api")
+        or fontes.get("shiny")
+    )
+
+    if shiny:
+        mostrar_imagem(
+            shiny,
+            "✨ Shiny específico da forma",
+            420,
+        )
+    else:
+        st.info(
+            "✨ Ainda não existe uma imagem Shiny específica "
+            "disponível nas fontes utilizadas para esta forma."
+        )
+
+    # --------------------------------------------------------
+    # HOME SHINY
+    # --------------------------------------------------------
+    st.markdown("### 🌟 Pokémon HOME — Shiny")
+
+    home_shiny = fontes.get("home_shiny")
+    if home_shiny:
+        mostrar_imagem(
+            home_shiny,
+            "🌟 Render Shiny específico da forma • Pokémon HOME",
+            360,
+        )
+    else:
+        st.info(
+            "🌟 Render Shiny específico desta forma no HOME indisponível."
+        )
+
+    # --------------------------------------------------------
+    # ANIMADO
+    # --------------------------------------------------------
+    st.markdown("### 🎞️ Animado")
+
+    animado = fontes.get("animado")
+    if animado:
+        st.image(animado, width=420)
+        st.caption("🎞️ Sprite/animação específica da forma.")
+    else:
+        st.info("🎞️ Animação específica desta forma indisponível.")
+
+
 
 
 def carregar_imagem_local(caminho):
