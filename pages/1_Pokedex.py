@@ -51,6 +51,10 @@ if "forma_focada_id" not in st.session_state:
 
     st.session_state.forma_focada_id = None
 
+if "forma_focada_dados" not in st.session_state:
+
+    st.session_state.forma_focada_dados = None
+
 
 def navegar_para_pokemon(identificador):
     """
@@ -69,12 +73,16 @@ def navegar_para_pokemon(identificador):
 def navegar_para_forma(forma, especie_base):
     """Abre a ficha da espécie-base mantendo a forma selecionada."""
 
-    id_api = forma.get("id_api") if isinstance(forma, dict) else None
+    if not isinstance(forma, dict):
+        return
+
+    id_api = forma.get("id_api")
 
     if id_api:
 
         st.session_state.pokemon_focado = normalizar_nome(especie_base)
         st.session_state.forma_focada_id = normalizar_nome(id_api)
+        st.session_state.forma_focada_dados = dict(forma)
         st.rerun()
 
 
@@ -82,6 +90,7 @@ def voltar_para_pokemon_selecionado():
 
     st.session_state.pokemon_focado = None
     st.session_state.forma_focada_id = None
+    st.session_state.forma_focada_dados = None
 
     st.rerun()
 
@@ -1180,35 +1189,92 @@ SHOWDOWN_2D_BASE = "https://play.pokemonshowdown.com/sprites/gen5/"
 SHOWDOWN_ANIM_BASE = "https://play.pokemonshowdown.com/sprites/ani/"
 
 
+FORMAS_FONTES_ESPECIAIS = {
+    "zygarde-mega": {
+        "2d": "https://play.pokemonshowdown.com/sprites/afd/zygarde-mega.png",
+        "visual_3d": (
+            "https://rotomlabs.net/_next/image?q=100&url="
+            "https%3A%2F%2Fstatic.rotomlabs.net%2Fimages%2Fsprites%2Flegends-z-a%2F0718-zygarde-mega.png"
+            "&w=3840"
+        ),
+        "animado": None,
+    },
+}
+
+
+SHOWDOWN_ANIM_INDISPONIVEL = {
+    "lucario-megaz",
+    "garchomp-megaz",
+    "absol-megaz",
+    "zygarde-mega",
+    "pyroar-mega",
+}
+
+
+def _candidatos_slug_showdown(valor):
+    """Gera os slugs do Showdown, priorizando o nome transformado."""
+
+    if not valor:
+        return []
+
+    slug = normalizar_nome(valor)
+    transformados = []
+    originais = []
+
+    def adicionar_transformado(item):
+        item = normalizar_nome(item)
+        if item and item != slug and item not in transformados:
+            transformados.append(item)
+
+    adicionar_transformado(slug.replace("-mega-x", "-megax"))
+    adicionar_transformado(slug.replace("-mega-y", "-megay"))
+    adicionar_transformado(slug.replace("-mega-z", "-megaz"))
+    adicionar_transformado(slug.replace("-mega-m", "-mmega"))
+    adicionar_transformado(slug.replace("-mega-f", "-fmega"))
+    adicionar_transformado(slug.replace("-trim", ""))
+    adicionar_transformado(slug.replace("-form", ""))
+    adicionar_transformado(slug.replace("-gigantamax", "-gmax"))
+    adicionar_transformado(slug.replace("-gmax", "-gigantamax"))
+    adicionar_transformado(slug.replace("-female", "-f"))
+    adicionar_transformado(slug.replace("-male", "-m"))
+    originais.append(slug)
+
+    return transformados + originais
+
+
 @st.cache_data(ttl=21600)
 def urls_showdown_forma(id_api, nome_forma):
-    """
-    Monta as URLs públicas do Showdown sem fazer uma checagem HTTP
-    no servidor do Streamlit. Isso é importante no Streamlit Cloud:
-    o navegador do usuário pode acessar a imagem mesmo quando o
-    servidor do app não consegue fazer a requisição externa.
-    """
+    """Monta fontes públicas da forma sem herdar imagem da espécie-base."""
+
+    for valor in (id_api, nome_forma):
+        chave = normalizar_nome(valor or "")
+        if chave in FORMAS_FONTES_ESPECIAIS:
+            dados = dict(FORMAS_FONTES_ESPECIAIS[chave])
+            dados.setdefault("slug", chave)
+            return dados
 
     candidatos = []
 
     for valor in (id_api, nome_forma):
-        for slug in _slug_forma_showdown(valor):
+        for slug in _candidatos_slug_showdown(valor):
             if slug not in candidatos:
                 candidatos.append(slug)
 
     if not candidatos:
-        return {"2d": None, "animado": None, "slug": None}
+        return {"2d": None, "animado": None, "visual_3d": None, "slug": None}
 
-    # O primeiro candidato é o mais específico. Para as formas novas
-    # da Pokédex do KAYZAC, os IDs atuais já seguem o padrão do Showdown.
     slug = candidatos[0]
 
     return {
         "2d": SHOWDOWN_2D_BASE + slug + ".png",
-        "animado": SHOWDOWN_ANIM_BASE + slug + ".gif",
+        "animado": (
+            None
+            if slug in SHOWDOWN_ANIM_INDISPONIVEL
+            else SHOWDOWN_ANIM_BASE + slug + ".gif"
+        ),
+        "visual_3d": None,
         "slug": slug,
     }
-
 
 def obter_sprite_forma_alternativo(id_api, nome_forma):
     urls = urls_showdown_forma(id_api, nome_forma)
@@ -1395,26 +1461,30 @@ def mostrar_sprites_forma(
     # 3) FALLBACK 2D DO POKÉMON SHOWDOWN
     # --------------------------------------------------------
 
-    sprite_alternativo = obter_sprite_forma_alternativo(
+    urls = urls_showdown_forma(
         id_api,
         nome
     )
 
-    if sprite_alternativo:
+    if urls.get("2d"):
 
-        with st.expander(
-            "📸 Sprite 2D alternativo"
-        ):
+        with st.expander("📸 Sprite 2D específico"):
+            st.image(urls["2d"], width=320)
+            st.caption("🟦 Sprite 2D específico da forma")
 
-            st.image(
-                sprite_alternativo,
-                width=320
-            )
+    if urls.get("visual_3d"):
 
-            st.caption(
-                "🟦 Sprite 2D alternativo • Pokémon Showdown"
-            )
+        with st.expander("🎮 Modelo / render específico"):
+            st.image(urls["visual_3d"], width=320)
+            st.caption("🟩 Render/modelo específico da forma")
 
+    elif urls.get("animado"):
+
+        with st.expander("🎞️ Sprite animado específico"):
+            st.image(urls["animado"], width=320)
+            st.caption("🟩 Sprite animado específico • Pokémon Showdown")
+
+    if urls.get("2d") or urls.get("visual_3d") or urls.get("animado"):
         return
 
     # --------------------------------------------------------
@@ -2695,13 +2765,12 @@ def mostrar_catalogo_formas(
             dados_formas = dados_teste
             break
 
-    # Garantia do Mega Floette: a forma pode ser cadastrada aqui mesmo
-    # porque a PokéAPI ainda não oferece uma ficha /pokemon própria para ela.
+    # Garantia do Mega Floette.
     if normalizar_nome(nome_especie) == "floette":
 
-        lista_mega = dados_formas.setdefault(
-            "mega_evolucoes",
-            []
+        dados_formas = dict(dados_formas)
+        lista_mega = list(
+            dados_formas.get("mega_evolucoes", []) or []
         )
 
         if not any(
@@ -2716,6 +2785,8 @@ def mostrar_catalogo_formas(
                 "origem": "Pokémon Legends: Z-A",
                 "id_api": "floette-mega"
             })
+
+        dados_formas["mega_evolucoes"] = lista_mega
 
     if not dados_formas:
 
@@ -3772,24 +3843,24 @@ especie = buscar_especie(
 )
 
 
-forma_focada = None
+forma_focada = st.session_state.get("forma_focada_dados")
 dados_forma_focada = None
 
-if st.session_state.get("forma_focada_id"):
+if forma_focada is None and st.session_state.get("forma_focada_id"):
 
     forma_focada = encontrar_forma_cadastrada(
         st.session_state.forma_focada_id
     )
 
-    if forma_focada:
+if forma_focada:
 
-        id_forma_focada = forma_focada.get("id_api")
+    id_forma_focada = forma_focada.get("id_api")
 
-        if id_forma_focada:
+    if id_forma_focada:
 
-            dados_forma_focada = carregar_dados_forma(
-                id_forma_focada
-            )
+        dados_forma_focada = carregar_dados_forma(
+            id_forma_focada
+        )
 
 
 # ============================================================
@@ -3911,11 +3982,14 @@ with col1:
             st.caption("🟦 2D específico da forma")
             st.image(urls_forma["2d"], width=220)
 
-        if urls_forma.get("animado"):
-            st.caption("🟩 3D / Animado específico da forma")
+        if urls_forma.get("visual_3d"):
+            st.caption("🟩 Modelo / render específico da forma")
+            st.image(urls_forma["visual_3d"], width=220)
+        elif urls_forma.get("animado"):
+            st.caption("🟩 Animado específico da forma")
             st.image(urls_forma["animado"], width=220)
         else:
-            st.info("🟩 3D / animado (sprite) específico indisponível nesta forma.")
+            st.info("🟩 Nenhuma imagem 3D/animada específica disponível para esta forma.")
 
     else:
 
@@ -4015,26 +4089,35 @@ with col2:
 
 with col3:
 
-    artwork_principal = (
-        sprites["artwork_normal_female"]
-        if (
-            femea
-            and sprites.get(
-                "artwork_normal_female"
-            )
-        )
-        else sprites["artwork_normal"]
-    )
+    if forma_focada:
 
-    mostrar_imagem(
-        artwork_principal,
-        (
-            "🎨 Artwork Oficial ♀️"
-            if femea
-            else "🎨 Artwork Oficial"
-        ),
-        220
-    )
+        st.caption("🎨 Artwork específico da forma")
+        st.info(
+            "O artwork da espécie-base não será usado como se fosse o artwork da forma."
+        )
+
+    else:
+
+        artwork_principal = (
+            sprites["artwork_normal_female"]
+            if (
+                femea
+                and sprites.get(
+                    "artwork_normal_female"
+                )
+            )
+            else sprites["artwork_normal"]
+        )
+
+        mostrar_imagem(
+            artwork_principal,
+            (
+                "🎨 Artwork Oficial ♀️"
+                if femea
+                else "🎨 Artwork Oficial"
+            ),
+            220
+        )
 
     st.metric(
         "Peso",
