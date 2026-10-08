@@ -493,6 +493,164 @@ def buscar_forma(id_api):
 
 
 # ============================================================
+# CARREGAR DADOS DA FORMA
+# ============================================================
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def carregar_dados_forma(id_api):
+    """
+    Carrega os dados gerais necessários para exibir uma forma sem
+    perder os sprites específicos dela.
+
+    A PokéAPI normalmente representa a forma em /pokemon-form/ e
+    relaciona essa forma à espécie-base em ``pokemon``. Portanto:
+    - os dados gerais vêm da espécie-base;
+    - os sprites do endpoint pokemon-form ficam preservados em
+      ``_sprites_forma``;
+    - quando a forma ainda não possui endpoint na PokéAPI, usamos
+      a espécie-base como fallback para dados de texto/stats.
+    """
+
+    if not id_api:
+        return None
+
+    valor = str(id_api).strip()
+
+    if not valor:
+        return None
+
+    # --------------------------------------------------------
+    # 1) Tenta obter o registro específico de pokemon-form.
+    # --------------------------------------------------------
+
+    dados_forma = buscar_forma(valor)
+    sprites_forma = extrair_sprites_forma_api(dados_forma)
+
+    relacionado = None
+
+    if dados_forma:
+        relacionado = (
+            dados_forma
+            .get("pokemon", {})
+            .get("name")
+        )
+
+    # --------------------------------------------------------
+    # 2) Busca a espécie-base relacionada.
+    # --------------------------------------------------------
+
+    if relacionado:
+        base = buscar_pokemon(relacionado)
+
+        if base is not None:
+            dados = dict(base)
+            dados["_sprites_forma"] = sprites_forma
+            dados["_forma_api"] = dados_forma
+            return dados
+
+    # --------------------------------------------------------
+    # 3) Algumas formas novas ainda não têm pokemon-form na
+    #    versão de dados utilizada pela PokéAPI. Tenta descobrir
+    #    a espécie-base pelo próprio identificador.
+    # --------------------------------------------------------
+
+    slug = normalizar_nome(valor)
+
+    candidatos_base = []
+
+    def adicionar_candidato(nome):
+        nome = normalizar_nome(nome)
+        if nome and nome not in candidatos_base:
+            candidatos_base.append(nome)
+
+    # Mega X/Y/Z e Mega normal.
+    for sufixo in (
+        "-mega-z",
+        "-mega-x",
+        "-mega-y",
+        "-mega",
+    ):
+        if slug.endswith(sufixo):
+            adicionar_candidato(
+                slug[:-len(sufixo)]
+            )
+
+    # Formas comuns com sufixos.
+    for sufixo in (
+        "-gigantamax",
+        "-gmax",
+        "-eternal",
+        "-f",
+        "-female",
+        "-m",
+        "-male",
+        "-blade",
+        "-shield",
+        "-rapid-strike",
+        "-single-strike",
+        "-combat-breed",
+        "-blaze-breed",
+        "-aqua-breed",
+        "-heart",
+        "-diamond",
+        "-star",
+        "-pharaoh",
+        "-kabuki",
+        "-matron",
+        "-dandy",
+        "-debutante",
+        "-la-reine",
+        "-diamond",
+        "-detective",
+        "-cosplay",
+    ):
+        if slug.endswith(sufixo):
+            adicionar_candidato(
+                slug[:-len(sufixo)]
+            )
+
+    # Casos em que há várias palavras depois da espécie-base.
+    partes = slug.split("-")
+
+    if len(partes) >= 2:
+        adicionar_candidato(partes[0])
+
+    # Zygarde é mantido mesmo quando a PokéAPI usada pelo app estiver
+    # temporariamente sem o registro esperado.
+    if slug.startswith("zygarde"):
+        adicionar_candidato("zygarde")
+
+    for candidato in candidatos_base:
+        base = buscar_pokemon(candidato)
+
+        if base is not None:
+            dados = dict(base)
+            dados["_sprites_forma"] = sprites_forma
+            dados["_forma_api"] = dados_forma
+            return dados
+
+        fallback = dados_fallback_pokemon(candidato)
+
+        if fallback is not None:
+            fallback["_sprites_forma"] = sprites_forma
+            fallback["_forma_api"] = dados_forma
+            return fallback
+
+    # --------------------------------------------------------
+    # 4) Se o endpoint pokemon-form retornou algo útil mesmo sem
+    #    espécie relacionada, preserva o resultado.
+    # --------------------------------------------------------
+
+    if dados_forma:
+        dados = dict(dados_forma)
+        dados["_sprites_forma"] = sprites_forma
+        dados["_forma_api"] = dados_forma
+        return dados
+
+    return None
+
+
+# ============================================================
 # BUSCAR LOCAIS
 # ============================================================
 
