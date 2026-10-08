@@ -1895,16 +1895,25 @@
         ]
     },
     "floette": {
-        "formas_especiais": [
-            {
-                "nome": "Floette Flor Eterna",
-                "categoria": "Forma Especial",
-                "regiao": "Kalos",
-                "origem": "Pokémon X / Y",
-                "id_api": "floette-eternal"
-            }
-        ]
-    },
+    "formas_especiais": [
+        {
+            "nome": "Floette Flor Eterna",
+            "categoria": "Forma Especial",
+            "regiao": "Kalos",
+            "origem": "Pokémon X / Y",
+            "id_api": "floette-eternal"
+        }
+    ],
+    "mega_evolucoes": [
+        {
+            "nome": "Mega Floette",
+            "categoria": "Mega Evolução",
+            "regiao": "Kalos / Lumiose",
+            "origem": "Pokémon Legends: Z-A",
+            "id_api": "floette-mega"
+        }
+    ]
+},
     "furfrou": {
         "formas_especiais": [
             {
