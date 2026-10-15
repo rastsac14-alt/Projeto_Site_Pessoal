@@ -543,44 +543,69 @@ def _resumir_condicao_evolucao(detalhe):
     return " • ".join(partes)
 
 
-def mostrar_arvore_evolutiva(cadeia, caminho="raiz"):
-    """Exibe a linha evolutiva recursivamente, inclusive ramificações."""
-    if not isinstance(cadeia, dict):
-        st.warning("Não foi possível interpretar a cadeia evolutiva recebida.")
+def mostrar_arvore_evolutiva(cadeia, caminho="raiz", profundidade=0):
+    """Exibe a cadeia de evolução sem interromper etapas malformadas.
+
+    A resposta de /evolution-chain/{id} vem dentro da chave ``chain``.
+    Esta função aceita tanto a resposta completa quanto um nó da cadeia.
+    Se uma etapa vier sem species.name, ela é pulada, mas seus descendentes
+    ainda são exibidos para não esconder evoluções válidas.
+    """
+    if profundidade > 30 or not isinstance(cadeia, dict):
         return
 
-    dados_especie = cadeia.get("species") or {}
-    nome = dados_especie.get("name")
-    if not nome:
-        st.warning("Uma etapa da evolução está sem nome na resposta da PokéAPI.")
-        return
+    # A API devolve {"id": ..., "chain": {...}}; normalize a raiz aqui
+    # para que chamadas antigas também funcionem.
+    if "species" not in cadeia and isinstance(cadeia.get("chain"), dict):
+        cadeia = cadeia["chain"]
 
-    if st.button(
-        f"🔎 {nome_bonito(nome)}",
-        key=f"evolucao_{caminho}_{normalizar_nome(nome)}",
-        help="Clique para abrir a ficha deste Pokémon.",
-    ):
-        navegar_para_pokemon(nome)
+    especie = cadeia.get("species") or {}
+    if isinstance(especie, str):
+        nome = especie.strip()
+    elif isinstance(especie, dict):
+        nome = str(especie.get("name") or "").strip()
+    else:
+        nome = ""
 
-    detalhes = cadeia.get("evolution_details") or []
-    if detalhes:
-        condicoes = []
-        for detalhe in detalhes:
-            condicao = _resumir_condicao_evolucao(detalhe)
-            if condicao and condicao not in condicoes:
-                condicoes.append(condicao)
-        if condicoes:
-            st.caption(" / ".join(condicoes))
+    if nome:
+        if st.button(
+            f"🔎 {nome_bonito(nome)}",
+            key=f"evolucao_{caminho}_{normalizar_nome(nome)}",
+            help="Clique para abrir a ficha deste Pokémon.",
+        ):
+            navegar_para_pokemon(nome)
 
+        detalhes = cadeia.get("evolution_details") or []
+        if isinstance(detalhes, list) and detalhes:
+            condicoes = []
+            for detalhe in detalhes:
+                condicao = _resumir_condicao_evolucao(detalhe)
+                if condicao and condicao not in condicoes:
+                    condicoes.append(condicao)
+            if condicoes:
+                st.caption(" / ".join(condicoes))
+
+    # Se a etapa está sem nome, não abortamos: as próximas etapas ainda
+    # podem conter dados válidos e devem continuar acessíveis.
     proximas = cadeia.get("evolves_to") or []
-    if not proximas:
+    if not isinstance(proximas, list) or not proximas:
         return
 
-    st.markdown("↓")
-    colunas = st.columns(len(proximas))
-    for indice, proxima in enumerate(proximas):
+    proximas_validas = [item for item in proximas if isinstance(item, dict)]
+    if not proximas_validas:
+        return
+
+    if nome:
+        st.markdown("↓")
+
+    colunas = st.columns(len(proximas_validas))
+    for indice, proxima in enumerate(proximas_validas):
         with colunas[indice]:
-            mostrar_arvore_evolutiva(proxima, f"{caminho}_{indice}")
+            mostrar_arvore_evolutiva(
+                proxima,
+                f"{caminho}_{indice}",
+                profundidade + 1,
+            )
 
 
 # ============================================================
@@ -2398,113 +2423,87 @@ def mostrar_animacao_visual_lucario_z(imagem_url, altura=500):
 
 
 def mostrar_sprites_forma(forma, dados, id_api, nome):
-    """Galeria completa da forma sem usar imagens da espécie-base."""
+    """Exibe os sprites da forma na mesma grade de três colunas da espécie-base.
 
+    Cada seção tem Pixel 2D, 3D/Showdown (com HOME como alternativa) e artwork.
+    A seção Shiny repete o mesmo formato. As fontes precisam corresponder à
+    forma selecionada; a arte da espécie-base não é usada como substituta.
+    """
     imagem_local = forma.get("imagem_local")
     caminho_local = carregar_imagem_local(imagem_local)
-
     fontes = obter_fontes_forma(id_api, nome, dados)
 
     if caminho_local is not None:
-        with st.expander("📸 Imagem local da forma", expanded=True):
-            st.image(str(caminho_local), width=520)
-            st.caption("🖼️ Imagem local específica desta forma.")
+        with st.expander("📸 Imagem local da forma", expanded=False):
+            st.image(str(caminho_local), width=180)
+            st.caption("Imagem local específica desta forma.")
 
-    # --------------------------------------------------------
-    # 2D / ARTWORK
-    # --------------------------------------------------------
-    st.markdown("### 🟦 2D da forma")
+    # Slugs que correspondem à forma, para tentar animações específicas do
+    # Showdown. Se uma URL não existir, mostrar_imagem tenta o próximo fallback.
+    slug_resolvido = str(fontes.get("slug") or id_api or "").strip()
+    slugs = _slug_forma_showdown(slug_resolvido) if slug_resolvido else []
+    if slug_resolvido and slug_resolvido not in slugs:
+        slugs.append(slug_resolvido)
 
-    # O canal 2D deve priorizar pixel art da forma. Antes, 2d_high vinha
-    # primeiro e fazia a mesma arte aparecer também na seção de Artwork.
+    animado = fontes.get("animado")
+    if isinstance(animado, str):
+        animado_urls = [animado]
+    else:
+        animado_urls = []
+    # GIFs do Showdown são tentativas, seguidas pelo render HOME conhecido.
+    animado_urls.extend(f"{SHOWDOWN_ANIM_BASE}{slug}.gif" for slug in slugs)
+    home_urls = _lista_urls_imagem(fontes.get("home"))
+    urls_3d = _combinar_urls(animado_urls, home_urls)
+
+    # ---------------------- FORMA NORMAL ----------------------
+    st.markdown("### 🌟 Forma da variante")
+    col1, col2, col3 = st.columns(3)
+
     url_2d = _combinar_urls(
         fontes.get("2d_api"),
         fontes.get("2d_api_female"),
         fontes.get("2d"),
     )
+    with col1:
+        mostrar_imagem(url_2d, "🟦 Pixel 2D", 180)
 
-    if url_2d:
-        mostrar_imagem(
-            url_2d,
-            "🟦 2D específico da forma",
-            420,
-        )
-    else:
-        st.info("🟦 2D específico desta forma indisponível.")
+    with col2:
+        mostrar_imagem(urls_3d, "🟩 3D / Showdown", 180)
 
-    # --------------------------------------------------------
-    # ARTWORK
-    # --------------------------------------------------------
-    st.markdown("### 🎨 Artwork específico da forma")
-
-    artwork = _combinar_urls(
+    url_artwork = _combinar_urls(
         fontes.get("artwork"),
         fontes.get("2d_high"),
-        fontes.get("2d"),
-        fontes.get("home"),
     )
-    if artwork:
-        mostrar_imagem(artwork, "🎨 Artwork / imagem específica da forma", 420)
-    else:
-        st.info("🎨 Artwork específico desta forma indisponível.")
+    with col3:
+        mostrar_imagem(url_artwork, "🎨 Artwork Oficial", 180)
 
-    # --------------------------------------------------------
-    # HOME / RENDER
-    # --------------------------------------------------------
-    st.markdown("### 🏠 Pokémon HOME")
+    # ------------------------- SHINY --------------------------
+    st.markdown("### ✨ Forma Shiny")
+    col1, col2, col3 = st.columns(3)
 
-    home = fontes.get("home")
-    if home:
-        mostrar_imagem(
-            home,
-            "🏠 Render específico da forma • Pokémon HOME",
-            360,
-        )
-    else:
-        st.info("🏠 Render específico desta forma no HOME indisponível.")
-
-    # --------------------------------------------------------
-    # SHINY
-    # --------------------------------------------------------
-    st.markdown("### ✨ Shiny da forma")
-
-    shiny = _combinar_urls(
+    url_2d_shiny = _combinar_urls(
         fontes.get("shiny_api"),
         fontes.get("shiny_api_female"),
         fontes.get("shiny"),
-        fontes.get("artwork_shiny"),
-        fontes.get("home_shiny"),
     )
+    with col1:
+        mostrar_imagem(url_2d_shiny, "🟦 Pixel 2D Shiny", 180)
 
-    if shiny:
+    shiny_3d_urls = [
+        f"https://play.pokemonshowdown.com/sprites/ani-shiny/{slug}.gif"
+        for slug in slugs
+    ]
+    shiny_3d_urls.extend(_lista_urls_imagem(fontes.get("home_shiny")))
+    with col2:
         mostrar_imagem(
-            shiny,
-            "✨ Shiny específico da forma",
-            420,
-        )
-    else:
-        st.info(
-            "✨ Ainda não existe uma imagem Shiny específica "
-            "disponível nas fontes utilizadas para esta forma."
+            _combinar_urls(shiny_3d_urls),
+            "🟩 3D / Showdown Shiny",
+            180,
         )
 
-    # --------------------------------------------------------
-    # HOME SHINY
-    # --------------------------------------------------------
-    st.markdown("### 🌟 Pokémon HOME — Shiny")
-
-    home_shiny = fontes.get("home_shiny")
-    if home_shiny:
-        mostrar_imagem(
-            home_shiny,
-            "🌟 Render Shiny específico da forma • Pokémon HOME",
-            360,
-        )
-    else:
-        st.info(
-            "🌟 Render Shiny específico desta forma no HOME indisponível."
-        )
-
+    url_artwork_shiny = _combinar_urls(fontes.get("artwork_shiny"))
+    with col3:
+        mostrar_imagem(url_artwork_shiny, "🎨 Artwork Shiny", 180)
 
 
 
@@ -5882,7 +5881,7 @@ with aba_evolucoes:
                 if cadeia:
 
                     mostrar_arvore_evolutiva(
-                        cadeia
+                        cadeia.get("chain", cadeia)
                     )
 
                 else:
