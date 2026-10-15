@@ -1,4 +1,5 @@
-{  "venusaur": {
+{
+    "venusaur": {
         "mega_evolucoes": [
             {
                 "nome": "Mega Venusaur",
@@ -1412,17 +1413,6 @@
             }
         ]
     },
-    "zoruark": {
-        "formas_regionais": [
-            {
-                "nome": "Zorua de Hisui",
-                "categoria": "Forma Regional",
-                "regiao": "Hisui",
-                "origem": "Pokémon Legends: Arceus",
-                "id_api": "zoroark-hisui"
-            }
-        ]
-    },
     "braviary": {
         "formas_regionais": [
             {
@@ -1895,25 +1885,25 @@
         ]
     },
     "floette": {
-    "formas_especiais": [
-        {
-            "nome": "Floette Flor Eterna",
-            "categoria": "Forma Especial",
-            "regiao": "Kalos",
-            "origem": "Pokémon X / Y",
-            "id_api": "floette-eternal"
-        }
-    ],
-    "mega_evolucoes": [
-        {
-            "nome": "Mega Floette",
-            "categoria": "Mega Evolução",
-            "regiao": "Kalos / Lumiose",
-            "origem": "Pokémon Legends: Z-A",
-            "id_api": "floette-mega"
-        }
-    ]
-},
+        "formas_especiais": [
+            {
+                "nome": "Floette Flor Eterna",
+                "categoria": "Forma Especial",
+                "regiao": "Kalos",
+                "origem": "Pokémon X / Y",
+                "id_api": "floette-eternal"
+            }
+        ],
+        "mega_evolucoes": [
+            {
+                "nome": "Mega Floette",
+                "categoria": "Mega Evolução",
+                "regiao": "Kalos / Lumiose",
+                "origem": "Pokémon Legends: Z-A",
+                "id_api": "floette-mega"
+            }
+        ]
+    },
     "furfrou": {
         "formas_especiais": [
             {
