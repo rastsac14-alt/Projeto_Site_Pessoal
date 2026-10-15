@@ -1542,6 +1542,16 @@ FORMAS_FONTES_ESPECIAIS = {
         "home": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/10195.png",
         "home_shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/10195.png",
     },
+    # Mega Venusaur (#10033): canais separados para pixel 2D, artwork oficial e HOME.
+    # O nome canônico usado pelo resolvedor é "venusaur-mega".
+    "venusaur-mega": {
+        "2d": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10033.png",
+        "2d_high": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10033.png",
+        "artwork": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10033.png",
+        "artwork_shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/10033.png",
+        "home": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/10033.png",
+        "home_shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/10033.png",
+    },
     # Mega Lucario clássico: arte oficial de alta resolução e HOME direto.
     "lucario-mega": {
         "2d": "https://archives.bulbagarden.net/media/upload/c/cb/0448Lucario-Mega.png",
@@ -4050,43 +4060,20 @@ with col1:
             dados_forma_focada or pokemon,
         )
 
+        # No resumo superior, a coluna esquerda mostra apenas o 2D da forma.
+        # Artwork, HOME e shiny ficam na galeria dedicada abaixo, evitando
+        # empilhar quatro imagens na mesma coluna.
         url_topo_2d = (
             fontes_forma_topo.get("2d_api_female")
             or fontes_forma_topo.get("2d_api")
             or fontes_forma_topo.get("2d")
         )
 
-        artwork_forma = fontes_forma_topo.get("artwork") or fontes_forma_topo.get("2d_high")
-
         if url_topo_2d:
             st.caption("🟦 2D específico da forma")
-            st.image(url_topo_2d, width=420)
+            st.image(url_topo_2d, width=300)
         else:
             st.info("🟦 2D específico desta forma indisponível.")
-
-        if artwork_forma:
-            st.caption("🎨 Artwork específico da forma")
-            st.image(artwork_forma, width=420)
-        else:
-            st.info("🎨 Artwork específico desta forma indisponível.")
-
-        home_topo = fontes_forma_topo.get("home")
-        if home_topo:
-            st.caption("🏠 Pokémon HOME específico da forma")
-            st.image(home_topo, width=420)
-        else:
-            st.info("🏠 Pokémon HOME específico desta forma indisponível.")
-
-        shiny_topo = (
-            fontes_forma_topo.get("shiny_api_female")
-            or fontes_forma_topo.get("shiny_api")
-            or fontes_forma_topo.get("shiny")
-        )
-        if shiny_topo:
-            st.caption("✨ Shiny específico da forma")
-            st.image(shiny_topo, width=420)
-        else:
-            st.info("✨ Shiny específico desta forma indisponível.")
 
     else:
 
@@ -4188,10 +4175,31 @@ with col3:
 
     if forma_focada:
 
-        st.caption("🎨 Artwork específico da forma")
-        st.info(
-            "O artwork da espécie-base não será usado como se fosse o artwork da forma."
+        # Usa somente um artwork cadastrado para a forma selecionada.
+        # Não consulta sprites da espécie-base como substituição silenciosa.
+        fontes_forma_artwork = obter_fontes_forma(
+            forma_focada.get("id_api"),
+            forma_focada.get("nome"),
+            dados_forma_focada or pokemon,
         )
+        artwork_forma_topo = (
+            fontes_forma_artwork.get("artwork")
+            or fontes_forma_artwork.get("2d_high")
+            or fontes_forma_artwork.get("2d")
+        )
+
+        if artwork_forma_topo:
+            mostrar_imagem(
+                artwork_forma_topo,
+                "🎨 Artwork específico da forma",
+                300,
+            )
+        else:
+            st.caption("🎨 Artwork específico da forma")
+            st.info(
+                "Não foi encontrada uma artwork própria para esta forma. "
+                "A artwork da espécie-base não será usada como substituta."
+            )
 
     else:
 
