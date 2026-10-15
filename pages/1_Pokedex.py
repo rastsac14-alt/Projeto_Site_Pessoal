@@ -1427,10 +1427,12 @@ def mostrar_imagem(
     legenda,
     largura=180
 ):
-    """Mostra imagens e, quando há várias fontes, tenta cada uma no navegador.
+    """Mostra imagens num quadro fixo, alinhado e com fallback de URL.
 
-    Não valida URLs no servidor do Streamlit: isso falhava no Cloud mesmo para
-    arquivos acessíveis pelo navegador. Listas de URLs agora são fallbacks reais.
+    Todos os sprites usam o mesmo quadro quadrado, independentemente de a
+    fonte ser um sprite 2D pequeno, um render 3D ou artwork em alta resolução.
+    O HTML é limitado a uma largura explícita para não escapar das colunas
+    do Streamlit quando há mais de uma URL de fallback.
     """
     st.caption(legenda)
     urls = _lista_urls_imagem(url)
@@ -1439,36 +1441,67 @@ def mostrar_imagem(
         st.info("Imagem indisponível.")
         return
 
-    if len(urls) == 1:
-        st.image(urls[0], width=largura)
-        return
-
-    # O componente troca automaticamente para a próxima fonte se uma imagem
-    # retornar erro. Isso corrige especialmente URLs alternativas de arquivos.
+    # Largura explícita do componente: essencial para manter as imagens
+    # dentro da coluna em vez de ocupar a página inteira.
+    largura_quadro = max(120, min(int(largura), 360))
+    altura_quadro = largura_quadro
     urls_json = json.dumps(urls, ensure_ascii=False).replace("</", "<\\/")
-    altura = max(150, min(int(largura), 440))
+    legenda_segura = json.dumps(str(legenda), ensure_ascii=False)
+    pixel_art = "pixel 2d" in str(legenda).lower()
+    renderizacao = "pixelated" if pixel_art else "auto"
+
     html = f"""<!doctype html>
-<html><head><meta charset="utf-8"><style>
-html,body{{margin:0;padding:0;background:transparent;overflow:hidden}}
-.wrap{{width:100%;height:{altura}px;display:flex;align-items:center;justify-content:center}}
-img{{display:block;max-width:100%;max-height:{max(110, altura-10)}px;object-fit:contain}}
-.fail{{display:none;font:12px sans-serif;color:#9aa4b2;text-align:center;padding:10px}}
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+html, body {{
+  margin: 0; padding: 0; width: 100%; height: 100%;
+  background: transparent; overflow: hidden;
+}}
+.frame {{
+  box-sizing: border-box;
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}}
+#form-image {{
+  display: block;
+  width: 100%; height: 100%;
+  max-width: 100%; max-height: 100%;
+  object-fit: contain; object-position: center center;
+  image-rendering: {renderizacao};
+}}
+#form-fail {{
+  display: none; box-sizing: border-box; width: 100%;
+  font: 12px/1.4 sans-serif; color: #9aa4b2;
+  text-align: center; padding: 10px;
+}}
 </style></head><body>
-<div class="wrap"><img id="form-image" alt="{legenda}"><div class="fail" id="form-fail">Imagem indisponível nas fontes cadastradas.</div></div>
+<div class="frame">
+  <img id="form-image" alt="">
+  <div id="form-fail">Imagem indisponível nas fontes cadastradas.</div>
+</div>
 <script>
 const urls = {urls_json};
 const image = document.getElementById('form-image');
 const fail = document.getElementById('form-fail');
 let index = 0;
 function tryNext() {{
-  if (index >= urls.length) {{ image.style.display = 'none'; fail.style.display = 'block'; return; }}
+  if (index >= urls.length) {{
+    image.style.display = 'none'; fail.style.display = 'block'; return;
+  }}
   image.onerror = tryNext;
   image.onload = () => {{ image.style.display = 'block'; fail.style.display = 'none'; }};
   image.src = urls[index++];
 }}
+image.alt = {legenda_segura};
 tryNext();
 </script></body></html>"""
-    components.html(html, height=altura, scrolling=False)
+    components.html(
+        html,
+        width=largura_quadro,
+        height=altura_quadro,
+        scrolling=False,
+    )
 
 
 def mostrar_sprites(pokemon):
