@@ -22,7 +22,14 @@ st.set_page_config(
 # CAMINHOS
 # ============================================================
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+# Funciona tanto com 1_Pokedex.py na raiz do repositório quanto dentro
+# de uma subpasta (por exemplo, pages/). Prefere a pasta que contém o índice.
+_DIRETORIO_SCRIPT = Path(__file__).resolve().parent
+_CANDIDATOS_BASE = (_DIRETORIO_SCRIPT, _DIRETORIO_SCRIPT.parent)
+BASE_DIR = next(
+    (pasta for pasta in _CANDIDATOS_BASE if (pasta / "pokemon_index.json").is_file()),
+    _DIRETORIO_SCRIPT,
+)
 
 ARQUIVO_INDEX = BASE_DIR / "pokemon_index.json"
 ARQUIVO_CSV = BASE_DIR / "pokemon_1.csv"
@@ -415,6 +422,96 @@ def buscar_evolution_chain(url):
     return requisicao_api(
         url
     )
+
+
+def _resumir_condicao_evolucao(detalhe):
+    """Converte os requisitos mais comuns de evolução em texto amigável."""
+    if not isinstance(detalhe, dict):
+        return ""
+
+    partes = []
+    nivel = detalhe.get("min_level")
+    item = (detalhe.get("item") or {}).get("name")
+    held_item = (detalhe.get("held_item") or {}).get("name")
+    hora = detalhe.get("time_of_day")
+    felicidade = detalhe.get("min_happiness")
+    beleza = detalhe.get("min_beauty")
+    movimento = (detalhe.get("known_move") or {}).get("name")
+    local = (detalhe.get("location") or {}).get("name")
+    gatilho = (detalhe.get("trigger") or {}).get("name", "")
+
+    if nivel is not None:
+        partes.append(f"nível {nivel}")
+    if item:
+        partes.append(f"usar {nome_bonito(item)}")
+    if held_item:
+        partes.append(f"segurar {nome_bonito(held_item)} e trocar")
+    if hora:
+        partes.append("durante o dia" if hora == "day" else "durante a noite")
+    if felicidade is not None:
+        partes.append(f"felicidade mínima {felicidade}")
+    if beleza is not None:
+        partes.append(f"beleza mínima {beleza}")
+    if movimento:
+        partes.append(f"conhecer {nome_bonito(movimento)}")
+    if local:
+        partes.append(f"em {nome_bonito(local)}")
+
+    if not partes:
+        descricoes = {
+            "trade": "troca",
+            "level-up": "subir de nível",
+            "use-item": "usar um item",
+            "shed": "subir de nível com espaço disponível na equipe",
+            "spin": "girar com os requisitos necessários",
+            "three-critical-hits": "acertar três golpes críticos na mesma batalha",
+            "take-damage": "receber o dano necessário",
+            "other": "condição especial",
+        }
+        texto = descricoes.get(gatilho, nome_bonito(gatilho) if gatilho else "condição especial")
+        partes.append(texto)
+
+    return " • ".join(partes)
+
+
+def mostrar_arvore_evolutiva(cadeia, caminho="raiz"):
+    """Exibe a linha evolutiva recursivamente, inclusive ramificações."""
+    if not isinstance(cadeia, dict):
+        st.warning("Não foi possível interpretar a cadeia evolutiva recebida.")
+        return
+
+    dados_especie = cadeia.get("species") or {}
+    nome = dados_especie.get("name")
+    if not nome:
+        st.warning("Uma etapa da evolução está sem nome na resposta da PokéAPI.")
+        return
+
+    if st.button(
+        f"🔎 {nome_bonito(nome)}",
+        key=f"evolucao_{caminho}_{normalizar_nome(nome)}",
+        help="Clique para abrir a ficha deste Pokémon.",
+    ):
+        navegar_para_pokemon(nome)
+
+    detalhes = cadeia.get("evolution_details") or []
+    if detalhes:
+        condicoes = []
+        for detalhe in detalhes:
+            condicao = _resumir_condicao_evolucao(detalhe)
+            if condicao and condicao not in condicoes:
+                condicoes.append(condicao)
+        if condicoes:
+            st.caption(" / ".join(condicoes))
+
+    proximas = cadeia.get("evolves_to") or []
+    if not proximas:
+        return
+
+    st.markdown("↓")
+    colunas = st.columns(len(proximas))
+    for indice, proxima in enumerate(proximas):
+        with colunas[indice]:
+            mostrar_arvore_evolutiva(proxima, f"{caminho}_{indice}")
 
 
 # ============================================================
@@ -1435,6 +1532,16 @@ SHOWDOWN_ANIM_BASE = "https://play.pokemonshowdown.com/sprites/ani/"
 
 
 FORMAS_FONTES_ESPECIAIS = {
+    # Gigantamax Venusaur (PokéAPI ID 10195). A sprite 2D e a forma shiny
+    # vêm dos sprites da PokéAPI; estes canais adicionais preenchem a arte
+    # oficial e os renders HOME que não estavam chegando no objeto da API.
+    "venusaur-gmax": {
+        "artwork": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10195.png",
+        "2d_high": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10195.png",
+        "artwork_shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/10195.png",
+        "home": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/10195.png",
+        "home_shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/10195.png",
+    },
     # Mega Lucario clássico: arte oficial de alta resolução e HOME direto.
     "lucario-mega": {
         "2d": "https://archives.bulbagarden.net/media/upload/c/cb/0448Lucario-Mega.png",
@@ -1645,19 +1752,52 @@ def resolver_fontes_forma(id_api, nome_forma):
     # Converte nomes humanos como "Mega Lucario" para o padrão usado
     # nas fontes: "lucario-mega". Também cobre Mega X/Y/Z.
     def chave_canonica_forma(valor):
+        """Converte nomes de exibição em slugs usados nas fontes de formas."""
         if not valor:
             return ""
+
         partes = valor.split("-")
+
+        # "Mega Lucario Z" -> "lucario-mega-z".
+        # A condição precisa vir antes da Mega genérica para não gerar
+        # incorretamente "lucario-z-mega".
+        if partes[0] == "mega" and len(partes) >= 3 and partes[-1] in ("x", "y", "z"):
+            base = "-".join(partes[1:-1])
+            return f"{base}-mega-{partes[-1]}"
+
+        # "Mega Lucario" -> "lucario-mega".
         if partes[0] == "mega" and len(partes) >= 2:
-            resto = "-".join(partes[1:])
-            return resto + "-mega"
+            return "-".join(partes[1:]) + "-mega"
+
+        # Variações comuns de nomes de Gigantamax/G-Max.
+        if partes[0] in ("gigantamax", "gmax") and len(partes) >= 2:
+            return "-".join(partes[1:]) + "-gmax"
+        if len(partes) >= 2 and partes[-1] in ("gigantamax", "gmax"):
+            return "-".join(partes[:-1]) + "-gmax"
+        if valor.endswith("-g-max"):
+            return valor[:-6] + "-gmax"
+
+        # Já no formato canônico: "lucario-mega-z".
         if len(partes) >= 3 and partes[-1] in ("x", "y", "z") and "mega" in partes:
             base = "-".join(partes[:-2])
             return base + "-mega-" + partes[-1]
+
         return valor
 
     chave_nome_canonica = chave_canonica_forma(nome_chave)
-    chave = chave_nome_canonica or id_chave
+    chave_id_canonica = chave_canonica_forma(id_chave)
+
+    # Algumas entradas usam um nome de exibição genérico (por exemplo,
+    # "Gigantamax"), mas mantêm o slug verdadeiro em id_api. Use o primeiro
+    # candidato reconhecido no catálogo; senão, preserve o nome informado.
+    if chave_nome_canonica in FORMAS_FONTES_ESPECIAIS:
+        chave = chave_nome_canonica
+    elif chave_id_canonica in FORMAS_FONTES_ESPECIAIS:
+        chave = chave_id_canonica
+    elif id_chave == "10195":
+        chave = "venusaur-gmax"
+    else:
+        chave = chave_nome_canonica or chave_id_canonica
 
     resultado = {
         "2d": None,
@@ -2062,10 +2202,11 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
     # --------------------------------------------------------
     st.markdown("### 🟦 2D da forma")
 
+    # O canal 2D deve priorizar pixel art da forma. Antes, 2d_high vinha
+    # primeiro e fazia a mesma arte aparecer também na seção de Artwork.
     url_2d = (
-        fontes.get("2d_high")
+        fontes.get("2d_api")
         or fontes.get("2d_api_female")
-        or fontes.get("2d_api")
         or fontes.get("2d")
     )
 
@@ -2083,7 +2224,7 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
     # --------------------------------------------------------
     st.markdown("### 🎨 Artwork específico da forma")
 
-    artwork = fontes.get("artwork") or fontes.get("2d_high")
+    artwork = fontes.get("artwork") or fontes.get("2d_high") or fontes.get("2d")
     if artwork:
         mostrar_imagem(artwork, "🎨 Artwork Oficial específico da forma", 420)
     else:
@@ -2110,8 +2251,8 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
     st.markdown("### ✨ Shiny da forma")
 
     shiny = (
-        fontes.get("shiny_api_female")
-        or fontes.get("shiny_api")
+        fontes.get("shiny_api")
+        or fontes.get("shiny_api_female")
         or fontes.get("shiny")
     )
 
