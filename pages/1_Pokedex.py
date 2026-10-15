@@ -220,6 +220,74 @@ def nome_bonito(nome):
     )
 
 
+
+def _canonizar_chave_forma(valor):
+    """Normaliza nomes de exibição e IDs para slugs comuns da PokéAPI.
+
+    Prioriza o identificador fornecido pelo JSON e cobre nomes legíveis como
+    "Mega Charizard X", "Gigantamax Gengar", "Alolan Raichu" e equivalentes.
+    Nomes que já são slugs válidos permanecem inalterados.
+    """
+    texto = normalizar_nome(valor or "")
+    if not texto:
+        return ""
+
+    # Mega X/Y/Z e Mega normal: "Mega Charizard X" -> "charizard-mega-x".
+    partes = texto.split("-")
+    if partes[0] == "mega" and len(partes) >= 3 and partes[-1] in {"x", "y", "z"}:
+        return "-".join(partes[1:-1]) + "-mega-" + partes[-1]
+    if partes[0] == "mega" and len(partes) >= 2:
+        return "-".join(partes[1:]) + "-mega"
+    if len(partes) >= 3 and partes[-1] in {"x", "y", "z"} and "mega" in partes:
+        return "-".join(partes[:-2]) + "-mega-" + partes[-1]
+
+    # Gigantamax/G-Max, independentemente da posição do rótulo.
+    if partes[0] in {"gigantamax", "gmax", "g-max"} and len(partes) >= 2:
+        return "-".join(partes[1:]) + "-gmax"
+    if partes[-1] in {"gigantamax", "gmax", "g-max"} and len(partes) >= 2:
+        return "-".join(partes[:-1]) + "-gmax"
+    texto = texto.replace("-g-max", "-gmax").replace("-gigantamax", "-gmax")
+
+    # Reversão Primal.
+    if texto.startswith("primal-"):
+        texto = texto[len("primal-"):] + "-primal"
+    elif texto.endswith("-primal-reversion"):
+        texto = texto[:-len("-primal-reversion")] + "-primal"
+    elif texto.endswith("-primal"):
+        pass
+
+    # Nomes regionais legíveis -> slugs usados nos dados da PokéAPI.
+    prefixos_regionais = {
+        "alolan": "alola", "alola": "alola",
+        "galarian": "galar", "galar": "galar",
+        "hisuian": "hisui", "hisui": "hisui",
+        "paldean": "paldea", "paldea": "paldea",
+        "unovan": "unova", "unova": "unova",
+        "kalosian": "kalos", "kalos": "kalos",
+    }
+    partes = texto.split("-")
+    if len(partes) >= 2 and partes[0] in prefixos_regionais:
+        regiao = prefixos_regionais[partes[0]]
+        return "-".join(partes[1:]) + "-" + regiao
+    if len(partes) >= 2 and partes[-1] in prefixos_regionais:
+        partes[-1] = prefixos_regionais[partes[-1]]
+        return "-".join(partes)
+    for sufixo, regiao in (("-alolan", "-alola"), ("-galarian", "-galar"),
+                           ("-hisuian", "-hisui"), ("-paldean", "-paldea"),
+                           ("-unovan", "-unova")):
+        if texto.endswith(sufixo):
+            return texto[:-len(sufixo)] + regiao
+
+    # Rótulos localizados de formas; traduzimos antes de retirar "form/forme".
+    texto = texto.replace("-forma-de-ataque", "-attack")
+    texto = texto.replace("-forma-de-defesa", "-defense")
+    texto = texto.replace("-forma-de-velocidade", "-speed")
+    texto = texto.replace("-forma-celeste", "-sky")
+    texto = texto.replace("-forma-origem", "-origin")
+    texto = texto.replace("-forme", "").replace("-form", "")
+    return texto.strip("-")
+
+
 # ============================================================
 # POKÉAPI
 # ============================================================
@@ -658,7 +726,31 @@ def carregar_dados_forma(id_api):
         )
 
     # --------------------------------------------------------
-    # 2) Busca a espécie-base relacionada.
+    # 1.5) Tenta o recurso /pokemon usando o slug EXATO do ID.
+    #
+    # Nem toda forma está representada em /pokemon-form, mas várias formas
+    # alternativas têm um registro próprio em /pokemon/<slug>. Antes, esse
+    # caminho era ignorado e o código podia cair na espécie-base.
+    # --------------------------------------------------------
+    valor_original = str(valor).strip()
+    slug_exato = normalizar_nome(valor_original)
+    id_e_slug_exato = bool(
+        valor_original == slug_exato
+        and slug_exato
+        and not slug_exato.isdigit()
+        and re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug_exato)
+    )
+    if id_e_slug_exato:
+        pokemon_exato = _obter_dados_pokemon_exatos(slug_exato)
+        if pokemon_exato is not None:
+            dados = dict(pokemon_exato)
+            dados["_sprites_forma"] = sprites_forma
+            dados["_forma_api"] = dados_forma
+            return dados
+
+    # --------------------------------------------------------
+    # 2) Busca a espécie-base relacionada, apenas se não existia registro
+    #    /pokemon exato para o identificador da forma.
     # --------------------------------------------------------
 
     if relacionado:
@@ -1272,28 +1364,85 @@ def eh_femea(pokemon):
     )
 
 
+def _lista_urls_imagem(valor):
+    """Normaliza uma URL ou uma lista de alternativas sem perder fallbacks."""
+    if not valor:
+        return []
+
+    if isinstance(valor, str):
+        candidato = valor.strip()
+        return [candidato] if candidato.startswith(("https://", "http://")) else []
+
+    if isinstance(valor, (list, tuple)):
+        urls = []
+        for item in valor:
+            for url in _lista_urls_imagem(item):
+                if url not in urls:
+                    urls.append(url)
+        return urls
+
+    return []
+
+
+def _combinar_urls(*valores):
+    """Combina fontes em ordem de preferência; mantém alternativas para fallback no navegador."""
+    urls = []
+    for valor in valores:
+        for url in _lista_urls_imagem(valor):
+            if url not in urls:
+                urls.append(url)
+    if not urls:
+        return None
+    return urls[0] if len(urls) == 1 else urls
+
+
 def mostrar_imagem(
     url,
     legenda,
     largura=180
 ):
+    """Mostra imagens e, quando há várias fontes, tenta cada uma no navegador.
 
-    st.caption(
-        legenda
-    )
+    Não valida URLs no servidor do Streamlit: isso falhava no Cloud mesmo para
+    arquivos acessíveis pelo navegador. Listas de URLs agora são fallbacks reais.
+    """
+    st.caption(legenda)
+    urls = _lista_urls_imagem(url)
 
-    if url:
+    if not urls:
+        st.info("Imagem indisponível.")
+        return
 
-        st.image(
-            url,
-            width=largura
-        )
+    if len(urls) == 1:
+        st.image(urls[0], width=largura)
+        return
 
-    else:
-
-        st.info(
-            "Imagem indisponível."
-        )
+    # O componente troca automaticamente para a próxima fonte se uma imagem
+    # retornar erro. Isso corrige especialmente URLs alternativas de arquivos.
+    urls_json = json.dumps(urls, ensure_ascii=False).replace("</", "<\\/")
+    altura = max(150, min(int(largura), 440))
+    html = f"""<!doctype html>
+<html><head><meta charset="utf-8"><style>
+html,body{{margin:0;padding:0;background:transparent;overflow:hidden}}
+.wrap{{width:100%;height:{altura}px;display:flex;align-items:center;justify-content:center}}
+img{{display:block;max-width:100%;max-height:{max(110, altura-10)}px;object-fit:contain}}
+.fail{{display:none;font:12px sans-serif;color:#9aa4b2;text-align:center;padding:10px}}
+</style></head><body>
+<div class="wrap"><img id="form-image" alt="{legenda}"><div class="fail" id="form-fail">Imagem indisponível nas fontes cadastradas.</div></div>
+<script>
+const urls = {urls_json};
+const image = document.getElementById('form-image');
+const fail = document.getElementById('form-fail');
+let index = 0;
+function tryNext() {{
+  if (index >= urls.length) {{ image.style.display = 'none'; fail.style.display = 'block'; return; }}
+  image.onerror = tryNext;
+  image.onload = () => {{ image.style.display = 'block'; fail.style.display = 'none'; }};
+  image.src = urls[index++];
+}}
+tryNext();
+</script></body></html>"""
+    components.html(html, height=altura, scrolling=False)
 
 
 def mostrar_sprites(pokemon):
@@ -1759,51 +1908,30 @@ def resolver_fontes_forma(id_api, nome_forma):
     nome_chave = normalizar_nome(nome_forma or "")
     id_chave = normalizar_nome(id_api or "")
 
-    # Converte nomes humanos como "Mega Lucario" para o padrão usado
-    # nas fontes: "lucario-mega". Também cobre Mega X/Y/Z.
-    def chave_canonica_forma(valor):
-        """Converte nomes de exibição em slugs usados nas fontes de formas."""
-        if not valor:
-            return ""
+    # O mesmo normalizador é usado pela ficha, mini-dex e catálogo de formas.
+    chave_nome_canonica = _canonizar_chave_forma(nome_chave)
+    chave_id_canonica = _canonizar_chave_forma(id_chave)
 
-        partes = valor.split("-")
+    # REGRA PRINCIPAL: os IDs de formas_pokemon.json são slugs exatos da API.
+    # Usamos o id_api para as buscas comuns e recorremos ao nome legível apenas
+    # quando o identificador é numérico ou uma URL, ou quando ele não é um slug.
+    id_original = str(id_api or "").strip()
+    id_normalizado = normalizar_nome(id_original)
+    id_e_slug = bool(
+        id_original == id_normalizado
+        and id_normalizado
+        and not id_normalizado.isdigit()
+        and re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", id_normalizado)
+    )
 
-        # "Mega Lucario Z" -> "lucario-mega-z".
-        # A condição precisa vir antes da Mega genérica para não gerar
-        # incorretamente "lucario-z-mega".
-        if partes[0] == "mega" and len(partes) >= 3 and partes[-1] in ("x", "y", "z"):
-            base = "-".join(partes[1:-1])
-            return f"{base}-mega-{partes[-1]}"
-
-        # "Mega Lucario" -> "lucario-mega".
-        if partes[0] == "mega" and len(partes) >= 2:
-            return "-".join(partes[1:]) + "-mega"
-
-        # Variações comuns de nomes de Gigantamax/G-Max.
-        if partes[0] in ("gigantamax", "gmax") and len(partes) >= 2:
-            return "-".join(partes[1:]) + "-gmax"
-        if len(partes) >= 2 and partes[-1] in ("gigantamax", "gmax"):
-            return "-".join(partes[:-1]) + "-gmax"
-        if valor.endswith("-g-max"):
-            return valor[:-6] + "-gmax"
-
-        # Já no formato canônico: "lucario-mega-z".
-        if len(partes) >= 3 and partes[-1] in ("x", "y", "z") and "mega" in partes:
-            base = "-".join(partes[:-2])
-            return base + "-mega-" + partes[-1]
-
-        return valor
-
-    chave_nome_canonica = chave_canonica_forma(nome_chave)
-    chave_id_canonica = chave_canonica_forma(id_chave)
-
-    # Algumas entradas usam um nome de exibição genérico (por exemplo,
-    # "Gigantamax"), mas mantêm o slug verdadeiro em id_api. Use o primeiro
-    # candidato reconhecido no catálogo; senão, preserve o nome informado.
-    if chave_nome_canonica in FORMAS_FONTES_ESPECIAIS:
-        chave = chave_nome_canonica
+    if id_e_slug:
+        # A chave do ID evita procurar "Rattata de Alola" em vez de
+        # "rattata-alola" e evita que um rótulo português acerte outra forma.
+        chave = id_normalizado
     elif chave_id_canonica in FORMAS_FONTES_ESPECIAIS:
         chave = chave_id_canonica
+    elif chave_nome_canonica in FORMAS_FONTES_ESPECIAIS:
+        chave = chave_nome_canonica
     elif id_chave == "10195":
         chave = "venusaur-gmax"
     else:
@@ -2026,12 +2154,9 @@ def resolver_fontes_forma(id_api, nome_forma):
         "shiny_api",
         "shiny_api_female",
     ):
-        valor = resultado.get(campo)
-
-        if isinstance(valor, (list, tuple)):
-            # Não fazemos uma requisição para cada candidato.
-            # A fonte foi cadastrada em ordem de preferência.
-            resultado[campo] = valor[0] if valor else None
+        # Mantém todas as alternativas: mostrar_imagem() tentará a próxima
+        # no navegador se a URL preferida estiver quebrada/bloqueada.
+        resultado[campo] = _combinar_urls(resultado.get(campo))
 
     return resultado
 
@@ -2045,31 +2170,108 @@ def urls_showdown_forma(id_api, nome_forma):
 
 
 def obter_fontes_forma(id_api, nome_forma, dados=None):
-    """Combina fontes especiais com sprites EXCLUSIVOS da forma.
+    """Resolve fontes da forma a partir do nome, ID e relação /pokemon-form.
 
-    A espécie-base nunca entra como fallback visual.
+    Usa apenas fontes que correspondem à forma. A espécie-base não é usada
+    como substituta visual. O id_api do JSON é prioritário; a relação
+    ``_forma_api.pokemon`` só é usada quando o identificador não é um slug.
     """
     fontes = resolver_fontes_forma(id_api, nome_forma)
     sprites_forma = (dados.get("_sprites_forma", {}) if dados else {}) or {}
 
-    # Sprites diretamente preservados do endpoint pokemon-form.
-    # Eles têm prioridade quando existem; caso contrário, mantemos
-    # os sprites numéricos exatos resolvidos pela PokéAPI/GitHub.
-    if sprites_forma.get("pixel_normal"):
-        fontes["2d_api"] = sprites_forma.get("pixel_normal")
+    # Algumas entradas do JSON chamam uma forma por um nome legível ou abreviado.
+    # O endpoint pokemon-form contém o slug real da entidade Pokémon relacionada.
+    forma_api = (dados.get("_forma_api", {}) if isinstance(dados, dict) else {}) or {}
+    relacionado = forma_api.get("pokemon", {}) if isinstance(forma_api, dict) else {}
+    if not isinstance(relacionado, dict):
+        relacionado = {}
+    slug_api = _canonizar_chave_forma(relacionado.get("name", ""))
 
-    if sprites_forma.get("pixel_shiny"):
-        fontes["shiny_api"] = sprites_forma.get("pixel_shiny")
+    id_original = str(id_api or "").strip()
+    id_normalizado = normalizar_nome(id_original)
+    id_e_slug = bool(
+        id_original == id_normalizado
+        and id_normalizado
+        and not id_normalizado.isdigit()
+        and re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", id_normalizado)
+    )
 
-    if sprites_forma.get("pixel_normal_female"):
-        fontes["2d_api_female"] = sprites_forma.get("pixel_normal_female")
+    # Em nosso JSON, id_api já é um slug da PokéAPI. Se a relação do endpoint
+    # /pokemon-form apontar para a espécie-base, ignoramos essa relação para a
+    # imagem e mantemos a forma do id_api como fonte de verdade.
+    if id_e_slug:
+        slug_api = id_normalizado
+    else:
+        slug_api = _canonizar_chave_forma(relacionado.get("name", ""))
 
-    if sprites_forma.get("pixel_shiny_female"):
-        fontes["shiny_api_female"] = sprites_forma.get("pixel_shiny_female")
+    if slug_api and slug_api != _canonizar_chave_forma(nome_forma):
+        fontes_api = resolver_fontes_forma(id_api, slug_api)
+        for campo, valor in fontes_api.items():
+            if campo == "slug":
+                continue
+            if isinstance(valor, dict):
+                # Alguns efeitos animados são configurações (ex.: visual_css),
+                # não URLs; não os descarte ao combinar as fontes de imagem.
+                if not fontes.get(campo):
+                    fontes[campo] = valor
+                continue
+            fontes[campo] = _combinar_urls(fontes.get(campo), valor)
 
-    # Se o endpoint tiver um ID numérico, o resolvedor já trouxe fontes
-    # externas EXATAS para a mesma forma. Elas são usadas apenas quando
-    # o endpoint não forneceu aquele canal.
+    # Preserva os sprites que vieram diretamente de pokemon-form.
+    # Eles ficam antes das fontes complementares porque são específicos da forma.
+    for campo, valor in (
+        ("2d_api", sprites_forma.get("pixel_normal")),
+        ("shiny_api", sprites_forma.get("pixel_shiny")),
+        ("2d_api_female", sprites_forma.get("pixel_normal_female")),
+        ("shiny_api_female", sprites_forma.get("pixel_shiny_female")),
+    ):
+        if valor:
+            fontes[campo] = _combinar_urls(valor, fontes.get(campo))
+
+    # Caso a relação da PokéAPI forneça uma URL numérica ou um slug exato,
+    # adiciona os caminhos convencionais daquele registro como fontes de reserva.
+    # Não usamos id_api diretamente como número de Pokémon, pois às vezes ele é
+    # um ID de pokemon-form e não o ID de /pokemon.
+    id_pokemon_exato = None
+    dados_pokemon_exato = None
+    if slug_api:
+        dados_pokemon_exato = _obter_dados_pokemon_exatos(slug_api)
+        if isinstance(dados_pokemon_exato, dict):
+            if _canonizar_chave_forma(dados_pokemon_exato.get("name", "")) == slug_api:
+                try:
+                    id_pokemon_exato = int(dados_pokemon_exato.get("id"))
+                except (TypeError, ValueError):
+                    id_pokemon_exato = None
+
+    if id_pokemon_exato:
+        raiz = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon"
+        complementos = {
+            "2d_api": f"{raiz}/{id_pokemon_exato}.png",
+            "shiny_api": f"{raiz}/shiny/{id_pokemon_exato}.png",
+            "2d_high": f"{raiz}/other/official-artwork/{id_pokemon_exato}.png",
+            "artwork": f"{raiz}/other/official-artwork/{id_pokemon_exato}.png",
+            "artwork_shiny": f"{raiz}/other/official-artwork/shiny/{id_pokemon_exato}.png",
+            "home": f"{raiz}/other/home/{id_pokemon_exato}.png",
+            "home_shiny": f"{raiz}/other/home/shiny/{id_pokemon_exato}.png",
+        }
+        for campo, valor in complementos.items():
+            fontes[campo] = _combinar_urls(fontes.get(campo), valor)
+
+    # HOME do Showdown: tentamos os slugs alternativos conhecidos para a
+    # própria forma. A imagem é uma fonte adicional; nunca substitui o canal 2D.
+    # O navegador verifica as alternativas na ordem e pula arquivos inexistentes.
+    slug_showdown = _slug_forma_showdown(slug_api) if slug_api else []
+    if slug_api and not slug_showdown:
+        slug_showdown = [slug_api]
+    fontes["home"] = _combinar_urls(
+        fontes.get("home"),
+        [f"{SHOWDOWN_HOME_BASE}{slug}.png" for slug in slug_showdown],
+    )
+    fontes["home_shiny"] = _combinar_urls(
+        fontes.get("home_shiny"),
+        [f"https://play.pokemonshowdown.com/sprites/home-shiny/{slug}.png" for slug in slug_showdown],
+    )
+
     return fontes
 
 
@@ -2214,10 +2416,10 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
 
     # O canal 2D deve priorizar pixel art da forma. Antes, 2d_high vinha
     # primeiro e fazia a mesma arte aparecer também na seção de Artwork.
-    url_2d = (
-        fontes.get("2d_api")
-        or fontes.get("2d_api_female")
-        or fontes.get("2d")
+    url_2d = _combinar_urls(
+        fontes.get("2d_api"),
+        fontes.get("2d_api_female"),
+        fontes.get("2d"),
     )
 
     if url_2d:
@@ -2234,9 +2436,14 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
     # --------------------------------------------------------
     st.markdown("### 🎨 Artwork específico da forma")
 
-    artwork = fontes.get("artwork") or fontes.get("2d_high") or fontes.get("2d")
+    artwork = _combinar_urls(
+        fontes.get("artwork"),
+        fontes.get("2d_high"),
+        fontes.get("2d"),
+        fontes.get("home"),
+    )
     if artwork:
-        mostrar_imagem(artwork, "🎨 Artwork Oficial específico da forma", 420)
+        mostrar_imagem(artwork, "🎨 Artwork / imagem específica da forma", 420)
     else:
         st.info("🎨 Artwork específico desta forma indisponível.")
 
@@ -2260,10 +2467,12 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
     # --------------------------------------------------------
     st.markdown("### ✨ Shiny da forma")
 
-    shiny = (
-        fontes.get("shiny_api")
-        or fontes.get("shiny_api_female")
-        or fontes.get("shiny")
+    shiny = _combinar_urls(
+        fontes.get("shiny_api"),
+        fontes.get("shiny_api_female"),
+        fontes.get("shiny"),
+        fontes.get("artwork_shiny"),
+        fontes.get("home_shiny"),
     )
 
     if shiny:
@@ -2571,6 +2780,37 @@ def mostrar_forma(
                     st.caption(
                         f"Identificador utilizado: `{id_api}`"
                     )
+
+        # ====================================================
+        # MINI-DEX: PRÉVIA VISUAL DA FORMA CADASTRADA
+        # ====================================================
+        fontes_mini_dex = obter_fontes_forma(
+            id_api,
+            nome,
+            dados,
+        )
+        imagem_mini_dex_local = carregar_imagem_local(imagem_local)
+        imagem_mini_dex = _combinar_urls(
+            fontes_mini_dex.get("2d_api"),
+            fontes_mini_dex.get("2d_api_female"),
+            fontes_mini_dex.get("2d"),
+            fontes_mini_dex.get("artwork"),
+            fontes_mini_dex.get("2d_high"),
+            fontes_mini_dex.get("home"),
+        )
+        if imagem_mini_dex_local is not None:
+            imagem_mini_dex = imagem_mini_dex_local
+        if isinstance(imagem_mini_dex, Path):
+            st.caption(f"🖼️ Prévia da forma: {nome}")
+            st.image(str(imagem_mini_dex), width=180)
+        elif imagem_mini_dex:
+            mostrar_imagem(
+                imagem_mini_dex,
+                f"🖼️ Prévia da forma: {nome}",
+                180,
+            )
+        else:
+            st.caption("🖼️ Ainda não há prévia cadastrada para esta forma.")
 
         # ====================================================
         # BOTÃO PARA ABRIR FICHA COMPLETA
@@ -4063,15 +4303,18 @@ with col1:
         # No resumo superior, a coluna esquerda mostra apenas o 2D da forma.
         # Artwork, HOME e shiny ficam na galeria dedicada abaixo, evitando
         # empilhar quatro imagens na mesma coluna.
-        url_topo_2d = (
-            fontes_forma_topo.get("2d_api_female")
-            or fontes_forma_topo.get("2d_api")
-            or fontes_forma_topo.get("2d")
+        url_topo_2d = _combinar_urls(
+            fontes_forma_topo.get("2d_api_female"),
+            fontes_forma_topo.get("2d_api"),
+            fontes_forma_topo.get("2d"),
         )
 
         if url_topo_2d:
-            st.caption("🟦 2D específico da forma")
-            st.image(url_topo_2d, width=300)
+            mostrar_imagem(
+                url_topo_2d,
+                "🟦 2D específico da forma",
+                300,
+            )
         else:
             st.info("🟦 2D específico desta forma indisponível.")
 
@@ -4182,23 +4425,24 @@ with col3:
             forma_focada.get("nome"),
             dados_forma_focada or pokemon,
         )
-        artwork_forma_topo = (
-            fontes_forma_artwork.get("artwork")
-            or fontes_forma_artwork.get("2d_high")
-            or fontes_forma_artwork.get("2d")
+        artwork_forma_topo = _combinar_urls(
+            fontes_forma_artwork.get("artwork"),
+            fontes_forma_artwork.get("2d_high"),
+            fontes_forma_artwork.get("2d"),
+            fontes_forma_artwork.get("home"),
         )
 
         if artwork_forma_topo:
             mostrar_imagem(
                 artwork_forma_topo,
-                "🎨 Artwork específico da forma",
+                "🎨 Imagem própria da forma (artwork/render)",
                 300,
             )
         else:
-            st.caption("🎨 Artwork específico da forma")
+            st.caption("🎨 Imagem própria da forma")
             st.info(
-                "Não foi encontrada uma artwork própria para esta forma. "
-                "A artwork da espécie-base não será usada como substituta."
+                "Não foi encontrada uma imagem específica para esta forma. "
+                "A imagem da espécie-base não será usada como substituta."
             )
 
     else:
