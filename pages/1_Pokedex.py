@@ -1,4 +1,6 @@
+import base64
 import json
+import mimetypes
 import re
 from pathlib import Path
 
@@ -66,17 +68,19 @@ if "forma_focada_dados" not in st.session_state:
 
 
 def navegar_para_pokemon(identificador):
+    """Abre a ficha do Pokémon e limpa qualquer forma especial anterior.
+
+    Isso também corrige os botões da linha evolutiva: ao navegar para a
+    pré-evolução ou para a evolução seguinte, a forma previamente aberta
+    não pode permanecer selecionada no session_state.
     """
-    Abre diretamente um Pokémon ou uma forma na ficha completa.
-    """
+    if not identificador:
+        return
 
-    if identificador:
-
-        st.session_state.pokemon_focado = (
-            normalizar_nome(identificador)
-        )
-
-        st.rerun()
+    st.session_state.pokemon_focado = normalizar_nome(identificador)
+    st.session_state.forma_focada_id = None
+    st.session_state.forma_focada_dados = None
+    st.rerun()
 
 
 def navegar_para_forma(forma, especie_base):
@@ -1737,6 +1741,8 @@ SHOWDOWN_HOME_CENTERED_BASE = "https://play.pokemonshowdown.com/sprites/home-cen
 SHOWDOWN_DEX_BASE = "https://play.pokemonshowdown.com/sprites/dex/"
 SHOWDOWN_2D_BASE = "https://play.pokemonshowdown.com/sprites/gen5/"
 SHOWDOWN_ANIM_BASE = "https://play.pokemonshowdown.com/sprites/ani/"
+SHOWDOWN_HOME_SHINY_BASE = "https://play.pokemonshowdown.com/sprites/home-shiny/"
+SHOWDOWN_DEX_SHINY_BASE = "https://play.pokemonshowdown.com/sprites/dex-shiny/"
 
 
 FORMAS_FONTES_ESPECIAIS = {
@@ -1789,6 +1795,103 @@ FORMAS_FONTES_ESPECIAIS = {
             "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0359MZ_s.png",
             "https://www.pokepedia.fr/wiki/Special:Redirect/file/Sprite_0359_M%C3%A9ga_Z_chromatique_HOME.png",
         ], "visual_3d": None, "animado": None}, "zygarde-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0718Zygarde-Mega.png", "visual_3d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0718M.png", "animado": None, "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0718M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0718M_s.png"}, "floette-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0670Floette-Mega.png", "visual_3d": None, "animado": None, "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0670M.png", "home_shiny": None}, "raichu-mega-x": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0026Raichu-Mega_X_ZA.png", "visual_3d": None, "animado": None, "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0026Raichu-Mega_X_ZA.png"}, "raichu-mega-y": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0026Raichu-Mega_Y_ZA.png", "visual_3d": None, "animado": None, "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0026Raichu-Mega_Y_ZA.png"}, "dragonite-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0149Dragonite-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0149Dragonite-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0149M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0149M_s.png"}, "victreebel-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0071Victreebel-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0071Victreebel-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0071M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0071M_s.png"}, "starmie-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0121Starmie-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0121M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0121M_s.png"}, "clefable-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0036Clefable-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0036M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0036M_s.png"}, "meganium-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0154Meganium-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0154Meganium-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0154M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0154M_s.png"}, "feraligatr-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0160Feraligatr-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0160Feraligatr-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0160M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0160M_s.png"}, "skarmory-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0227Skarmory-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0227M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0227M_s.png"}, "chimecho-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0358Chimecho-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0358M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0358M_s.png"}, "staraptor-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0398Staraptor-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0398M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0398M_s.png"}, "froslass-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0478Froslass-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0478M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0478M_s.png"}, "heatran-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0485Heatran-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0485M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0485M_s.png"}, "darkrai-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0491Darkrai-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0491M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0491M_s.png"}, "emboar-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0500Emboar-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0500Emboar-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0500M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0500M_s.png"}, "excadrill-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0530Excadrill-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0530M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0530M_s.png"}, "scolipede-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0545Scolipede-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0545M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0545M_s.png"}, "scrafty-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0560Scrafty-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0560M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0560M_s.png"}, "eelektross-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0604Eelektross-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0604Eelektross-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0604M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0604M_s.png"}, "chandelure-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0609Chandelure-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0609M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0609M_s.png"}, "golurk-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0623Golurk-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0623M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0623M_s.png"}, "chesnaught-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0652Chesnaught-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0652Chesnaught-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0652M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0652M_s.png"}, "delphox-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0655Delphox-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0655Delphox-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0655M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0655M_s.png"}, "greninja-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0658Greninja-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0658Greninja-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0658M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0658M_s.png"}, "pyroar-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0668Pyroar-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0668M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0668M_s.png"}, "meowstic-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0678Meowstic-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0678M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0678M_s.png"}, "meowstic-m-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0678Meowstic-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0678M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0678M_s.png"}, "meowstic-f-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0678Meowstic-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0678M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0678M_s.png"}, "malamar-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0687Malamar-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0687Malamar-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0687M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0687M_s.png"}, "barbaracle-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0689Barbaracle-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0689M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0689M_s.png"}, "dragalge-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0691Dragalge-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0691M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0691M_s.png"}, "hawlucha-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0701Hawlucha-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0701Hawlucha-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0701M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0701M_s.png"}, "crabominable-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0740Crabominable-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0740M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0740M_s.png"}, "golisopod-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0768Golisopod-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0768M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0768M_s.png"}, "drampa-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0780Drampa-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0780M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0780M_s.png"}, "magearna-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0801Magearna-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0801M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0801M_s.png"}, "magearna-original-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0801Magearna-Original_Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0801M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0801M_s.png"}, "zeraora-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0807Zeraora-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0807Zeraora-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0807M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0807M_s.png"}, "falinks-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0870Falinks-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0870M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0870M_s.png"}, "scovillain-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0952Scovillain-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0952M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0952M_s.png"}, "glimmora-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0970Glimmora-Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0970M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0970M_s.png"}, "tatsugiri-curly-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0978Tatsugiri-Curly_Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0978M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0978M_s.png"}, "tatsugiri-droopy-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0978Tatsugiri-Droopy_Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0978M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0978M_s.png"}, "tatsugiri-stretchy-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0978Tatsugiri-Stretchy_Mega.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0978M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0978M_s.png"}, "baxcalibur-mega": {"2d": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0998Baxcalibur-Mega_ZA.png", "2d_high": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/0998Baxcalibur-Mega_ZA.png", "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0998M.png", "home_shiny": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0998M_s.png"}}
+
+# ============================================================
+# FONTES COMPLEMENTARES PARA FORMAS COM NOMES DE ARQUIVO DIFERENTES
+# ============================================================
+# Estes complementos são deliberadamente aditivos: mantêm todas as fontes
+# especiais existentes e corrigem apenas formas que estavam sem mídia.
+# Em Furfrou/Deerling/Sawsbuck, a terceira coluna é uma referência visual do
+# Showdown (não a declaramos como artwork oficial da Game Freak).
+FORMAS_COM_ARTE_SHOWDOWN_ALTERNATIVA = set()
+
+_FURFROU_TRIMS = {
+    "furfrou-heart": "furfrou-heart",
+    "furfrou-star": "furfrou-star",
+    "furfrou-diamond": "furfrou-diamond",
+    "furfrou-debutante": "furfrou-debutante",
+    "furfrou-matron": "furfrou-matron",
+    "furfrou-dandy": "furfrou-dandy",
+    # O nome do arquivo não leva o hífen entre la e reine.
+    "furfrou-la-reine": "furfrou-lareine",
+    "furfrou-kabuki": "furfrou-kabuki",
+    "furfrou-pharaoh": "furfrou-pharaoh",
+}
+
+# Nas pastas gen5/dex, a forma Primavera aparece historicamente como
+# "sprint"; na pasta HOME, ela usa o nome simples do Pokémon.
+_FORMAS_SAZONAIS = {
+    "deerling-spring": {"sprite": "deerling", "home": "deerling"},
+    "deerling-summer": {"sprite": "deerling-summer", "home": "deerling-summer"},
+    "deerling-autumn": {"sprite": "deerling-autumn", "home": "deerling-autumn"},
+    "deerling-winter": {"sprite": "deerling-winter", "home": "deerling-winter"},
+    "sawsbuck-spring": {"sprite": "sawsbuck", "home": "sawsbuck"},
+    "sawsbuck-summer": {"sprite": "sawsbuck-summer", "home": "sawsbuck-summer"},
+    "sawsbuck-autumn": {"sprite": "sawsbuck-autumn", "home": "sawsbuck-autumn"},
+    "sawsbuck-winter": {"sprite": "sawsbuck-winter", "home": "sawsbuck-winter"},
+}
+
+for _id_forma, _slug_arquivo in _FURFROU_TRIMS.items():
+    FORMAS_COM_ARTE_SHOWDOWN_ALTERNATIVA.add(_id_forma)
+    FORMAS_FONTES_ESPECIAIS.setdefault(_id_forma, {}).update({
+        "2d": [
+            f"{SHOWDOWN_2D_BASE}{_slug_arquivo}.png",
+            f"{SHOWDOWN_DEX_BASE}{_slug_arquivo}.png",
+        ],
+        "artwork": f"{SHOWDOWN_DEX_BASE}{_slug_arquivo}.png",
+        "artwork_shiny": f"{SHOWDOWN_DEX_SHINY_BASE}{_slug_arquivo}.png",
+        # Alguns trims (Dandy/Debutante) podem não ter HOME; o fallback dex
+        # continua sendo da mesma forma e evita recorrer ao Furfrou Natural.
+        "home": [
+            f"{SHOWDOWN_HOME_BASE}{_slug_arquivo}.png",
+            f"{SHOWDOWN_DEX_BASE}{_slug_arquivo}.png",
+        ],
+        "home_shiny": [
+            f"{SHOWDOWN_HOME_SHINY_BASE}{_slug_arquivo}.png",
+            f"{SHOWDOWN_DEX_SHINY_BASE}{_slug_arquivo}.png",
+        ],
+        "shiny": f"{SHOWDOWN_DEX_SHINY_BASE}{_slug_arquivo}.png",
+    })
+
+for _id_forma, _config in _FORMAS_SAZONAIS.items():
+    FORMAS_COM_ARTE_SHOWDOWN_ALTERNATIVA.add(_id_forma)
+    _sprite = _config["sprite"]
+    _home = _config["home"]
+    FORMAS_FONTES_ESPECIAIS.setdefault(_id_forma, {}).update({
+        "2d": f"{SHOWDOWN_2D_BASE}{_sprite}.png",
+        "artwork": f"{SHOWDOWN_DEX_BASE}{_sprite}.png",
+        "artwork_shiny": f"{SHOWDOWN_DEX_SHINY_BASE}{_home}.png",
+        "shiny": f"{SHOWDOWN_DEX_SHINY_BASE}{_home}.png",
+        "home": [
+            f"{SHOWDOWN_HOME_BASE}{_home}.png",
+            f"{SHOWDOWN_DEX_BASE}{_sprite}.png",
+        ],
+        "home_shiny": [
+            f"{SHOWDOWN_HOME_SHINY_BASE}{_home}.png",
+            f"{SHOWDOWN_DEX_SHINY_BASE}{_home}.png",
+        ],
+    })
+
+# Mega Zygarde: a URL direta de mídia corrige a antiga rota de redirect
+# que falhava no quadro 2D. É uma referência 2D oficial, não um sprite pixelado.
+FORMAS_FONTES_ESPECIAIS.setdefault("zygarde-mega", {}).update({
+    "2d": "https://archives.bulbagarden.net/media/upload/8/8c/0718Zygarde-Mega.png",
+})
+
+# Terapagos tem renders HOME próprios por forma (incluindo a forma Stellar).
+for _id_forma in ("terapagos-terastal", "terapagos-stellar"):
+    FORMAS_FONTES_ESPECIAIS.setdefault(_id_forma, {}).update({
+        "home": f"{SHOWDOWN_HOME_BASE}{_id_forma}.png",
+        "home_shiny": f"{SHOWDOWN_HOME_SHINY_BASE}{_id_forma}.png",
+    })
+
+# Mega Garchomp Z: não encontramos uma artwork shiny dedicada separada.
+# Usamos o HOME shiny específico como alternativa, identificado corretamente
+# na legenda em vez de apresentá-lo como artwork oficial.
+_garchomp_z = FORMAS_FONTES_ESPECIAIS.setdefault("garchomp-mega-z", {})
+if _garchomp_z.get("home_shiny") and not _garchomp_z.get("artwork_shiny"):
+    _garchomp_z["artwork_shiny"] = _garchomp_z["home_shiny"]
+
 
 @st.cache_data(ttl=86400, show_spinner=False)
 def url_imagem_disponivel(url):
@@ -2455,25 +2558,46 @@ def mostrar_animacao_visual_lucario_z(imagem_url, altura=500):
     components.html(html, height=altura, scrolling=False)
 
 
-def mostrar_sprites_forma(forma, dados, id_api, nome):
-    """Exibe os sprites da forma na mesma grade de três colunas da espécie-base.
 
-    Cada seção tem Pixel 2D, 3D/Showdown (com HOME como alternativa) e artwork.
-    A seção Shiny repete o mesmo formato. As fontes precisam corresponder à
-    forma selecionada; a arte da espécie-base não é usada como substituta.
-    """
+def mostrar_imagem_local_em_quadro(caminho, legenda, largura=180):
+    """Renderiza imagem local no mesmo quadro quadrado usado pelas URLs."""
+    st.caption(legenda)
+    if not caminho:
+        st.info("Imagem local não cadastrada.")
+        return
+
+    caminho = Path(caminho)
+    if not caminho.is_file():
+        st.info("Arquivo de arte conceitual não encontrado no projeto.")
+        return
+
+    try:
+        import base64
+        import mimetypes
+
+        conteudo = base64.b64encode(caminho.read_bytes()).decode("ascii")
+        mime = mimetypes.guess_type(caminho.name)[0] or "image/png"
+        quadro = max(120, min(int(largura), 360))
+        html = f"""<!doctype html>
+<html><head><meta charset=\"utf-8\"><style>
+html,body{{margin:0;padding:0;width:100%;height:100%;background:transparent;overflow:hidden}}
+.frame{{width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}}
+img{{display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;object-position:center center}}
+</style></head><body><div class=\"frame\"><img alt=\"\" src=\"data:{mime};base64,{conteudo}\"></div></body></html>"""
+        components.html(html, width=quadro, height=quadro, scrolling=False)
+    except (OSError, ValueError):
+        st.info("Não foi possível carregar a imagem local.")
+
+
+_FORMAS_SHADOW_SOMENTE_CONCEITUAIS = {"shadow-mewtwo", "shadow-lugia"}
+
+def mostrar_sprites_forma(forma, dados, id_api, nome):
+    """Exibe a forma em uma grade fixa de 3 colunas, mantendo fontes específicas."""
     imagem_local = forma.get("imagem_local")
     caminho_local = carregar_imagem_local(imagem_local)
     fontes = obter_fontes_forma(id_api, nome, dados)
 
-    if caminho_local is not None:
-        with st.expander("📸 Imagem local da forma", expanded=False):
-            st.image(str(caminho_local), width=180)
-            st.caption("Imagem local específica desta forma.")
-
-    # Slugs que correspondem à forma, para tentar animações específicas do
-    # Showdown. Se uma URL não existir, mostrar_imagem tenta o próximo fallback.
-    slug_resolvido = str(fontes.get("slug") or id_api or "").strip()
+    slug_resolvido = str(fontes.get("slug") or id_api or "").strip().lower()
     slugs = _slug_forma_showdown(slug_resolvido) if slug_resolvido else []
     if slug_resolvido and slug_resolvido not in slugs:
         slugs.append(slug_resolvido)
@@ -2483,10 +2607,15 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
         animado_urls = [animado]
     else:
         animado_urls = []
-    # GIFs do Showdown são tentativas, seguidas pelo render HOME conhecido.
     animado_urls.extend(f"{SHOWDOWN_ANIM_BASE}{slug}.gif" for slug in slugs)
     home_urls = _lista_urls_imagem(fontes.get("home"))
     urls_3d = _combinar_urls(animado_urls, home_urls)
+
+    e_shadow_conceitual = (
+        slug_resolvido in _FORMAS_SHADOW_SOMENTE_CONCEITUAIS
+        and caminho_local is not None
+    )
+    e_referencia_showdown = slug_resolvido in FORMAS_COM_ARTE_SHOWDOWN_ALTERNATIVA
 
     # ---------------------- FORMA NORMAL ----------------------
     st.markdown("### 🌟 Forma da variante")
@@ -2498,17 +2627,41 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
         fontes.get("2d"),
     )
     with col1:
-        mostrar_imagem(url_2d, "🟦 Pixel 2D", 180)
+        if e_shadow_conceitual and not url_2d:
+            st.caption("🟦 Pixel 2D")
+            st.info("Esta forma não possui sprite pixel 2D cadastrado; a arte conceitual está na terceira coluna.")
+        else:
+            legenda_2d = "🟦 Referência 2D oficial (alternativa)" if slug_resolvido == "zygarde-mega" else "🟦 Pixel 2D"
+            mostrar_imagem(url_2d, legenda_2d, 180)
 
     with col2:
-        mostrar_imagem(urls_3d, "🟩 3D / Showdown", 180)
+        if e_shadow_conceitual and not urls_3d:
+            st.caption("🟩 3D / Showdown")
+            st.info("Não há render 3D específico cadastrado para esta forma conceitual.")
+        else:
+            mostrar_imagem(urls_3d, "🟩 3D / Showdown", 180)
 
     url_artwork = _combinar_urls(
         fontes.get("artwork"),
         fontes.get("2d_high"),
     )
     with col3:
-        mostrar_imagem(url_artwork, "🎨 Artwork Oficial", 180)
+        if not url_artwork and caminho_local is not None:
+            mostrar_imagem_local_em_quadro(
+                caminho_local,
+                "🎨 Arte conceitual local (referência Sugimori)",
+                180,
+            )
+        elif e_shadow_conceitual:
+            st.caption("🎨 Arte conceitual")
+            st.info("A arte conceitual local não foi encontrada. Preserve a pasta imagens/formas no GitHub.")
+        else:
+            legenda_artwork = (
+                "🎨 Arte alternativa da forma (Showdown)"
+                if e_referencia_showdown
+                else "🎨 Artwork Oficial"
+            )
+            mostrar_imagem(url_artwork, legenda_artwork, 180)
 
     # ------------------------- SHINY --------------------------
     st.markdown("### ✨ Forma Shiny")
@@ -2520,7 +2673,11 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
         fontes.get("shiny"),
     )
     with col1:
-        mostrar_imagem(url_2d_shiny, "🟦 Pixel 2D Shiny", 180)
+        if e_shadow_conceitual:
+            st.caption("🟦 Pixel 2D Shiny")
+            st.info("Não há variante shiny cadastrada para esta arte conceitual.")
+        else:
+            mostrar_imagem(url_2d_shiny, "🟦 Pixel 2D Shiny", 180)
 
     shiny_3d_urls = [
         f"https://play.pokemonshowdown.com/sprites/ani-shiny/{slug}.gif"
@@ -2528,15 +2685,35 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
     ]
     shiny_3d_urls.extend(_lista_urls_imagem(fontes.get("home_shiny")))
     with col2:
-        mostrar_imagem(
-            _combinar_urls(shiny_3d_urls),
-            "🟩 3D / Showdown Shiny",
-            180,
-        )
+        if e_shadow_conceitual:
+            st.caption("🟩 3D / Showdown Shiny")
+            st.info("Não há render shiny específico cadastrado para esta arte conceitual.")
+        else:
+            mostrar_imagem(
+                _combinar_urls(shiny_3d_urls),
+                "🟩 3D / Showdown Shiny",
+                180,
+            )
 
     url_artwork_shiny = _combinar_urls(fontes.get("artwork_shiny"))
     with col3:
-        mostrar_imagem(url_artwork_shiny, "🎨 Artwork Shiny", 180)
+        if e_shadow_conceitual:
+            st.caption("🎨 Artwork Shiny")
+            st.info("A arte conceitual cadastrada não possui uma versão shiny conhecida.")
+        elif slug_resolvido == "garchomp-mega-z" and url_artwork_shiny:
+            mostrar_imagem(
+                url_artwork_shiny,
+                "🎨 HOME Shiny (alternativa — artwork própria não localizada)",
+                180,
+            )
+        elif e_referencia_showdown:
+            mostrar_imagem(
+                url_artwork_shiny,
+                "🎨 Referência Shiny alternativa (Showdown)",
+                180,
+            )
+        else:
+            mostrar_imagem(url_artwork_shiny, "🎨 Artwork Shiny", 180)
 
 
 
