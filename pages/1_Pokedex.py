@@ -1426,6 +1426,30 @@ def _combinar_urls(*valores):
     return urls[0] if len(urls) == 1 else urls
 
 
+def mostrar_placeholder_imagem(legenda, mensagem, largura=180, incluir_legenda=True):
+    """Mostra um quadro quadrado neutro para canais sem imagem cadastrada."""
+    if incluir_legenda:
+        st.caption(legenda)
+    quadro = max(120, min(int(largura), 360))
+    mensagem_html = (
+        str(mensagem)
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+        .replace("'", "&#39;")
+    )
+    html = f"""<!doctype html>
+<html><head><meta charset="utf-8"><style>
+html,body{{margin:0;padding:0;width:100%;height:100%;background:transparent;overflow:hidden}}
+.frame{{box-sizing:border-box;width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  padding:12px;border:1px dashed rgba(150,165,185,.35);border-radius:12px;
+  background:rgba(255,255,255,.025);color:#9aa4b2;text-align:center;
+  font:12px/1.45 sans-serif;}}
+</style></head><body><div class="frame">{mensagem_html}</div></body></html>"""
+    components.html(html, width=quadro, height=quadro, scrolling=False)
+
+
 def mostrar_imagem(
     url,
     legenda,
@@ -1442,7 +1466,12 @@ def mostrar_imagem(
     urls = _lista_urls_imagem(url)
 
     if not urls:
-        st.info("Imagem indisponível.")
+        mostrar_placeholder_imagem(
+            legenda,
+            "Imagem indisponível nas fontes cadastradas.",
+            largura,
+            incluir_legenda=False,
+        )
         return
 
     # Largura explícita do componente: essencial para manter as imagens
@@ -1740,6 +1769,7 @@ SHOWDOWN_HOME_BASE = "https://play.pokemonshowdown.com/sprites/home/"
 SHOWDOWN_HOME_CENTERED_BASE = "https://play.pokemonshowdown.com/sprites/home-centered/"
 SHOWDOWN_DEX_BASE = "https://play.pokemonshowdown.com/sprites/dex/"
 SHOWDOWN_2D_BASE = "https://play.pokemonshowdown.com/sprites/gen5/"
+SHOWDOWN_2D_SHINY_BASE = "https://play.pokemonshowdown.com/sprites/gen5-shiny/"
 SHOWDOWN_ANIM_BASE = "https://play.pokemonshowdown.com/sprites/ani/"
 SHOWDOWN_HOME_SHINY_BASE = "https://play.pokemonshowdown.com/sprites/home-shiny/"
 SHOWDOWN_DEX_SHINY_BASE = "https://play.pokemonshowdown.com/sprites/dex-shiny/"
@@ -1872,23 +1902,43 @@ for _id_forma, _config in _FORMAS_SAZONAIS.items():
         ],
     })
 
-# Mega Zygarde: a URL direta de mídia corrige a antiga rota de redirect
-# que falhava no quadro 2D. É uma referência 2D oficial, não um sprite pixelado.
+# Mega Zygarde: não há sprite na coleção Gen 5 padrão. Usamos o sprite
+# pixelado alternativo do Showdown AFD, com o sprite de Legends: Z-A como
+# reserva; os renders HOME normal/shiny ficam disponíveis no canal 3D.
 FORMAS_FONTES_ESPECIAIS.setdefault("zygarde-mega", {}).update({
-    "2d": "https://archives.bulbagarden.net/media/upload/8/8c/0718Zygarde-Mega.png",
+    "2d": [
+        # Sprite pixelado alternativo da forma; se a fonte AFD falhar, usa o
+        # sprite de frente capturado em Legends: Z-A para a mesma forma.
+        "https://play.pokemonshowdown.com/sprites/afd/zygarde-mega.png",
+        "https://assets.pokestats.gg/pokeapi/v1/pokemon/versions/generation-ix/legends-za/10301.webp",
+    ],
+    "shiny": [
+        "https://play.pokemonshowdown.com/sprites/afd-shiny/zygarde-mega.png",
+        "https://assets.pokestats.gg/pokeapi/v1/pokemon/versions/generation-ix/legends-za/shiny/10301.webp",
+    ],
+    "artwork": "https://archives.bulbagarden.net/media/upload/8/8c/0718Zygarde-Mega.png",
+    "2d_high": "https://archives.bulbagarden.net/media/upload/8/8c/0718Zygarde-Mega.png",
+    "home": "https://archives.bulbagarden.net/media/upload/c/cf/HOME0718M.png",
+    "home_shiny": "https://archives.bulbagarden.net/media/upload/5/53/HOME0718M_s.png",
 })
 
-# Terapagos tem renders HOME próprios por forma (incluindo a forma Stellar).
-for _id_forma in ("terapagos-terastal", "terapagos-stellar"):
+# Terapagos base, Terastal e Stellar têm renders HOME normal/shiny próprios.
+# O base estava sem entrada explícita, por isso algumas galerias não recebiam
+# os renders 3D nem as versões shiny.
+for _id_forma in ("terapagos", "terapagos-terastal", "terapagos-stellar"):
     FORMAS_FONTES_ESPECIAIS.setdefault(_id_forma, {}).update({
         "home": f"{SHOWDOWN_HOME_BASE}{_id_forma}.png",
         "home_shiny": f"{SHOWDOWN_HOME_SHINY_BASE}{_id_forma}.png",
     })
 
-# Mega Garchomp Z: não encontramos uma artwork shiny dedicada separada.
-# Usamos o HOME shiny específico como alternativa, identificado corretamente
-# na legenda em vez de apresentá-lo como artwork oficial.
+# Mega Garchomp Z: sprite 2D normal e shiny da coleção Gen 5 do Showdown.
+# O HOME shiny segue como alternativa no artwork shiny, pois não localizamos
+# uma artwork conceitual shiny independente para a forma Z.
 _garchomp_z = FORMAS_FONTES_ESPECIAIS.setdefault("garchomp-mega-z", {})
+_garchomp_z.update({
+    "2d": f"{SHOWDOWN_2D_BASE}garchomp-megaz.png",
+    "shiny": f"{SHOWDOWN_2D_SHINY_BASE}garchomp-megaz.png",
+})
 if _garchomp_z.get("home_shiny") and not _garchomp_z.get("artwork_shiny"):
     _garchomp_z["artwork_shiny"] = _garchomp_z["home_shiny"]
 
@@ -2609,7 +2659,11 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
         animado_urls = []
     animado_urls.extend(f"{SHOWDOWN_ANIM_BASE}{slug}.gif" for slug in slugs)
     home_urls = _lista_urls_imagem(fontes.get("home"))
-    urls_3d = _combinar_urls(animado_urls, home_urls)
+    if slug_resolvido.startswith("terapagos"):
+        # Preferência explícita por HOME (render 3D) para as formas de Terapagos.
+        urls_3d = _combinar_urls(home_urls, animado_urls)
+    else:
+        urls_3d = _combinar_urls(animado_urls, home_urls)
 
     e_shadow_conceitual = (
         slug_resolvido in _FORMAS_SHADOW_SOMENTE_CONCEITUAIS
@@ -2628,16 +2682,22 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
     )
     with col1:
         if e_shadow_conceitual and not url_2d:
-            st.caption("🟦 Pixel 2D")
-            st.info("Esta forma não possui sprite pixel 2D cadastrado; a arte conceitual está na terceira coluna.")
+            mostrar_placeholder_imagem(
+                "🟦 Pixel 2D",
+                "Sprite pixelado específico não cadastrado. A arte conceitual está na terceira coluna.",
+                180,
+            )
         else:
-            legenda_2d = "🟦 Referência 2D oficial (alternativa)" if slug_resolvido == "zygarde-mega" else "🟦 Pixel 2D"
+            legenda_2d = "🟦 Sprite 2D alternativo (Showdown)" if slug_resolvido == "zygarde-mega" else "🟦 Pixel 2D"
             mostrar_imagem(url_2d, legenda_2d, 180)
 
     with col2:
         if e_shadow_conceitual and not urls_3d:
-            st.caption("🟩 3D / Showdown")
-            st.info("Não há render 3D específico cadastrado para esta forma conceitual.")
+            mostrar_placeholder_imagem(
+                "🟩 3D / Showdown",
+                "Não há render 3D específico cadastrado para esta forma conceitual.",
+                180,
+            )
         else:
             mostrar_imagem(urls_3d, "🟩 3D / Showdown", 180)
 
@@ -2674,20 +2734,31 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
     )
     with col1:
         if e_shadow_conceitual:
-            st.caption("🟦 Pixel 2D Shiny")
-            st.info("Não há variante shiny cadastrada para esta arte conceitual.")
+            mostrar_placeholder_imagem(
+                "🟦 Pixel 2D Shiny",
+                "Não há sprite shiny específico cadastrado.",
+                180,
+            )
         else:
-            mostrar_imagem(url_2d_shiny, "🟦 Pixel 2D Shiny", 180)
+            legenda_2d_shiny = "✨ Sprite 2D Shiny alternativo (Showdown)" if slug_resolvido == "zygarde-mega" else "🟦 Pixel 2D Shiny"
+            mostrar_imagem(url_2d_shiny, legenda_2d_shiny, 180)
 
-    shiny_3d_urls = [
+    shiny_ani_urls = [
         f"https://play.pokemonshowdown.com/sprites/ani-shiny/{slug}.gif"
         for slug in slugs
     ]
-    shiny_3d_urls.extend(_lista_urls_imagem(fontes.get("home_shiny")))
+    shiny_home_urls = _lista_urls_imagem(fontes.get("home_shiny"))
+    if slug_resolvido.startswith("terapagos"):
+        shiny_3d_urls = shiny_home_urls + shiny_ani_urls
+    else:
+        shiny_3d_urls = shiny_ani_urls + shiny_home_urls
     with col2:
         if e_shadow_conceitual:
-            st.caption("🟩 3D / Showdown Shiny")
-            st.info("Não há render shiny específico cadastrado para esta arte conceitual.")
+            mostrar_placeholder_imagem(
+                "🟩 3D / Showdown Shiny",
+                "Não há render shiny específico cadastrado.",
+                180,
+            )
         else:
             mostrar_imagem(
                 _combinar_urls(shiny_3d_urls),
@@ -2698,8 +2769,11 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
     url_artwork_shiny = _combinar_urls(fontes.get("artwork_shiny"))
     with col3:
         if e_shadow_conceitual:
-            st.caption("🎨 Artwork Shiny")
-            st.info("A arte conceitual cadastrada não possui uma versão shiny conhecida.")
+            mostrar_placeholder_imagem(
+                "🎨 Artwork Shiny",
+                "A arte conceitual não possui versão shiny conhecida.",
+                180,
+            )
         elif slug_resolvido == "garchomp-mega-z" and url_artwork_shiny:
             mostrar_imagem(
                 url_artwork_shiny,
@@ -6042,64 +6116,83 @@ with aba_evolucoes:
         "para abrir sua ficha completa."
     )
 
+    # A árvore precisa permanecer renderizada depois do primeiro clique.
+    # Caso contrário, ao clicar em uma pré/próxima evolução, o Streamlit faz
+    # rerun, o botão "Carregar" volta a False e o botão do nó some antes de
+    # sua navegação ser processada.
+    chave_estado_evolucoes = (
+        f"evolucoes_carregadas_{normalizar_nome(nome_especie)}"
+    )
+    if chave_estado_evolucoes not in st.session_state:
+        st.session_state[chave_estado_evolucoes] = False
+
     if st.button(
         "🌳 Carregar linha evolutiva",
         key=f"evolucoes_{numero}"
     ):
+        st.session_state[chave_estado_evolucoes] = True
+
+    if st.session_state[chave_estado_evolucoes]:
 
         especie_evolucao = buscar_especie(
             nome_especie
         )
 
         if especie_evolucao is None:
-
             st.error(
                 "❌ Não foi possível encontrar "
                 f"a espécie **{nome_especie}**."
             )
-
+            if st.button(
+                "🔄 Tentar carregar a espécie novamente",
+                key=f"recarregar_especie_evolucao_{numero}"
+            ):
+                buscar_especie.clear()
+                requisicao_api.clear()
+                st.rerun()
         else:
-
             url_chain = (
                 especie_evolucao
-                .get(
-                    "evolution_chain",
-                    {}
-                )
-                .get(
-                    "url"
-                )
+                .get("evolution_chain", {})
+                .get("url")
             )
 
             if not url_chain:
-
                 st.info(
-                    "Este Pokémon não possui "
-                    "uma cadeia evolutiva registrada."
+                    "A PokéAPI não retornou o endereço da cadeia evolutiva. "
+                    "Isso pode ser temporário; tente buscar novamente."
                 )
-
+                if st.button(
+                    "🔄 Atualizar dados evolutivos",
+                    key=f"recarregar_url_evolucao_{numero}"
+                ):
+                    buscar_especie.clear()
+                    requisicao_api.clear()
+                    st.rerun()
             else:
-
                 with st.spinner(
                     "🌳 Montando árvore evolutiva..."
                 ):
-
                     cadeia = buscar_evolution_chain(
                         url_chain
                     )
 
                 if cadeia:
-
                     mostrar_arvore_evolutiva(
                         cadeia.get("chain", cadeia)
                     )
-
                 else:
-
                     st.error(
                         "❌ Não foi possível carregar "
-                        "a linha evolutiva."
+                        "a linha evolutiva. Tente carregar novamente."
                     )
+                    if st.button(
+                        "🔄 Tentar novamente",
+                        key=f"recarregar_evolucao_{numero}"
+                    ):
+                        buscar_evolution_chain.clear()
+                        requisicao_api.clear()
+                        st.rerun()
 
 
 # ============================================================
