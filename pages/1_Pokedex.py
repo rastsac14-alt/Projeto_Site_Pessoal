@@ -1918,9 +1918,9 @@ for _id_forma, _config in _FORMAS_SAZONAIS.items():
         ],
     })
 
-# Mega Zygarde: não há sprite na coleção Gen 5 padrão. Usamos o sprite
-# pixelado alternativo do Showdown AFD, com o sprite de Legends: Z-A como
-# reserva; os renders HOME normal/shiny ficam disponíveis no canal 3D.
+# Mega Zygarde: não usamos artwork/HOME como se fossem sprites pixel 2D.
+# Se um sprite próprio e verificável for cadastrado no futuro, ele poderá
+# ser adicionado no campo "2d"; até lá a galeria mostra um aviso honesto.
 FORMAS_FONTES_ESPECIAIS.setdefault("zygarde-mega", {}).update({
     # Não foi localizado um sprite pixel 2D próprio e verificável para esta
     # forma. Não usamos artwork nem HOME nesta coluna: isso fazia render 3D
@@ -2672,6 +2672,56 @@ def _eh_mega_garchomp_z(*valores):
             return True
     return False
 
+def _eh_zygarde_mega(*valores):
+    """Reconhece Mega Zygarde usando ID, slug, nome da forma e dados associados.
+
+    Na v29 a verificação considerava somente o slug resolvido. Se o JSON trouxesse
+    um ID alternativo ou um rótulo localizado, a galeria podia escapar da proteção
+    e reaproveitar uma fonte de imagem de outra forma.
+    """
+    textos = []
+    for valor in valores:
+        if isinstance(valor, dict):
+            for chave in ("id_api", "nome", "name", "slug", "id", "nome_forma", "form_name"):
+                item = valor.get(chave)
+                if item is not None:
+                    textos.append(str(item))
+        elif isinstance(valor, (list, tuple, set)):
+            textos.extend(str(item) for item in valor if item is not None)
+        elif valor is not None:
+            textos.append(str(valor))
+
+    normalizados = []
+    for texto in textos:
+        slug = normalizar_nome(texto)
+        canonico = _canonizar_chave_forma(slug)
+        normalizados.extend((slug, canonico))
+
+    compactados = [valor.replace("-", "").replace("_", "") for valor in normalizados]
+    tem_zygarde = any("zygarde" in valor for valor in compactados)
+    tem_mega = any("mega" in valor or "megaz" in valor for valor in compactados)
+    return tem_zygarde and tem_mega
+
+
+def _sem_fontes_de_render_3d(valor):
+    """Remove HOME/GIF/artwork das listas que serão exibidas como Pixel 2D."""
+    marcadores_3d = (
+        "/sprites/home/",
+        "/sprites/home-centered/",
+        "/sprites/home-shiny/",
+        "/sprites/home-centered-shiny/",
+        "/sprites/ani/",
+        "/sprites/ani-shiny/",
+        "official-artwork",
+        "terapagos-stellar-home.png",
+        "terapagos-stellar-home-shiny.png",
+    )
+    return [
+        url for url in _lista_urls_imagem(valor)
+        if not any(marcador in str(url).lower() for marcador in marcadores_3d)
+    ]
+
+
 def _eh_terapagos_stellar(*valores):
     """Reconhece o slug da forma Stellar mesmo quando vem de um rótulo legível."""
     for valor in valores:
@@ -2705,6 +2755,18 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
     fontes = obter_fontes_forma(id_api, nome, dados)
 
     slug_resolvido = str(fontes.get("slug") or id_api or "").strip().lower()
+    forma_api_nome = ((dados.get("_forma_api") or {}).get("name", "")
+                      if isinstance(dados, dict) else "")
+    eh_zygarde_mega = _eh_zygarde_mega(
+        slug_resolvido, id_api, nome, forma, forma.get("nome"),
+        forma.get("name"), forma.get("slug"), forma.get("id"), forma_api_nome
+    )
+    eh_terapagos_stellar = _eh_terapagos_stellar(
+        slug_resolvido, id_api, nome, forma, forma.get("nome"),
+        forma.get("name"), forma.get("slug"), forma_api_nome
+    ) and not eh_zygarde_mega
+    if eh_zygarde_mega and imagem_local and "terapagos-stellar-home" in str(imagem_local).lower():
+        caminho_local = None
     slugs = _slug_forma_showdown(slug_resolvido) if slug_resolvido else []
     if slug_resolvido and slug_resolvido not in slugs:
         slugs.append(slug_resolvido)
@@ -2730,8 +2792,9 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
 
     # Imagens locais fornecidas pelo usuário: adicionadas ao projeto para que
     # Terapagos Stellar e Mega Garchomp Z não dependam de URLs remotas instáveis.
-    eh_terapagos_stellar = _eh_terapagos_stellar(slug_resolvido, id_api, nome)
-    eh_garchomp_z = _eh_mega_garchomp_z(slug_resolvido, id_api, nome, forma.get("nome"))
+    eh_garchomp_z = _eh_mega_garchomp_z(
+        slug_resolvido, id_api, nome, forma, forma.get("nome"), forma.get("name"), forma.get("slug")
+    )
 
     caminho_terapagos_stellar_normal = (
         carregar_imagem_local("imagens/formas/terapagos-stellar-home.png")
@@ -2750,27 +2813,29 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
     st.markdown("### 🌟 Forma da variante")
     col1, col2, col3 = st.columns(3)
 
-    url_2d = _combinar_urls(
-        fontes.get("2d"),
-        fontes.get("2d_api"),
-        fontes.get("2d_api_female"),
-    )
-    eh_terapagos = _eh_terapagos_forma(slug_resolvido, id_api, nome, forma.get("nome"))
+    eh_terapagos = _eh_terapagos_forma(
+        slug_resolvido, id_api, nome, forma, forma.get("nome"),
+        forma.get("name"), forma.get("slug"), forma_api_nome
+    ) and not eh_zygarde_mega
     if eh_terapagos:
-        # Terapagos must never inherit a Zygarde/Garchomp URL through a stale
-        # alias or fallback. Prefer only exact-form API sprites, then safe
-        # sources whose filename explicitly names the current Terapagos form.
+        # Pixel 2D: API-specific pixel sprites first, then the configured 2D
+        # source only after removing HOME renders, GIFs and other species.
         api_2d = _combinar_urls(fontes.get("2d_api"), fontes.get("2d_api_female"))
-        fontes_seguras = _sem_fontes_de_outras_formas(
-            url_2d, ("zygarde", "garchomp", "lucario")
+        fontes_2d_especiais = _sem_fontes_de_outras_formas(
+            fontes.get("2d"), ("zygarde", "garchomp", "lucario")
         )
-        if api_2d:
-            url_2d = _combinar_urls(api_2d, fontes_seguras)
-        else:
-            url_2d = fontes_seguras
-    eh_zygarde_mega = _canonizar_chave_forma(slug_resolvido) == "zygarde-mega"
+        fontes_2d_especiais = _sem_fontes_de_render_3d(fontes_2d_especiais)
+        url_2d = _combinar_urls(api_2d, fontes_2d_especiais)
+    else:
+        url_2d = _combinar_urls(
+            fontes.get("2d"),
+            fontes.get("2d_api"),
+            fontes.get("2d_api_female"),
+        )
+
     if eh_zygarde_mega:
-        # Explicitly keep the 2D slot free of artwork/HOME renders.
+        # Never show Terapagos HOME images (or any artwork/render) in Zygarde's
+        # Pixel 2D slot; until a dedicated pixel sprite exists, show a placeholder.
         url_2d = []
     with col1:
         if e_shadow_conceitual:
@@ -2842,17 +2907,19 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
     st.markdown("### ✨ Forma Shiny")
     col1, col2, col3 = st.columns(3)
 
-    url_2d_shiny = _combinar_urls(
-        fontes.get("shiny"),
-        fontes.get("shiny_api"),
-        fontes.get("shiny_api_female"),
-    )
     if eh_terapagos:
         api_shiny_2d = _combinar_urls(fontes.get("shiny_api"), fontes.get("shiny_api_female"))
-        fontes_shiny_seguras = _sem_fontes_de_outras_formas(
-            url_2d_shiny, ("zygarde", "garchomp", "lucario")
+        fontes_shiny_2d = _sem_fontes_de_outras_formas(
+            fontes.get("shiny"), ("zygarde", "garchomp", "lucario")
         )
-        url_2d_shiny = _combinar_urls(api_shiny_2d, fontes_shiny_seguras) if api_shiny_2d else fontes_shiny_seguras
+        fontes_shiny_2d = _sem_fontes_de_render_3d(fontes_shiny_2d)
+        url_2d_shiny = _combinar_urls(api_shiny_2d, fontes_shiny_2d)
+    else:
+        url_2d_shiny = _combinar_urls(
+            fontes.get("shiny"),
+            fontes.get("shiny_api"),
+            fontes.get("shiny_api_female"),
+        )
     if eh_zygarde_mega:
         url_2d_shiny = []
     with col1:
