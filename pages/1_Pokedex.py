@@ -1360,7 +1360,7 @@ def obter_sprites(pokemon):
         {}
     ) or {}
 
-    return {
+    resultado = {
         "pixel_normal": _texto_url(sprites.get("front_default")),
         "pixel_normal_female": _texto_url(sprites.get("front_female")),
         "3d_normal": _texto_url(showdown.get("front_default")),
@@ -1374,6 +1374,22 @@ def obter_sprites(pokemon):
         "artwork_shiny": _texto_url(artwork.get("front_shiny")),
         "artwork_shiny_female": _texto_url(artwork.get("front_shiny_female")),
     }
+
+    # Terapagos (forma base) não fornece sempre o render Showdown no objeto
+    # retornado pela PokéAPI. Usa HOME-centered diretamente, com HOME comum
+    # como alternativa conhecida, inclusive para o shiny.
+    nome_pokemon = normalizar_nome(pokemon.get("name", ""))
+    if nome_pokemon in {"terapagos", "terapagos-terastal", "terapagos-stellar"}:
+        resultado["3d_normal"] = [
+            f"https://play.pokemonshowdown.com/sprites/home-centered/{nome_pokemon}.png",
+            f"https://play.pokemonshowdown.com/sprites/home/{nome_pokemon}.png",
+        ]
+        resultado["3d_shiny"] = [
+            f"https://play.pokemonshowdown.com/sprites/home-centered-shiny/{nome_pokemon}.png",
+            f"https://play.pokemonshowdown.com/sprites/home-shiny/{nome_pokemon}.png",
+        ]
+
+    return resultado
 
 
 def eh_femea(pokemon):
@@ -1906,21 +1922,16 @@ for _id_forma, _config in _FORMAS_SAZONAIS.items():
 # pixelado alternativo do Showdown AFD, com o sprite de Legends: Z-A como
 # reserva; os renders HOME normal/shiny ficam disponíveis no canal 3D.
 FORMAS_FONTES_ESPECIAIS.setdefault("zygarde-mega", {}).update({
-    "2d": [
-        # Sprite pixelado alternativo da forma; se a fonte AFD falhar, usa o
-        # sprite de frente capturado em Legends: Z-A para a mesma forma.
-        "https://play.pokemonshowdown.com/sprites/gen5/zygarde-mega.png",
-        "https://play.pokemonshowdown.com/sprites/afd/zygarde-mega.png",
-        "https://archives.bulbagarden.net/media/upload/8/8c/0718Zygarde-Mega.png",
-    ],
-    "shiny": [
-        "https://play.pokemonshowdown.com/sprites/gen5-shiny/zygarde-mega.png",
-        "https://play.pokemonshowdown.com/sprites/afd-shiny/zygarde-mega.png",
-        "https://archives.bulbagarden.net/media/upload/8/8c/0718Zygarde-Mega.png",
-    ],
+    # Não existe um sprite pixelado verificável desta Mega no diretório
+    # padrão do Showdown. Usamos a imagem específica da forma como referência
+    # visível e identificada corretamente, em vez de URLs de sprite inexistentes.
+    "2d": "https://archives.bulbagarden.net/media/upload/8/8c/0718Zygarde-Mega.png",
+    # Não foi localizada uma versão pixel shiny própria; HOME shiny fica como
+    # referência alternativa explicitamente identificada na galeria.
+    "shiny": "https://archives.bulbagarden.net/media/upload/5/53/HOME0718M_s.png",
     "artwork": "https://archives.bulbagarden.net/media/upload/8/8c/0718Zygarde-Mega.png",
     "2d_high": "https://archives.bulbagarden.net/media/upload/8/8c/0718Zygarde-Mega.png",
-    "home": "https://archives.bulbagarden.net/media/upload/c/cf/HOME0718M.png",
+    "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0718M.png",
     "home_shiny": "https://archives.bulbagarden.net/media/upload/5/53/HOME0718M_s.png",
 })
 
@@ -2117,10 +2128,8 @@ def resolver_fontes_forma(id_api, nome_forma):
     - fontes especiais oficiais/arquivadas continuam sendo prioridade;
     - sprites do /pokemon e /pokemon-form só entram quando o nome é EXATO;
     - para HOME e ANIMADO do Showdown, NÃO fazemos requests de validação no
-      servidor do Streamlit. Essa validação estava fazendo os arquivos
-      desaparecerem porque o Cloud pode bloquear/recusar essas URLs.
-    - usamos somente slugs explicitamente verificados; nunca usamos
-      AFD/gen5 como fallback.
+      servidor do Streamlit. Essa validação pode falhar no Cloud apesar de a
+      imagem existir e abrir normalmente no navegador.
     """
 
     # IMPORTANTE: id_api pode ser numérico (ex.: 10059), enquanto nossas
@@ -2686,26 +2695,29 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
     col1, col2, col3 = st.columns(3)
 
     url_2d = _combinar_urls(
+        fontes.get("2d"),
         fontes.get("2d_api"),
         fontes.get("2d_api_female"),
-        fontes.get("2d"),
     )
     with col1:
-        if e_shadow_conceitual and not url_2d:
+        if e_shadow_conceitual:
             mostrar_imagem_local_em_quadro(
                 caminho_local,
                 "🟦 Referência visual (arte conceitual; sem sprite 2D próprio)",
                 180,
             )
         else:
-            legenda_2d = "🟦 Sprite 2D alternativo (Showdown)" if slug_resolvido == "zygarde-mega" else "🟦 Pixel 2D"
+            if slug_resolvido == "zygarde-mega":
+                legenda_2d = "🟦 Referência 2D da forma (arte; sem pixel próprio localizado)"
+            else:
+                legenda_2d = "🟦 Pixel 2D"
             mostrar_imagem(url_2d, legenda_2d, 180)
 
     with col2:
-        if e_shadow_conceitual and not urls_3d:
+        if e_shadow_conceitual:
             mostrar_imagem_local_em_quadro(
                 caminho_local,
-                "🟩 Referência visual (arte conceitual; sem render 3D próprio)",
+                "🟩 Referência conceitual (sem render 3D próprio cadastrado)",
                 180,
             )
         else:
@@ -2716,7 +2728,7 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
         fontes.get("2d_high"),
     )
     with col3:
-        if not url_artwork and caminho_local is not None:
+        if e_shadow_conceitual and caminho_local is not None:
             mostrar_imagem_local_em_quadro(
                 caminho_local,
                 "🎨 Arte conceitual local (referência Sugimori)",
@@ -2725,6 +2737,12 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
         elif e_shadow_conceitual:
             st.caption("🎨 Arte conceitual")
             st.info("A arte conceitual local não foi encontrada. Preserve a pasta imagens/formas no GitHub.")
+        elif not url_artwork and caminho_local is not None:
+            mostrar_imagem_local_em_quadro(
+                caminho_local,
+                "🎨 Arte conceitual local (referência Sugimori)",
+                180,
+            )
         else:
             legenda_artwork = (
                 "🎨 Arte alternativa da forma (Showdown)"
@@ -2738,9 +2756,9 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
     col1, col2, col3 = st.columns(3)
 
     url_2d_shiny = _combinar_urls(
+        fontes.get("shiny"),
         fontes.get("shiny_api"),
         fontes.get("shiny_api_female"),
-        fontes.get("shiny"),
     )
     with col1:
         if e_shadow_conceitual:
@@ -2750,7 +2768,10 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
                 180,
             )
         else:
-            legenda_2d_shiny = "✨ Sprite 2D Shiny alternativo (Showdown)" if slug_resolvido == "zygarde-mega" else "🟦 Pixel 2D Shiny"
+            if slug_resolvido == "zygarde-mega":
+                legenda_2d_shiny = "✨ Referência Shiny (HOME; sem pixel shiny próprio localizado)"
+            else:
+                legenda_2d_shiny = "🟦 Pixel 2D Shiny"
             mostrar_imagem(url_2d_shiny, legenda_2d_shiny, 180)
 
     shiny_ani_urls = [
@@ -2784,10 +2805,16 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
                 "A arte conceitual não possui versão shiny conhecida.",
                 180,
             )
-        elif slug_resolvido == "garchomp-mega-z" and url_artwork_shiny:
-            mostrar_imagem(
+        elif slug_resolvido == "garchomp-mega-z":
+            referencia_shiny = _combinar_urls(
                 url_artwork_shiny,
-                "🎨 HOME Shiny (alternativa — artwork própria não localizada)",
+                shiny_home_urls,
+                shiny_ani_urls,
+                url_2d_shiny,
+            )
+            mostrar_imagem(
+                referencia_shiny,
+                "🎨 Referência Shiny alternativa (Showdown; artwork própria não localizada)",
                 180,
             )
         elif e_referencia_showdown:
