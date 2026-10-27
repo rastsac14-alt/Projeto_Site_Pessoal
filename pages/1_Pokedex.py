@@ -2660,6 +2660,29 @@ img{{display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-
 
 _FORMAS_SHADOW_SOMENTE_CONCEITUAIS = {"shadow-mewtwo", "shadow-lugia"}
 
+def _eh_mega_garchomp_z(*valores):
+    """Reconhece os diferentes slugs usados para Mega Garchomp Z."""
+    for valor in valores:
+        slug = normalizar_nome(valor or "")
+        canonico = _canonizar_chave_forma(slug)
+        compactado = slug.replace("-", "")
+        if (
+            slug in {"garchomp-mega-z", "garchomp-megaz", "mega-garchomp-z", "mega-garchomp-megaz"}
+            or canonico in {"garchomp-mega-z", "garchomp-megaz"}
+            or ("garchomp" in compactado and compactado.endswith("megaz"))
+        ):
+            return True
+    return False
+
+def _eh_terapagos_stellar(*valores):
+    """Reconhece o slug da forma Stellar mesmo quando vem de um rótulo legível."""
+    for valor in valores:
+        slug = normalizar_nome(valor or "")
+        canonico = _canonizar_chave_forma(slug)
+        if slug in {"terapagos-stellar", "stellar-terapagos"} or canonico == "terapagos-stellar":
+            return True
+    return False
+
 def mostrar_sprites_forma(forma, dados, id_api, nome):
     """Exibe a forma em uma grade fixa de 3 colunas, mantendo fontes específicas."""
     imagem_local = forma.get("imagem_local")
@@ -2692,17 +2715,20 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
 
     # Imagens locais fornecidas pelo usuário: adicionadas ao projeto para que
     # Terapagos Stellar e Mega Garchomp Z não dependam de URLs remotas instáveis.
+    eh_terapagos_stellar = _eh_terapagos_stellar(slug_resolvido, id_api, nome)
+    eh_garchomp_z = _eh_mega_garchomp_z(slug_resolvido, id_api, nome, forma.get("nome"))
+
     caminho_terapagos_stellar_normal = (
         carregar_imagem_local("imagens/formas/terapagos-stellar-home.png")
-        if slug_resolvido == "terapagos-stellar" else None
+        if eh_terapagos_stellar else None
     )
     caminho_terapagos_stellar_shiny = (
         carregar_imagem_local("imagens/formas/terapagos-stellar-home-shiny.png")
-        if slug_resolvido == "terapagos-stellar" else None
+        if eh_terapagos_stellar else None
     )
     caminho_garchomp_z_shiny_artwork = (
         carregar_imagem_local("imagens/formas/garchomp-mega-z-shiny-artwork.png")
-        if slug_resolvido == "garchomp-mega-z" else None
+        if eh_garchomp_z else None
     )
 
     # ---------------------- FORMA NORMAL ----------------------
@@ -2838,7 +2864,16 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
                 "A arte conceitual não possui versão shiny conhecida.",
                 180,
             )
-        elif slug_resolvido == "garchomp-mega-z":
+        elif eh_terapagos_stellar and caminho_terapagos_stellar_shiny is not None:
+            # A forma não tem artwork shiny oficial disponível nesta fonte.
+            # Usa a imagem shiny enviada pelo usuário como referência visual,
+            # sem rotulá-la incorretamente como artwork oficial.
+            mostrar_imagem_local_em_quadro(
+                caminho_terapagos_stellar_shiny,
+                "🎨 Referência Shiny local (sprite fornecido; não é artwork oficial)",
+                180,
+            )
+        elif eh_garchomp_z:
             referencia_shiny = _combinar_urls(
                 url_artwork_shiny,
                 shiny_home_urls,
@@ -2889,20 +2924,18 @@ def carregar_imagem_local(caminho):
             else None
         )
 
-    candidato = BASE_DIR / caminho_path
+    candidatos = [
+        BASE_DIR / caminho_path,
+        _DIRETORIO_SCRIPT / caminho_path,
+        _DIRETORIO_SCRIPT.parent / caminho_path,
+        BASE_DIR / "imagens" / "formas" / caminho_path.name,
+        _DIRETORIO_SCRIPT / "imagens" / "formas" / caminho_path.name,
+        _DIRETORIO_SCRIPT.parent / "imagens" / "formas" / caminho_path.name,
+    ]
 
-    if candidato.exists():
-        return candidato
-
-    candidato = (
-        BASE_DIR
-        / "imagens"
-        / "formas"
-        / caminho_path.name
-    )
-
-    if candidato.exists():
-        return candidato
+    for candidato in candidatos:
+        if candidato.is_file():
+            return candidato
 
     return None
 
