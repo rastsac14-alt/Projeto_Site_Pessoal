@@ -1909,12 +1909,14 @@ FORMAS_FONTES_ESPECIAIS.setdefault("zygarde-mega", {}).update({
     "2d": [
         # Sprite pixelado alternativo da forma; se a fonte AFD falhar, usa o
         # sprite de frente capturado em Legends: Z-A para a mesma forma.
+        "https://play.pokemonshowdown.com/sprites/gen5/zygarde-mega.png",
         "https://play.pokemonshowdown.com/sprites/afd/zygarde-mega.png",
-        "https://assets.pokestats.gg/pokeapi/v1/pokemon/versions/generation-ix/legends-za/10301.webp",
+        "https://archives.bulbagarden.net/media/upload/8/8c/0718Zygarde-Mega.png",
     ],
     "shiny": [
+        "https://play.pokemonshowdown.com/sprites/gen5-shiny/zygarde-mega.png",
         "https://play.pokemonshowdown.com/sprites/afd-shiny/zygarde-mega.png",
-        "https://assets.pokestats.gg/pokeapi/v1/pokemon/versions/generation-ix/legends-za/shiny/10301.webp",
+        "https://archives.bulbagarden.net/media/upload/8/8c/0718Zygarde-Mega.png",
     ],
     "artwork": "https://archives.bulbagarden.net/media/upload/8/8c/0718Zygarde-Mega.png",
     "2d_high": "https://archives.bulbagarden.net/media/upload/8/8c/0718Zygarde-Mega.png",
@@ -1927,8 +1929,16 @@ FORMAS_FONTES_ESPECIAIS.setdefault("zygarde-mega", {}).update({
 # os renders 3D nem as versões shiny.
 for _id_forma in ("terapagos", "terapagos-terastal", "terapagos-stellar"):
     FORMAS_FONTES_ESPECIAIS.setdefault(_id_forma, {}).update({
-        "home": f"{SHOWDOWN_HOME_BASE}{_id_forma}.png",
-        "home_shiny": f"{SHOWDOWN_HOME_SHINY_BASE}{_id_forma}.png",
+        # HOME-centered evita alguns recortes/posicionamentos inconsistentes.
+        # O HOME comum fica como segunda tentativa para manter compatibilidade.
+        "home": [
+            f"{SHOWDOWN_HOME_CENTERED_BASE}{_id_forma}.png",
+            f"{SHOWDOWN_HOME_BASE}{_id_forma}.png",
+        ],
+        "home_shiny": [
+            f"https://play.pokemonshowdown.com/sprites/home-centered-shiny/{_id_forma}.png",
+            f"{SHOWDOWN_HOME_SHINY_BASE}{_id_forma}.png",
+        ],
     })
 
 # Mega Garchomp Z: sprite 2D normal e shiny da coleção Gen 5 do Showdown.
@@ -2682,9 +2692,9 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
     )
     with col1:
         if e_shadow_conceitual and not url_2d:
-            mostrar_placeholder_imagem(
-                "🟦 Pixel 2D",
-                "Sprite pixelado específico não cadastrado. A arte conceitual está na terceira coluna.",
+            mostrar_imagem_local_em_quadro(
+                caminho_local,
+                "🟦 Referência visual (arte conceitual; sem sprite 2D próprio)",
                 180,
             )
         else:
@@ -2693,9 +2703,9 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
 
     with col2:
         if e_shadow_conceitual and not urls_3d:
-            mostrar_placeholder_imagem(
-                "🟩 3D / Showdown",
-                "Não há render 3D específico cadastrado para esta forma conceitual.",
+            mostrar_imagem_local_em_quadro(
+                caminho_local,
+                "🟩 Referência visual (arte conceitual; sem render 3D próprio)",
                 180,
             )
         else:
