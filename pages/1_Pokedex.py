@@ -1922,13 +1922,11 @@ for _id_forma, _config in _FORMAS_SAZONAIS.items():
 # pixelado alternativo do Showdown AFD, com o sprite de Legends: Z-A como
 # reserva; os renders HOME normal/shiny ficam disponíveis no canal 3D.
 FORMAS_FONTES_ESPECIAIS.setdefault("zygarde-mega", {}).update({
-    # Não existe um sprite pixelado verificável desta Mega no diretório
-    # padrão do Showdown. Usamos a imagem específica da forma como referência
-    # visível e identificada corretamente, em vez de URLs de sprite inexistentes.
-    "2d": "https://archives.bulbagarden.net/media/upload/8/8c/0718Zygarde-Mega.png",
-    # Não foi localizada uma versão pixel shiny própria; HOME shiny fica como
-    # referência alternativa explicitamente identificada na galeria.
-    "shiny": "https://archives.bulbagarden.net/media/upload/5/53/HOME0718M_s.png",
+    # Não foi localizado um sprite pixel 2D próprio e verificável para esta
+    # forma. Não usamos artwork nem HOME nesta coluna: isso fazia render 3D
+    # parecer um sprite pixelado. A galeria mostrará um aviso honesto.
+    "2d": None,
+    "shiny": None,
     "artwork": "https://archives.bulbagarden.net/media/upload/8/8c/0718Zygarde-Mega.png",
     "2d_high": "https://archives.bulbagarden.net/media/upload/8/8c/0718Zygarde-Mega.png",
     "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0718M.png",
@@ -2683,6 +2681,23 @@ def _eh_terapagos_stellar(*valores):
             return True
     return False
 
+def _eh_terapagos_forma(*valores):
+    """Detecta apenas formas de Terapagos, sem confundir com outras espécies."""
+    for valor in valores:
+        slug = _canonizar_chave_forma(normalizar_nome(valor or ""))
+        if slug in {"terapagos", "terapagos-terastal", "terapagos-stellar"}:
+            return True
+        if slug.startswith("terapagos-"):
+            return True
+    return False
+
+
+def _sem_fontes_de_outras_formas(valor, termos_bloqueados):
+    """Remove URLs de outras espécies que tenham vazado para uma forma."""
+    urls = _lista_urls_imagem(valor)
+    return [url for url in urls if not any(termo in str(url).lower() for termo in termos_bloqueados)]
+
+
 def mostrar_sprites_forma(forma, dados, id_api, nome):
     """Exibe a forma em uma grade fixa de 3 colunas, mantendo fontes específicas."""
     imagem_local = forma.get("imagem_local")
@@ -2740,6 +2755,23 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
         fontes.get("2d_api"),
         fontes.get("2d_api_female"),
     )
+    eh_terapagos = _eh_terapagos_forma(slug_resolvido, id_api, nome, forma.get("nome"))
+    if eh_terapagos:
+        # Terapagos must never inherit a Zygarde/Garchomp URL through a stale
+        # alias or fallback. Prefer only exact-form API sprites, then safe
+        # sources whose filename explicitly names the current Terapagos form.
+        api_2d = _combinar_urls(fontes.get("2d_api"), fontes.get("2d_api_female"))
+        fontes_seguras = _sem_fontes_de_outras_formas(
+            url_2d, ("zygarde", "garchomp", "lucario")
+        )
+        if api_2d:
+            url_2d = _combinar_urls(api_2d, fontes_seguras)
+        else:
+            url_2d = fontes_seguras
+    eh_zygarde_mega = _canonizar_chave_forma(slug_resolvido) == "zygarde-mega"
+    if eh_zygarde_mega:
+        # Explicitly keep the 2D slot free of artwork/HOME renders.
+        url_2d = []
     with col1:
         if e_shadow_conceitual:
             mostrar_imagem_local_em_quadro(
@@ -2747,12 +2779,20 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
                 "🟦 Referência visual (arte conceitual; sem sprite 2D próprio)",
                 180,
             )
+        elif eh_zygarde_mega:
+            mostrar_placeholder_imagem(
+                "🟦 Pixel 2D",
+                "Sprite pixel 2D próprio desta forma não localizado. Não será substituído por arte 3D.",
+                180,
+            )
+        elif not _lista_urls_imagem(url_2d):
+            mostrar_placeholder_imagem(
+                "🟦 Pixel 2D",
+                "Sprite pixel 2D específico não encontrado para esta forma.",
+                180,
+            )
         else:
-            if slug_resolvido == "zygarde-mega":
-                legenda_2d = "🟦 Referência 2D da forma (arte; sem pixel próprio localizado)"
-            else:
-                legenda_2d = "🟦 Pixel 2D"
-            mostrar_imagem(url_2d, legenda_2d, 180)
+            mostrar_imagem(url_2d, "🟦 Pixel 2D", 180)
 
     with col2:
         if caminho_terapagos_stellar_normal is not None:
@@ -2807,6 +2847,14 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
         fontes.get("shiny_api"),
         fontes.get("shiny_api_female"),
     )
+    if eh_terapagos:
+        api_shiny_2d = _combinar_urls(fontes.get("shiny_api"), fontes.get("shiny_api_female"))
+        fontes_shiny_seguras = _sem_fontes_de_outras_formas(
+            url_2d_shiny, ("zygarde", "garchomp", "lucario")
+        )
+        url_2d_shiny = _combinar_urls(api_shiny_2d, fontes_shiny_seguras) if api_shiny_2d else fontes_shiny_seguras
+    if eh_zygarde_mega:
+        url_2d_shiny = []
     with col1:
         if e_shadow_conceitual:
             mostrar_placeholder_imagem(
@@ -2814,12 +2862,20 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
                 "Não há sprite shiny específico cadastrado.",
                 180,
             )
+        elif eh_zygarde_mega:
+            mostrar_placeholder_imagem(
+                "🟦 Pixel 2D Shiny",
+                "Sprite pixel shiny próprio não localizado. Não será substituído por HOME/3D.",
+                180,
+            )
+        elif not _lista_urls_imagem(url_2d_shiny):
+            mostrar_placeholder_imagem(
+                "🟦 Pixel 2D Shiny",
+                "Sprite pixel shiny específico não encontrado para esta forma.",
+                180,
+            )
         else:
-            if slug_resolvido == "zygarde-mega":
-                legenda_2d_shiny = "✨ Referência Shiny (HOME; sem pixel shiny próprio localizado)"
-            else:
-                legenda_2d_shiny = "🟦 Pixel 2D Shiny"
-            mostrar_imagem(url_2d_shiny, legenda_2d_shiny, 180)
+            mostrar_imagem(url_2d_shiny, "🟦 Pixel 2D Shiny", 180)
 
     shiny_ani_urls = [
         f"https://play.pokemonshowdown.com/sprites/ani-shiny/{slug}.gif"
