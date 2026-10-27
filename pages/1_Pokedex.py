@@ -2690,6 +2690,21 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
     )
     e_referencia_showdown = slug_resolvido in FORMAS_COM_ARTE_SHOWDOWN_ALTERNATIVA
 
+    # Imagens locais fornecidas pelo usuário: adicionadas ao projeto para que
+    # Terapagos Stellar e Mega Garchomp Z não dependam de URLs remotas instáveis.
+    caminho_terapagos_stellar_normal = (
+        carregar_imagem_local("imagens/formas/terapagos-stellar-home.png")
+        if slug_resolvido == "terapagos-stellar" else None
+    )
+    caminho_terapagos_stellar_shiny = (
+        carregar_imagem_local("imagens/formas/terapagos-stellar-home-shiny.png")
+        if slug_resolvido == "terapagos-stellar" else None
+    )
+    caminho_garchomp_z_shiny_artwork = (
+        carregar_imagem_local("imagens/formas/garchomp-mega-z-shiny-artwork.png")
+        if slug_resolvido == "garchomp-mega-z" else None
+    )
+
     # ---------------------- FORMA NORMAL ----------------------
     st.markdown("### 🌟 Forma da variante")
     col1, col2, col3 = st.columns(3)
@@ -2714,7 +2729,13 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
             mostrar_imagem(url_2d, legenda_2d, 180)
 
     with col2:
-        if e_shadow_conceitual:
+        if caminho_terapagos_stellar_normal is not None:
+            mostrar_imagem_local_em_quadro(
+                caminho_terapagos_stellar_normal,
+                "🟩 3D / HOME — Terapagos Stellar (imagem local)",
+                180,
+            )
+        elif e_shadow_conceitual:
             mostrar_imagem_local_em_quadro(
                 caminho_local,
                 "🟩 Referência conceitual (sem render 3D próprio cadastrado)",
@@ -2784,7 +2805,13 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
     else:
         shiny_3d_urls = shiny_ani_urls + shiny_home_urls
     with col2:
-        if e_shadow_conceitual:
+        if caminho_terapagos_stellar_shiny is not None:
+            mostrar_imagem_local_em_quadro(
+                caminho_terapagos_stellar_shiny,
+                "🟩 3D / HOME Shiny — Terapagos Stellar (imagem local)",
+                180,
+            )
+        elif e_shadow_conceitual:
             mostrar_placeholder_imagem(
                 "🟩 3D / Showdown Shiny",
                 "Não há render shiny específico cadastrado.",
@@ -2799,7 +2826,13 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
 
     url_artwork_shiny = _combinar_urls(fontes.get("artwork_shiny"))
     with col3:
-        if e_shadow_conceitual:
+        if caminho_garchomp_z_shiny_artwork is not None:
+            mostrar_imagem_local_em_quadro(
+                caminho_garchomp_z_shiny_artwork,
+                "🎨 Artwork Shiny — Mega Garchomp Z (imagem local enviada)",
+                180,
+            )
+        elif e_shadow_conceitual:
             mostrar_placeholder_imagem(
                 "🎨 Artwork Shiny",
                 "A arte conceitual não possui versão shiny conhecida.",
