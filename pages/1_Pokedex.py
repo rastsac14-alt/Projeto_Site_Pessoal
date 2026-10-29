@@ -2953,6 +2953,10 @@ def mostrar_sprites_forma(forma, dados, id_api, nome, especie_base=None):
     # Terapagos usa apenas as fontes próprias da sua forma; não reutiliza os PNGs de Zygarde.
     caminho_terapagos_stellar_normal = None
     caminho_terapagos_stellar_shiny = None
+    caminho_terapagos_stellar_artwork_shiny = (
+        carregar_imagem_local("imagens/formas/terapagos-stellar-artwork-shiny.png")
+        if eh_terapagos_stellar else None
+    )
     caminho_garchomp_z_pixel = (
         carregar_imagem_local("imagens/formas/garchomp-mega-z-pixel.png")
         if eh_garchomp_z else None
@@ -3220,9 +3224,16 @@ def mostrar_sprites_forma(forma, dados, id_api, nome, especie_base=None):
                 "A arte conceitual não possui versão shiny conhecida.",
                 180,
             )
+        elif eh_terapagos_stellar and caminho_terapagos_stellar_artwork_shiny is not None:
+            # Arte local escolhida para preencher somente o Artwork Shiny de Terapagos Stellar.
+            # Mantemos os canais Pixel 2D, HOME/Showdown e a arte normal inalterados.
+            mostrar_imagem_local_em_quadro(
+                caminho_terapagos_stellar_artwork_shiny,
+                "🎨 Artwork Shiny — Terapagos Stellar (imagem local)",
+                180,
+            )
         elif eh_terapagos_stellar:
-            # Não afirmar que existe artwork oficial shiny separado. A fonte
-            # shiny cadastrada é o render HOME próprio da forma Stellar.
+            # Fallback anterior, caso a imagem local não esteja instalada no projeto.
             referencia_stellar_shiny = _combinar_urls(
                 fontes.get("artwork_shiny"),
                 shiny_home_urls,
