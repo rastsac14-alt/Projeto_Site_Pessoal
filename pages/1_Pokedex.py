@@ -2118,6 +2118,33 @@ def _sprites_exatos_da_forma(dados):
     }
 
 
+def _chave_forma_prioritaria(valor):
+    """Reconhece os nomes dessas formas sem misturar espécies diferentes."""
+    if valor is None:
+        return None
+    slug = normalizar_nome(valor)
+    canonico = _canonizar_chave_forma(slug)
+    candidatos = (slug, canonico)
+    for candidato in candidatos:
+        compacto = candidato.replace("-", "").replace("_", "")
+        if "terapagos" in compacto:
+            if "stellar" in compacto:
+                return "terapagos-stellar"
+            if "terastal" in compacto:
+                return "terapagos-terastal"
+            if compacto == "terapagos":
+                return "terapagos"
+        # O teste precisa acontecer dentro do MESMO nome; não cruza palavras
+        # como "Zygarde" de um campo com "Mega" de outro campo.
+        if "zygarde" in compacto and "mega" in compacto:
+            return "zygarde-mega"
+        if "garchomp" in compacto and "mega" in compacto and (compacto.endswith("z") or "megaz" in compacto):
+            return "garchomp-mega-z"
+    if canonico in {"terapagos", "terapagos-terastal", "terapagos-stellar", "zygarde-mega", "garchomp-mega-z"}:
+        return canonico
+    return None
+
+
 @st.cache_data(ttl=21600, show_spinner=False)
 def resolver_fontes_forma(id_api, nome_forma):
     """Resolve imagens exatas da forma.
@@ -2153,9 +2180,21 @@ def resolver_fontes_forma(id_api, nome_forma):
         and re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", id_normalizado)
     )
 
-    if id_e_slug:
-        # A chave do ID evita procurar "Rattata de Alola" em vez de
-        # "rattata-alola" e evita que um rótulo português acerte outra forma.
+    # Para as formas afetadas, o nome canônico tem prioridade sobre aliases
+    # como "mega-garchomp-z". Isso garante que a entrada especial correta seja
+    # escolhida, em vez de cair numa chave que não possui fontes cadastradas.
+    chave_nome_prioritaria = _chave_forma_prioritaria(nome_forma)
+    chave_id_prioritaria = _chave_forma_prioritaria(id_api)
+    if chave_nome_prioritaria in FORMAS_FONTES_ESPECIAIS:
+        chave = chave_nome_prioritaria
+    elif chave_id_prioritaria in FORMAS_FONTES_ESPECIAIS:
+        chave = chave_id_prioritaria
+    elif id_e_slug and chave_id_canonica in FORMAS_FONTES_ESPECIAIS:
+        chave = chave_id_canonica
+    elif id_e_slug and id_normalizado in FORMAS_FONTES_ESPECIAIS:
+        chave = id_normalizado
+    elif id_e_slug:
+        # Para os demais Pokémon, preservamos o slug exato da API.
         chave = id_normalizado
     elif chave_id_canonica in FORMAS_FONTES_ESPECIAIS:
         chave = chave_id_canonica
@@ -2401,10 +2440,14 @@ def urls_showdown_forma(id_api, nome_forma):
 def obter_fontes_forma(id_api, nome_forma, dados=None):
     """Resolve fontes da forma a partir do nome, ID e relação /pokemon-form.
 
-    Usa apenas fontes que correspondem à forma. A espécie-base não é usada
-    como substituta visual. O id_api do JSON é prioritário; a relação
-    ``_forma_api.pokemon`` só é usada quando o identificador não é um slug.
+    Para Terapagos, Mega Zygarde e Mega Garchomp Z, o rótulo inequívoco da
+    forma selecionada isola as fontes e impede que uma relação/API inconsistente
+    misture os sprites de uma espécie com outra.
     """
+    chave_prioritaria = _chave_forma_prioritaria(nome_forma)
+    if chave_prioritaria in {"terapagos", "terapagos-terastal", "terapagos-stellar", "zygarde-mega", "garchomp-mega-z"}:
+        return resolver_fontes_forma(chave_prioritaria, chave_prioritaria)
+
     fontes = resolver_fontes_forma(id_api, nome_forma)
     sprites_forma = (dados.get("_sprites_forma", {}) if dados else {}) or {}
 
@@ -2673,34 +2716,29 @@ def _eh_mega_garchomp_z(*valores):
     return False
 
 def _eh_zygarde_mega(*valores):
-    """Reconhece Mega Zygarde usando ID, slug, nome da forma e dados associados.
-
-    Na v29 a verificação considerava somente o slug resolvido. Se o JSON trouxesse
-    um ID alternativo ou um rótulo localizado, a galeria podia escapar da proteção
-    e reaproveitar uma fonte de imagem de outra forma.
-    """
-    textos = []
+    """Reconhece Mega Zygarde somente quando um identificador traz ambos."""
     for valor in valores:
         if isinstance(valor, dict):
-            for chave in ("id_api", "nome", "name", "slug", "id", "nome_forma", "form_name"):
-                item = valor.get(chave)
-                if item is not None:
-                    textos.append(str(item))
+            candidatos = [
+                str(valor[chave]) for chave in
+                ("id_api", "nome", "name", "slug", "nome_forma", "form_name")
+                if valor.get(chave) is not None
+            ]
         elif isinstance(valor, (list, tuple, set)):
-            textos.extend(str(item) for item in valor if item is not None)
+            candidatos = [str(item) for item in valor if item is not None]
         elif valor is not None:
-            textos.append(str(valor))
+            candidatos = [str(valor)]
+        else:
+            candidatos = []
 
-    normalizados = []
-    for texto in textos:
-        slug = normalizar_nome(texto)
-        canonico = _canonizar_chave_forma(slug)
-        normalizados.extend((slug, canonico))
-
-    compactados = [valor.replace("-", "").replace("_", "") for valor in normalizados]
-    tem_zygarde = any("zygarde" in valor for valor in compactados)
-    tem_mega = any("mega" in valor or "megaz" in valor for valor in compactados)
-    return tem_zygarde and tem_mega
+        for texto in candidatos:
+            slug = normalizar_nome(texto)
+            canonico = _canonizar_chave_forma(slug)
+            for candidato in (slug, canonico):
+                compacto = candidato.replace("-", "").replace("_", "")
+                if "zygarde" in compacto and "mega" in compacto:
+                    return True
+    return False
 
 
 def _sem_fontes_de_render_3d(valor):
@@ -2748,23 +2786,68 @@ def _sem_fontes_de_outras_formas(valor, termos_bloqueados):
     return [url for url in urls if not any(termo in str(url).lower() for termo in termos_bloqueados)]
 
 
-def mostrar_sprites_forma(forma, dados, id_api, nome):
+def mostrar_sprites_forma(forma, dados, id_api, nome, especie_base=None):
     """Exibe a forma em uma grade fixa de 3 colunas, mantendo fontes específicas."""
     imagem_local = forma.get("imagem_local")
     caminho_local = carregar_imagem_local(imagem_local)
-    fontes = obter_fontes_forma(id_api, nome, dados)
 
-    slug_resolvido = str(fontes.get("slug") or id_api or "").strip().lower()
+    # O Pokémon-base em contexto é a última barreira contra fontes cruzadas.
+    # Ao visualizar formas de Terapagos, resolvemos os assets pelo slug correto
+    # em vez de reutilizar dados de uma relação /pokemon-form incompatível.
+    especie_contexto = normalizar_nome(especie_base or "")
+    if especie_contexto == "terapagos" and imagem_local:
+        nome_arquivo_local = Path(str(imagem_local)).name.lower()
+        if nome_arquivo_local in {
+            "terapagos-stellar-home.png",
+            "terapagos-stellar-home-shiny.png",
+        }:
+            # Esses dois PNGs são sprites do Mega Zygarde, não do Terapagos.
+            caminho_local = None
+    rotulos_forma = [nome, forma.get("nome"), forma.get("name"), forma.get("slug")]
+    rotulos_slugs = [normalizar_nome(item or "") for item in rotulos_forma]
+    rotulos_texto = " ".join(rotulos_slugs)
+
+    slug_forcado = None
+    if especie_contexto == "terapagos" or any("terapagos" in item for item in rotulos_slugs):
+        if "stellar" in rotulos_texto:
+            slug_forcado = "terapagos-stellar"
+        elif "terastal" in rotulos_texto:
+            slug_forcado = "terapagos-terastal"
+        else:
+            id_candidato = _chave_forma_prioritaria(id_api)
+            slug_forcado = id_candidato if id_candidato in {"terapagos", "terapagos-terastal", "terapagos-stellar"} else "terapagos"
+    elif especie_contexto == "garchomp" and ("mega" in rotulos_texto and (" z" in f" {rotulos_texto}" or "-z" in rotulos_texto)):
+        slug_forcado = "garchomp-mega-z"
+    else:
+        # Para os nomes inequívocos das três formas problemáticas, os dados
+        # especiais da forma prevalecem sobre qualquer slug incompatível.
+        for rotulo in rotulos_forma:
+            chave_rotulo = _chave_forma_prioritaria(rotulo)
+            if chave_rotulo in {"terapagos", "terapagos-terastal", "terapagos-stellar", "zygarde-mega", "garchomp-mega-z"}:
+                slug_forcado = chave_rotulo
+                break
+
+    if slug_forcado:
+        fontes = resolver_fontes_forma(slug_forcado, slug_forcado)
+    else:
+        fontes = obter_fontes_forma(id_api, nome, dados)
+
+    slug_resolvido = str(fontes.get("slug") or slug_forcado or id_api or "").strip().lower()
     forma_api_nome = ((dados.get("_forma_api") or {}).get("name", "")
                       if isinstance(dados, dict) else "")
     eh_zygarde_mega = _eh_zygarde_mega(
-        slug_resolvido, id_api, nome, forma, forma.get("nome"),
-        forma.get("name"), forma.get("slug"), forma.get("id"), forma_api_nome
+        slug_resolvido, id_api, nome, forma.get("nome"),
+        forma.get("name"), forma.get("slug"), forma_api_nome
     )
     eh_terapagos_stellar = _eh_terapagos_stellar(
-        slug_resolvido, id_api, nome, forma, forma.get("nome"),
+        slug_resolvido, id_api, nome, forma.get("nome"),
         forma.get("name"), forma.get("slug"), forma_api_nome
-    ) and not eh_zygarde_mega
+    )
+    if especie_contexto == "terapagos" or slug_forcado in {"terapagos", "terapagos-terastal", "terapagos-stellar"}:
+        # Uma forma aberta pela ficha de Terapagos nunca pode virar Zygarde
+        # por causa de um campo interno incorreto da API.
+        eh_zygarde_mega = False
+        eh_terapagos_stellar = slug_resolvido == "terapagos-stellar"
     if eh_zygarde_mega and imagem_local and "terapagos-stellar-home" in str(imagem_local).lower():
         caminho_local = None
     slugs = _slug_forma_showdown(slug_resolvido) if slug_resolvido else []
@@ -2796,14 +2879,19 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
         slug_resolvido, id_api, nome, forma, forma.get("nome"), forma.get("name"), forma.get("slug")
     )
 
-    caminho_terapagos_stellar_normal = (
-        carregar_imagem_local("imagens/formas/terapagos-stellar-home.png")
-        if eh_terapagos_stellar else None
+    # As imagens anteriormente guardadas sob o nome "terapagos-stellar-home"
+    # são, na verdade, os sprites Pixel 2D normal/shiny do Mega Zygarde.
+    caminho_zygarde_mega_pixel = (
+        carregar_imagem_local("imagens/formas/zygarde-mega-pixel.png")
+        if eh_zygarde_mega else None
     )
-    caminho_terapagos_stellar_shiny = (
-        carregar_imagem_local("imagens/formas/terapagos-stellar-home-shiny.png")
-        if eh_terapagos_stellar else None
+    caminho_zygarde_mega_pixel_shiny = (
+        carregar_imagem_local("imagens/formas/zygarde-mega-pixel-shiny.png")
+        if eh_zygarde_mega else None
     )
+    # Terapagos usa apenas as fontes próprias da sua forma; não reutiliza os PNGs de Zygarde.
+    caminho_terapagos_stellar_normal = None
+    caminho_terapagos_stellar_shiny = None
     caminho_garchomp_z_shiny_artwork = (
         carregar_imagem_local("imagens/formas/garchomp-mega-z-shiny-artwork.png")
         if eh_garchomp_z else None
@@ -2813,9 +2901,12 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
     st.markdown("### 🌟 Forma da variante")
     col1, col2, col3 = st.columns(3)
 
-    eh_terapagos = _eh_terapagos_forma(
-        slug_resolvido, id_api, nome, forma, forma.get("nome"),
-        forma.get("name"), forma.get("slug"), forma_api_nome
+    eh_terapagos = (
+        especie_contexto == "terapagos"
+        or slug_resolvido in {"terapagos", "terapagos-terastal", "terapagos-stellar"}
+        or _eh_terapagos_forma(
+            slug_resolvido, nome, forma.get("nome"), forma.get("name"), forma.get("slug")
+        )
     ) and not eh_zygarde_mega
     if eh_terapagos:
         # Pixel 2D: API-specific pixel sprites first, then the configured 2D
@@ -2834,11 +2925,20 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
         )
 
     if eh_zygarde_mega:
-        # Never show Terapagos HOME images (or any artwork/render) in Zygarde's
-        # Pixel 2D slot; until a dedicated pixel sprite exists, show a placeholder.
+        # No Mega Zygarde Pixel 2D sprite is present in the verified Showdown
+        # Gen 5 sprite index. Do not substitute artwork/HOME or another species.
         url_2d = []
+    elif eh_garchomp_z:
+        # Verified pixel sprite dedicated to Mega Garchomp Z.
+        url_2d = f"{SHOWDOWN_2D_BASE}garchomp-megaz.png"
     with col1:
-        if e_shadow_conceitual:
+        if eh_zygarde_mega and caminho_zygarde_mega_pixel is not None:
+            mostrar_imagem_local_em_quadro(
+                caminho_zygarde_mega_pixel,
+                "🟦 Pixel 2D — Mega Zygarde (sprite local)",
+                180,
+            )
+        elif e_shadow_conceitual:
             mostrar_imagem_local_em_quadro(
                 caminho_local,
                 "🟦 Referência visual (arte conceitual; sem sprite 2D próprio)",
@@ -2847,7 +2947,7 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
         elif eh_zygarde_mega:
             mostrar_placeholder_imagem(
                 "🟦 Pixel 2D",
-                "Sprite pixel 2D próprio desta forma não localizado. Não será substituído por arte 3D.",
+                "Sprite Pixel 2D local não encontrado. Adicione zygarde-mega-pixel.png à pasta imagens/formas.",
                 180,
             )
         elif not _lista_urls_imagem(url_2d):
@@ -2922,8 +3022,17 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
         )
     if eh_zygarde_mega:
         url_2d_shiny = []
+    elif eh_garchomp_z:
+        # Versão shiny verificada no diretório gen5-shiny do Showdown.
+        url_2d_shiny = f"{SHOWDOWN_2D_SHINY_BASE}garchomp-megaz.png"
     with col1:
-        if e_shadow_conceitual:
+        if eh_zygarde_mega and caminho_zygarde_mega_pixel_shiny is not None:
+            mostrar_imagem_local_em_quadro(
+                caminho_zygarde_mega_pixel_shiny,
+                "🟦 Pixel 2D Shiny — Mega Zygarde (sprite local)",
+                180,
+            )
+        elif e_shadow_conceitual:
             mostrar_placeholder_imagem(
                 "🟦 Pixel 2D Shiny",
                 "Não há sprite shiny específico cadastrado.",
@@ -2932,7 +3041,7 @@ def mostrar_sprites_forma(forma, dados, id_api, nome):
         elif eh_zygarde_mega:
             mostrar_placeholder_imagem(
                 "🟦 Pixel 2D Shiny",
-                "Sprite pixel shiny próprio não localizado. Não será substituído por HOME/3D.",
+                "Sprite Pixel 2D Shiny local não encontrado. Adicione zygarde-mega-pixel-shiny.png à pasta imagens/formas.",
                 180,
             )
         elif not _lista_urls_imagem(url_2d_shiny):
@@ -3197,6 +3306,16 @@ def mostrar_forma(
     imagem_local = forma.get(
         "imagem_local"
     )
+    # Estes dois arquivos foram originalmente nomeados como Terapagos Stellar,
+    # mas o conteúdo é Mega Zygarde Pixel 2D. Ignoramos o caminho antigo em
+    # cartões de Terapagos para que não contamine mini-dex/preview.
+    if normalizar_nome(especie_base or "") == "terapagos" and imagem_local:
+        nome_arquivo_local = Path(str(imagem_local)).name.lower()
+        if nome_arquivo_local in {
+            "terapagos-stellar-home.png",
+            "terapagos-stellar-home-shiny.png",
+        }:
+            imagem_local = None
 
     with st.container(
         border=True
@@ -3451,7 +3570,8 @@ def mostrar_forma(
             forma,
             dados,
             id_api,
-            nome
+            nome,
+            especie_base=especie_base
         )
 
 
@@ -5767,7 +5887,8 @@ with aba_sprites:
             forma_focada,
             dados_forma_focada or pokemon,
             forma_focada.get("id_api"),
-            forma_focada.get("nome", "Forma especial")
+            forma_focada.get("nome", "Forma especial"),
+            especie_base=nome_especie or nome_pokemon
         )
     else:
         mostrar_sprites(
