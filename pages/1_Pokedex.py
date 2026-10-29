@@ -1922,15 +1922,22 @@ for _id_forma, _config in _FORMAS_SAZONAIS.items():
 # Se um sprite próprio e verificável for cadastrado no futuro, ele poderá
 # ser adicionado no campo "2d"; até lá a galeria mostra um aviso honesto.
 FORMAS_FONTES_ESPECIAIS.setdefault("zygarde-mega", {}).update({
-    # Não foi localizado um sprite pixel 2D próprio e verificável para esta
-    # forma. Não usamos artwork nem HOME nesta coluna: isso fazia render 3D
-    # parecer um sprite pixelado. A galeria mostrará um aviso honesto.
+    # Pixel 2D normal/shiny são arquivos locais separados. A coluna 3D usa
+    # renders HOME de Mega Zygarde confirmados na página Pokestats, porque
+    # o índice HOME do Showdown ainda não lista o slug zygarde-mega.
     "2d": None,
     "shiny": None,
     "artwork": "https://archives.bulbagarden.net/media/upload/8/8c/0718Zygarde-Mega.png",
     "2d_high": "https://archives.bulbagarden.net/media/upload/8/8c/0718Zygarde-Mega.png",
-    "home": "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0718M.png",
-    "home_shiny": "https://archives.bulbagarden.net/media/upload/5/53/HOME0718M_s.png",
+    "visual_3d": "https://assets.pokestats.gg/pokeapi/v1/pokemon/versions/generation-ix/legends-za/10301.webp",
+    "home": [
+        "https://assets.pokestats.gg/pokeapi/v1/pokemon/versions/generation-ix/legends-za/10301.webp",
+        "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HOME0718M.png",
+    ],
+    "home_shiny": [
+        "https://assets.pokestats.gg/pokeapi/v1/pokemon/versions/generation-ix/legends-za/shiny/10301.webp",
+        "https://archives.bulbagarden.net/media/upload/5/53/HOME0718M_s.png",
+    ],
 })
 
 # Terapagos base, Terastal e Stellar têm renders HOME normal/shiny próprios.
@@ -1950,7 +1957,20 @@ for _id_forma in ("terapagos", "terapagos-terastal", "terapagos-stellar"):
         ],
     })
 
-# Mega Garchomp Z: sprite 2D normal e shiny da coleção Gen 5 do Showdown.
+# A arte oficial de Terapagos Stellar é diferente do render 3D HOME.
+# Para a coluna brilhante, usamos o render HOME shiny como referência e
+# identificamos isso explicitamente, pois não há artwork oficial shiny separado.
+FORMAS_FONTES_ESPECIAIS.setdefault("terapagos-stellar", {}).update({
+    "artwork": "https://www.serebii.net/pokemon/art/1024-s.png",
+    "artwork_shiny": [
+        "https://play.pokemonshowdown.com/sprites/home-centered-shiny/terapagos-stellar.png",
+        "https://play.pokemonshowdown.com/sprites/home-shiny/terapagos-stellar.png",
+    ],
+})
+
+# Mega Garchomp Z: a galeria usa os recortes pixelados locais do sprite fornecido.
+# As URLs do Showdown permanecem como fallback, mas o canal Pixel 2D prioriza
+# imagens locais maiores e sem depender de arquivos externos.
 # O HOME shiny segue como alternativa no artwork shiny, pois não localizamos
 # uma artwork conceitual shiny independente para a forma Z.
 _garchomp_z = FORMAS_FONTES_ESPECIAIS.setdefault("garchomp-mega-z", {})
@@ -2669,8 +2689,8 @@ def mostrar_animacao_visual_lucario_z(imagem_url, altura=500):
 
 
 
-def mostrar_imagem_local_em_quadro(caminho, legenda, largura=180):
-    """Renderiza imagem local no mesmo quadro quadrado usado pelas URLs."""
+def mostrar_imagem_local_em_quadro(caminho, legenda, largura=180, pixel_art=False):
+    """Renderiza imagem local no mesmo quadro quadrado; preserva pixels quando solicitado."""
     st.caption(legenda)
     if not caminho:
         st.info("Imagem local não cadastrada.")
@@ -2688,11 +2708,12 @@ def mostrar_imagem_local_em_quadro(caminho, legenda, largura=180):
         conteudo = base64.b64encode(caminho.read_bytes()).decode("ascii")
         mime = mimetypes.guess_type(caminho.name)[0] or "image/png"
         quadro = max(120, min(int(largura), 360))
+        renderizacao = "pixelated" if pixel_art else "auto"
         html = f"""<!doctype html>
 <html><head><meta charset=\"utf-8\"><style>
 html,body{{margin:0;padding:0;width:100%;height:100%;background:transparent;overflow:hidden}}
 .frame{{width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}}
-img{{display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;object-position:center center}}
+img{{display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;object-position:center center;image-rendering:{renderizacao}}}
 </style></head><body><div class=\"frame\"><img alt=\"\" src=\"data:{mime};base64,{conteudo}\"></div></body></html>"""
         components.html(html, width=quadro, height=quadro, scrolling=False)
     except (OSError, ValueError):
@@ -2892,6 +2913,14 @@ def mostrar_sprites_forma(forma, dados, id_api, nome, especie_base=None):
     # Terapagos usa apenas as fontes próprias da sua forma; não reutiliza os PNGs de Zygarde.
     caminho_terapagos_stellar_normal = None
     caminho_terapagos_stellar_shiny = None
+    caminho_garchomp_z_pixel = (
+        carregar_imagem_local("imagens/formas/garchomp-mega-z-pixel.png")
+        if eh_garchomp_z else None
+    )
+    caminho_garchomp_z_pixel_shiny = (
+        carregar_imagem_local("imagens/formas/garchomp-mega-z-pixel-shiny.png")
+        if eh_garchomp_z else None
+    )
     caminho_garchomp_z_shiny_artwork = (
         carregar_imagem_local("imagens/formas/garchomp-mega-z-shiny-artwork.png")
         if eh_garchomp_z else None
@@ -2937,6 +2966,14 @@ def mostrar_sprites_forma(forma, dados, id_api, nome, especie_base=None):
                 caminho_zygarde_mega_pixel,
                 "🟦 Pixel 2D — Mega Zygarde (sprite local)",
                 180,
+                pixel_art=True,
+            )
+        elif eh_garchomp_z and caminho_garchomp_z_pixel is not None:
+            mostrar_imagem_local_em_quadro(
+                caminho_garchomp_z_pixel,
+                "🟦 Pixel 2D — Mega Garchomp Z (sprite enviado)",
+                180,
+                pixel_art=True,
             )
         elif e_shadow_conceitual:
             mostrar_imagem_local_em_quadro(
@@ -2960,7 +2997,13 @@ def mostrar_sprites_forma(forma, dados, id_api, nome, especie_base=None):
             mostrar_imagem(url_2d, "🟦 Pixel 2D", 180)
 
     with col2:
-        if caminho_terapagos_stellar_normal is not None:
+        if eh_zygarde_mega:
+            mostrar_imagem(
+                fontes.get("home"),
+                "🟩 3D / HOME — Mega Zygarde",
+                180,
+            )
+        elif caminho_terapagos_stellar_normal is not None:
             mostrar_imagem_local_em_quadro(
                 caminho_terapagos_stellar_normal,
                 "🟩 3D / HOME — Terapagos Stellar (imagem local)",
@@ -3023,13 +3066,31 @@ def mostrar_sprites_forma(forma, dados, id_api, nome, especie_base=None):
     if eh_zygarde_mega:
         url_2d_shiny = []
     elif eh_garchomp_z:
-        # Versão shiny verificada no diretório gen5-shiny do Showdown.
-        url_2d_shiny = f"{SHOWDOWN_2D_SHINY_BASE}garchomp-megaz.png"
+        # O sprite fornecido pelo usuário será exibido pelo arquivo local abaixo.
+        url_2d_shiny = []
+    elif eh_terapagos_stellar:
+        # A versão gen5-shiny disponível é visualmente idêntica à normal.
+        # Não exibimos o mesmo arquivo como se fosse um shiny distinto.
+        url_2d_shiny = []
     with col1:
         if eh_zygarde_mega and caminho_zygarde_mega_pixel_shiny is not None:
             mostrar_imagem_local_em_quadro(
                 caminho_zygarde_mega_pixel_shiny,
                 "🟦 Pixel 2D Shiny — Mega Zygarde (sprite local)",
+                180,
+                pixel_art=True,
+            )
+        elif eh_garchomp_z and caminho_garchomp_z_pixel_shiny is not None:
+            mostrar_imagem_local_em_quadro(
+                caminho_garchomp_z_pixel_shiny,
+                "🟦 Pixel 2D Shiny — Mega Garchomp Z (sprite enviado)",
+                180,
+                pixel_art=True,
+            )
+        elif eh_terapagos_stellar:
+            mostrar_placeholder_imagem(
+                "🟦 Pixel 2D Shiny",
+                "Não há sprite Pixel 2D Shiny distinto confirmado para Terapagos Stellar.",
                 180,
             )
         elif e_shadow_conceitual:
@@ -3063,7 +3124,13 @@ def mostrar_sprites_forma(forma, dados, id_api, nome, especie_base=None):
     else:
         shiny_3d_urls = shiny_ani_urls + shiny_home_urls
     with col2:
-        if caminho_terapagos_stellar_shiny is not None:
+        if eh_zygarde_mega:
+            mostrar_imagem(
+                fontes.get("home_shiny"),
+                "🟩 3D / HOME Shiny — Mega Zygarde",
+                180,
+            )
+        elif caminho_terapagos_stellar_shiny is not None:
             mostrar_imagem_local_em_quadro(
                 caminho_terapagos_stellar_shiny,
                 "🟩 3D / HOME Shiny — Terapagos Stellar (imagem local)",
@@ -3096,13 +3163,16 @@ def mostrar_sprites_forma(forma, dados, id_api, nome, especie_base=None):
                 "A arte conceitual não possui versão shiny conhecida.",
                 180,
             )
-        elif eh_terapagos_stellar and caminho_terapagos_stellar_shiny is not None:
-            # A forma não tem artwork shiny oficial disponível nesta fonte.
-            # Usa a imagem shiny enviada pelo usuário como referência visual,
-            # sem rotulá-la incorretamente como artwork oficial.
-            mostrar_imagem_local_em_quadro(
-                caminho_terapagos_stellar_shiny,
-                "🎨 Referência Shiny local (sprite fornecido; não é artwork oficial)",
+        elif eh_terapagos_stellar:
+            # Não afirmar que existe artwork oficial shiny separado. A fonte
+            # shiny cadastrada é o render HOME próprio da forma Stellar.
+            referencia_stellar_shiny = _combinar_urls(
+                fontes.get("artwork_shiny"),
+                shiny_home_urls,
+            )
+            mostrar_imagem(
+                referencia_stellar_shiny,
+                "🎨 Referência Shiny — render HOME (sem artwork oficial shiny próprio)",
                 180,
             )
         elif eh_garchomp_z:
