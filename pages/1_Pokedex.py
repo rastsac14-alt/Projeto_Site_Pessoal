@@ -416,17 +416,20 @@ DADOS_FALLBACK_POKEMON = {
             {"base_stat": 95, "stat": {"name": "speed"}},
         ],
         "sprites": {
-            "front_default": "https://play.pokemonshowdown.com/sprites/home/zygarde.png",
-            "front_shiny": "https://play.pokemonshowdown.com/sprites/home/zygarde.png",
+            "front_default": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/718.png",
+            "front_shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/718.png",
             "other": {
                 "home": {
-                    "front_default": "https://play.pokemonshowdown.com/sprites/home/zygarde.png"
+                    "front_default": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/718.png",
+                    "front_shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/718.png",
                 },
                 "official-artwork": {
-                    "front_default": "https://play.pokemonshowdown.com/sprites/home/zygarde.png"
+                    "front_default": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/718.png",
+                    "front_shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/718.png",
                 },
                 "showdown": {
-                    "front_default": "zygarde.png"
+                    "front_default": "https://play.pokemonshowdown.com/sprites/ani/zygarde.gif",
+                    "front_shiny": "https://play.pokemonshowdown.com/sprites/ani-shiny/zygarde.gif",
                 },
             },
         },
@@ -1389,7 +1392,19 @@ def obter_sprites(pokemon):
             f"https://play.pokemonshowdown.com/sprites/home-shiny/{nome_pokemon}.png",
         ]
 
+    nome_pokemon = normalizar_nome(pokemon.get("name", ""))
+    if nome_pokemon in {"zygarde", "zygarde-50", "zygarde-50-power-construct"}:
+        # Zygarde 50% tem URLs próprios para pixel, HOME e artwork.
+        resultado.update({
+            "pixel_normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/718.png",
+            "pixel_shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/718.png",
+            "3d_normal": "https://play.pokemonshowdown.com/sprites/ani/zygarde.gif",
+            "3d_shiny": "https://play.pokemonshowdown.com/sprites/ani-shiny/zygarde.gif",
+            "artwork_normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/718.png",
+            "artwork_shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/718.png",
+        })
     return resultado
+
 
 
 def eh_femea(pokemon):
@@ -1921,6 +1936,20 @@ for _id_forma, _config in _FORMAS_SAZONAIS.items():
 # Mega Zygarde: não usamos artwork/HOME como se fossem sprites pixel 2D.
 # Se um sprite próprio e verificável for cadastrado no futuro, ele poderá
 # ser adicionado no campo "2d"; até lá a galeria mostra um aviso honesto.
+# Zygarde comum corresponde à forma 50%. Os sprites de fallback anteriores
+# apontavam para HOME (render 3D) como se fossem Pixel 2D, o que deixava a
+# ficha 50% sem sprites corretos quando a PokéAPI não respondia.
+_FONTES_ZYGARDE_50 = {
+    "2d": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/718.png",
+    "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/718.png",
+    "home": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/718.png",
+    "home_shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/718.png",
+    "artwork": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/718.png",
+    "artwork_shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/718.png",
+}
+for _slug_zygarde_50 in ("zygarde", "zygarde-50", "zygarde-50-power-construct"):
+    FORMAS_FONTES_ESPECIAIS.setdefault(_slug_zygarde_50, {}).update(_FONTES_ZYGARDE_50)
+
 FORMAS_FONTES_ESPECIAIS.setdefault("zygarde-mega", {}).update({
     # Pixel 2D normal/shiny são arquivos locais separados. A coluna 3D usa
     # renders HOME de Mega Zygarde confirmados na página Pokestats, porque
@@ -1961,11 +1990,18 @@ for _id_forma in ("terapagos", "terapagos-terastal", "terapagos-stellar"):
 # Para a coluna brilhante, usamos o render HOME shiny como referência e
 # identificamos isso explicitamente, pois não há artwork oficial shiny separado.
 FORMAS_FONTES_ESPECIAIS.setdefault("terapagos-stellar", {}).update({
+    # Sprite Pixel 2D normal e shiny listados no repositório do PokéAPI.
+    # A imagem shiny atualmente tem a mesma aparência da normal na fonte,
+    # mas o arquivo dedicado existe e pode ser exibido sem cair em 3D.
+    "2d": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/10277.png",
+    "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/shiny/10277.png",
+    # Renders animados Scarlet/Violet fornecidos pelo usuário.
+    "home": "https://assets.pokestats.gg/pokeapi/v1/anim/pokemon/versions/generation-ix/scarlet-violet/10277.webp",
+    "home_shiny": "https://assets.pokestats.gg/pokeapi/v1/anim/pokemon/versions/generation-ix/scarlet-violet/shiny/10277.webp",
     "artwork": "https://www.serebii.net/pokemon/art/1024-s.png",
-    "artwork_shiny": [
-        "https://play.pokemonshowdown.com/sprites/home-centered-shiny/terapagos-stellar.png",
-        "https://play.pokemonshowdown.com/sprites/home-shiny/terapagos-stellar.png",
-    ],
+    # Não há artwork shiny independente confirmado para Terapagos Stellar;
+    # mostramos o render shiny do jogo como referência identificada.
+    "artwork_shiny": "https://assets.pokestats.gg/pokeapi/v1/anim/pokemon/versions/generation-ix/scarlet-violet/shiny/10277.webp",
 })
 
 # Mega Garchomp Z: a galeria usa os recortes pixelados locais do sprite fornecido.
@@ -1977,6 +2013,10 @@ _garchomp_z = FORMAS_FONTES_ESPECIAIS.setdefault("garchomp-mega-z", {})
 _garchomp_z.update({
     "2d": f"{SHOWDOWN_2D_BASE}garchomp-megaz.png",
     "shiny": f"{SHOWDOWN_2D_SHINY_BASE}garchomp-megaz.png",
+    # Renders HOME diretos confirmados (ID da forma Mega Garchomp Z: 10309).
+    # Os redirects antigos falhavam na coluna 3D Shiny do Streamlit Cloud.
+    "home": "https://assets.pokestats.gg/pokeapi/orig/pokemon/other/home/10309.png",
+    "home_shiny": "https://assets.pokestats.gg/pokeapi/orig/pokemon/other/home/shiny/10309.png",
 })
 if _garchomp_z.get("home_shiny") and not _garchomp_z.get("artwork_shiny"):
     _garchomp_z["artwork_shiny"] = _garchomp_z["home_shiny"]
@@ -2945,7 +2985,12 @@ def mostrar_sprites_forma(forma, dados, id_api, nome, especie_base=None):
             fontes.get("2d"), ("zygarde", "garchomp", "lucario")
         )
         fontes_2d_especiais = _sem_fontes_de_render_3d(fontes_2d_especiais)
-        url_2d = _combinar_urls(api_2d, fontes_2d_especiais)
+        # Para Stellar, prioriza o arquivo Pixel 2D dedicado do PokéAPI;
+        # evita que um sprite genérico do endpoint /pokemon assuma o lugar.
+        if eh_terapagos_stellar:
+            url_2d = _combinar_urls(fontes_2d_especiais, api_2d)
+        else:
+            url_2d = _combinar_urls(api_2d, fontes_2d_especiais)
     else:
         url_2d = _combinar_urls(
             fontes.get("2d"),
@@ -3003,6 +3048,12 @@ def mostrar_sprites_forma(forma, dados, id_api, nome, especie_base=None):
                 "🟩 3D / HOME — Mega Zygarde",
                 180,
             )
+        elif eh_garchomp_z:
+            mostrar_imagem(
+                "https://assets.pokestats.gg/pokeapi/orig/pokemon/other/home/10309.png",
+                "🟩 3D / HOME — Mega Garchomp Z",
+                180,
+            )
         elif caminho_terapagos_stellar_normal is not None:
             mostrar_imagem_local_em_quadro(
                 caminho_terapagos_stellar_normal,
@@ -3056,7 +3107,11 @@ def mostrar_sprites_forma(forma, dados, id_api, nome, especie_base=None):
             fontes.get("shiny"), ("zygarde", "garchomp", "lucario")
         )
         fontes_shiny_2d = _sem_fontes_de_render_3d(fontes_shiny_2d)
-        url_2d_shiny = _combinar_urls(api_shiny_2d, fontes_shiny_2d)
+        # Prioriza a versão Pixel 2D cadastrada para Terapagos Stellar.
+        if eh_terapagos_stellar:
+            url_2d_shiny = _combinar_urls(fontes_shiny_2d, api_shiny_2d)
+        else:
+            url_2d_shiny = _combinar_urls(api_shiny_2d, fontes_shiny_2d)
     else:
         url_2d_shiny = _combinar_urls(
             fontes.get("shiny"),
@@ -3067,10 +3122,6 @@ def mostrar_sprites_forma(forma, dados, id_api, nome, especie_base=None):
         url_2d_shiny = []
     elif eh_garchomp_z:
         # O sprite fornecido pelo usuário será exibido pelo arquivo local abaixo.
-        url_2d_shiny = []
-    elif eh_terapagos_stellar:
-        # A versão gen5-shiny disponível é visualmente idêntica à normal.
-        # Não exibimos o mesmo arquivo como se fosse um shiny distinto.
         url_2d_shiny = []
     with col1:
         if eh_zygarde_mega and caminho_zygarde_mega_pixel_shiny is not None:
@@ -3087,10 +3138,10 @@ def mostrar_sprites_forma(forma, dados, id_api, nome, especie_base=None):
                 180,
                 pixel_art=True,
             )
-        elif eh_terapagos_stellar:
-            mostrar_placeholder_imagem(
-                "🟦 Pixel 2D Shiny",
-                "Não há sprite Pixel 2D Shiny distinto confirmado para Terapagos Stellar.",
+        elif eh_terapagos_stellar and _lista_urls_imagem(url_2d_shiny):
+            mostrar_imagem(
+                url_2d_shiny,
+                "🟦 Pixel 2D Shiny — Terapagos Stellar (sprite cadastrado; a fonte usa a mesma aparência do normal)",
                 180,
             )
         elif e_shadow_conceitual:
@@ -3128,6 +3179,12 @@ def mostrar_sprites_forma(forma, dados, id_api, nome, especie_base=None):
             mostrar_imagem(
                 fontes.get("home_shiny"),
                 "🟩 3D / HOME Shiny — Mega Zygarde",
+                180,
+            )
+        elif eh_garchomp_z:
+            mostrar_imagem(
+                "https://assets.pokestats.gg/pokeapi/orig/pokemon/other/home/shiny/10309.png",
+                "🟩 3D / HOME Shiny — Mega Garchomp Z",
                 180,
             )
         elif caminho_terapagos_stellar_shiny is not None:
@@ -3172,7 +3229,7 @@ def mostrar_sprites_forma(forma, dados, id_api, nome, especie_base=None):
             )
             mostrar_imagem(
                 referencia_stellar_shiny,
-                "🎨 Referência Shiny — render HOME (sem artwork oficial shiny próprio)",
+                "🎨 Referência visual Shiny — render Scarlet/Violet (sem artwork oficial shiny próprio)",
                 180,
             )
         elif eh_garchomp_z:
@@ -4666,16 +4723,22 @@ def encontrar_forma_cadastrada(id_api):
 # LISTA
 # ============================================================
 
-nomes_pokemons = list(
-    index_pokemons.values()
-)
+# Deduplica nomes por slug normalizado, e não por comparação literal.
+# Isso impede que "zygarde" e "Zygarde" apareçam como opções separadas.
+nomes_pokemons = []
+nomes_vistos = set()
+for valor_nome in index_pokemons.values():
+    nome_opcao = str(valor_nome or "").strip()
+    chave_opcao = normalizar_nome(nome_opcao)
+    if not chave_opcao or chave_opcao in nomes_vistos:
+        continue
+    nomes_vistos.add(chave_opcao)
+    nomes_pokemons.append("Zygarde" if chave_opcao == "zygarde" else nome_opcao)
 
-opcoes = [
-    "-- Selecione um Pokémon --"
-] + nomes_pokemons
+if "zygarde" not in nomes_vistos:
+    nomes_pokemons.append("Zygarde")
 
-if "Zygarde" not in opcoes:
-    opcoes.append("Zygarde")
+opcoes = ["-- Selecione um Pokémon --"] + nomes_pokemons
 
 
 # ============================================================
