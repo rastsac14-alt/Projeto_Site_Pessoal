@@ -542,26 +542,6 @@ if busca:
         or busca in p["jogo"].lower()
     ]
 
-
-# RESULTADOS
-# ============================================================
-
-resultados = PERSONAGENS
-
-if regiao != "Todas":
-    resultados = [p for p in resultados if p["regiao"] == regiao]
-
-if categoria != "Todos":
-    resultados = [p for p in resultados if p["categoria"] == categoria]
-
-if busca:
-    resultados = [
-        p for p in resultados
-        if busca in p["nome"].lower()
-        or busca in p["papel"].lower()
-        or busca in p["jogo"].lower()
-    ]
-
 # KAYZAC_PERSONAGENS_PERFORMANCE_V2
 # Renderização inicial leve: só 12 cards e nenhuma busca remota automática.
 CARDS_POR_PAGINA = 12
