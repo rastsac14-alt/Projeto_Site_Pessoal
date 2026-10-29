@@ -2953,6 +2953,10 @@ def mostrar_sprites_forma(forma, dados, id_api, nome, especie_base=None):
     # Terapagos usa apenas as fontes próprias da sua forma; não reutiliza os PNGs de Zygarde.
     caminho_terapagos_stellar_normal = None
     caminho_terapagos_stellar_shiny = None
+    caminho_terapagos_stellar_artwork = (
+        carregar_imagem_local("imagens/formas/terapagos-stellar-artwork.png")
+        if eh_terapagos_stellar else None
+    )
     caminho_terapagos_stellar_artwork_shiny = (
         carregar_imagem_local("imagens/formas/terapagos-stellar-artwork-shiny.png")
         if eh_terapagos_stellar else None
@@ -3078,7 +3082,16 @@ def mostrar_sprites_forma(forma, dados, id_api, nome, especie_base=None):
         fontes.get("2d_high"),
     )
     with col3:
-        if e_shadow_conceitual and caminho_local is not None:
+        if eh_terapagos_stellar and caminho_terapagos_stellar_artwork is not None:
+            # Artwork oficial local especificada para a forma Stellar.
+            # Esta substituição afeta somente a coluna Artwork normal;
+            # Pixel 2D, HOME/Showdown, shiny, Zygarde e Garchomp permanecem intactos.
+            mostrar_imagem_local_em_quadro(
+                caminho_terapagos_stellar_artwork,
+                "🎨 Artwork Oficial — Terapagos Stellar (imagem local)",
+                180,
+            )
+        elif e_shadow_conceitual and caminho_local is not None:
             mostrar_imagem_local_em_quadro(
                 caminho_local,
                 "🎨 Arte conceitual local (referência Sugimori)",
