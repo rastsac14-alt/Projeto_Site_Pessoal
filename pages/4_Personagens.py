@@ -431,6 +431,9 @@ ALIASES_ARTES_SUGIMORI = {
     "Professor Kukui": ("Professor Kukui", "Kukui"),
     "Professor Magnolia": ("Professor Magnolia", "Magnolia"),
     "Professor Laventon": ("Professor Laventon", "Laventon"),
+    # Os arquivos oficiais usam apenas Sada/Turo no final do nome.
+    "Professor Sada": ("Professor Sada", "Sada"),
+    "Professor Turo": ("Professor Turo", "Turo"),
     "Steven Stone": ("Steven Stone", "Steven"),
     "Tate & Liza": ("Tate & Liza", "Tate and Liza"),
     "Urbain / Taunie": ("Urbain", "Taunie"),
@@ -507,6 +510,19 @@ def baixar_arte_oficial(url: str, origem: str = ""):
 ALIASES_CATEGORIA_PERSONAGEM = {
     "Commander Kamado": ("Kamado",),
     "Urbain / Taunie": ("Urbain", "Taunie"),
+    # Categorias do Archives que não seguem exatamente o nome exibido no site.
+    "Professor Sada": ("Professor Sada", "Sada"),
+    "Professor Turo": ("Professor Turo", "Turo"),
+    "Elio": ("Elio (game)", "Elio"),
+    "Selene": ("Selene (game)", "Selene"),
+    "Victor": ("Victor (game)", "Victor"),
+    # Estes cinco professores não têm artwork individual de Ken Sugimori catalogado.
+    # Usamos os retratos VS oficiais extraídos do próprio Scarlet/Violet.
+    "Dendra": ("Dendra", "VSDendra"),
+    "Miriam": ("Miriam", "VSMiriam"),
+    "Raifort": ("Raifort", "VSRaifort"),
+    "Saguaro": ("Saguaro", "VSSaguaro"),
+    "Tyme": ("Tyme", "VSTyme"),
     "Professor Oak": ("Professor Oak", "Oak"),
     "Professor Elm": ("Professor Elm", "Elm"),
     "Professor Birch": ("Professor Birch", "Birch"),
@@ -517,7 +533,8 @@ ALIASES_CATEGORIA_PERSONAGEM = {
     "Professor Magnolia": ("Professor Magnolia", "Magnolia"),
     "Professor Laventon": ("Professor Laventon", "Laventon"),
     "Professor Burnet": ("Professor Burnet", "Burnet"),
-    "Samson Oak": ("Samson Oak",),
+    # Este arquivo é artwork oficial da animação Sun & Moon (não sprite de jogo).
+    "Samson Oak": ("Samson Oak SM", "Samson Oak"),
     "Tracey Sketchit": ("Tracey Sketchit", "Tracey"),
     "Koko": ("Koko", "Koko (M23)"),
 }
@@ -552,6 +569,28 @@ TERMOS_ARTES_NAO_PRINCIPAIS = (
     "sleeves", "banner", "screenshot", "episode", "opening", "ending",
     "adventures", "merch", "icon", "key frame", "eyecatch", "wallpaper",
 )
+
+# Nomes exatos dos retratos oficiais que devem vencer outras imagens da mesma categoria.
+# Os arquivos VSDendra/VSMiriam/etc. são renders 3D de batalha, não desenhos Sugimori.
+ARQUIVOS_ARTES_PRIORITARIOS = {
+    "Samson Oak": ("Samson Oak SM",),
+    "Dendra": ("VSDendra",),
+    "Miriam": ("VSMiriam",),
+    "Raifort": ("VSRaifort",),
+    "Saguaro": ("VSSaguaro",),
+    "Tyme": ("VSTyme",),
+}
+
+ROTULOS_ARTES_ESPECIAIS = {
+    "Samson Oak": "Artwork oficial do anime • Sun & Moon",
+    "Dendra": "Retrato VS oficial do jogo • modelo 3D de Scarlet/Violet",
+    "Miriam": "Retrato VS oficial do jogo • modelo 3D de Scarlet/Violet",
+    "Raifort": "Retrato VS oficial do jogo • modelo 3D de Scarlet/Violet",
+    "Saguaro": "Retrato VS oficial do jogo • modelo 3D de Scarlet/Violet",
+    "Tyme": "Retrato VS oficial do jogo • modelo 3D de Scarlet/Violet",
+}
+
+VERSAO_CACHE_ARTES = "2026-11-03-personagens-artes-v2"
 
 
 @st.cache_data(ttl=86400, show_spinner=False)
@@ -635,6 +674,19 @@ def escolher_arquivo_categoria_personagem(
         aliases = ALIASES_CATEGORIA_PERSONAGEM.get(nome, (nome,))
         preferencias = PREFERENCIA_ARTES_PERSONAGEM.get(regiao, ())
 
+    # Prioridade absoluta para arquivos cujo título foi conferido individualmente.
+    # Isso impede, por exemplo, que o modelo 3D de Miriam seja confundido com artwork.
+    preferidos = tuple(
+        normalizar_titulo_arquivo(item)
+        for item in ARQUIVOS_ARTES_PRIORITARIOS.get(nome, ())
+    )
+    for preferido in preferidos:
+        for arquivo in catalogo:
+            titulo = str(arquivo.get("titulo", ""))
+            nome_arquivo = titulo.split(":", 1)[-1].rsplit(".", 1)[0]
+            if normalizar_titulo_arquivo(nome_arquivo) == preferido:
+                return arquivo
+
     aliases_norm = tuple(normalizar_titulo_arquivo(alias) for alias in aliases)
     candidatos = []
 
@@ -691,8 +743,16 @@ def escolher_arquivo_categoria_personagem(
 
 
 @st.cache_data(ttl=86400, show_spinner=False)
-def buscar_arte_personagem(nome: str, regiao: str = "", origem: str = "Jogos", arte_url: str = ""):
-    """Busca primeiro no catálogo Sugimori e depois na categoria individual do personagem."""
+def buscar_arte_personagem(
+    nome: str,
+    regiao: str = "",
+    origem: str = "Jogos",
+    arte_url: str = "",
+    versao_cache: str = VERSAO_CACHE_ARTES,
+):
+    """Busca artwork oficial e usa retratos VS somente nos cinco professores indicados."""
+    # O parâmetro altera a chave do cache quando corrigimos aliases e fontes.
+    _ = versao_cache
     # Para o anime, respeita a fonte explícita cadastrada. Se o link estiver antigo ou
     # quebrado, tenta a categoria individual do personagem como alternativa.
     if origem == "Anime" and arte_url:
@@ -723,8 +783,12 @@ def buscar_arte_personagem(nome: str, regiao: str = "", origem: str = "Jogos", a
 
 
 @st.cache_data(ttl=86400, show_spinner=False)
-def buscar_artes_em_lote(personagens_info: tuple):
+def buscar_artes_em_lote(
+    personagens_info: tuple,
+    versao_cache: str = VERSAO_CACHE_ARTES,
+):
     """Busca artes oficiais apenas para os cards visíveis, em paralelo e sob demanda."""
+    _ = versao_cache
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
     itens = tuple(dict.fromkeys(personagens_info))
@@ -736,7 +800,14 @@ def buscar_artes_em_lote(personagens_info: tuple):
         tarefas = {}
         for item in itens:
             nome, regiao, origem, arte_url = item
-            tarefa = executor.submit(buscar_arte_personagem, nome, regiao, origem, arte_url)
+            tarefa = executor.submit(
+                buscar_arte_personagem,
+                nome,
+                regiao,
+                origem,
+                arte_url,
+                versao_cache,
+            )
             tarefas[tarefa] = nome
         for tarefa in as_completed(tarefas):
             nome = tarefas[tarefa]
@@ -826,10 +897,14 @@ def card_personagem(
                 else:
                     st.caption("Arte oficial não localizada nos catálogos consultados.")
             if imagem:
-                st.caption(
-                    "Arte oficial do anime" if personagem.get("origem") == "Anime"
-                    else "Arte oficial do personagem"
-                )
+                legenda_arte = ROTULOS_ARTES_ESPECIAIS.get(personagem.get("nome"))
+                if legenda_arte:
+                    st.caption(legenda_arte)
+                else:
+                    st.caption(
+                        "Arte oficial do anime" if personagem.get("origem") == "Anime"
+                        else "Artwork oficial do personagem"
+                    )
 
         with col_info:
             st.markdown(f"### 👤 {personagem['nome']}")
@@ -860,7 +935,8 @@ st.write(
 )
 st.caption(
     "As artes dos jogos são procuradas no catálogo Ken Sugimori e nas categorias individuais de cada personagem. "
-    "Os personagens do anime usam artes oficiais da animação, sem substituir por capturas de episódios."
+    "Para Dendra, Miriam, Raifort, Saguaro e Tyme, a página usa retratos VS 3D oficiais de Scarlet/Violet, "
+    "pois não foi localizado artwork individual de Ken Sugimori para eles. Personagens do anime usam artes oficiais da animação."
 )
 st.divider()
 
@@ -922,7 +998,7 @@ carregar_artes_resultados = st.toggle(
     "🖼️ Carregar artes oficiais dos personagens desta página",
     value=False,
     key="personagens_carregar_artes_resultados_rapido",
-    help="Desativado por padrão para a página abrir imediatamente. Ao ativar, procura artes Sugimori oficiais ou artes oficiais do anime para os até 12 personagens visíveis.",
+    help="Desativado por padrão para a página abrir imediatamente. Ao ativar, procura artwork Sugimori, retratos VS oficiais dos cinco professores de Paldea e artes oficiais do anime para os até 12 personagens visíveis.",
 )
 
 m1, m2, m3 = st.columns(3)
@@ -973,7 +1049,8 @@ else:
     if carregar_artes_resultados and resultados_pagina:
         with st.spinner("🖼️ Carregando artes dos personagens desta página..."):
             artes_resultados = buscar_artes_em_lote(
-                tuple(info_arte_personagem(personagem) for personagem in resultados_pagina)
+                tuple(info_arte_personagem(personagem) for personagem in resultados_pagina),
+                VERSAO_CACHE_ARTES,
             )
 
     colunas = st.columns(2)
@@ -1006,7 +1083,8 @@ artes_destaques = {}
 if carregar_artes_destaques and destaques:
     with st.spinner("🖼️ Carregando artes dos destaques..."):
         artes_destaques = buscar_artes_em_lote(
-            tuple(info_arte_personagem(personagem) for personagem in destaques)
+            tuple(info_arte_personagem(personagem) for personagem in destaques),
+            VERSAO_CACHE_ARTES,
         )
 
 dest_cols = st.columns(3)
