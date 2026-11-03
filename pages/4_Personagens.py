@@ -193,6 +193,13 @@ PERSONAGENS = [
     {"nome": "Gladion", "regiao": "Alola", "categoria": "Rival", "jogo": "Sun / Moon / Ultra Sun / Ultra Moon", "papel": "Rival e membro ligado à Aether Foundation e aos Ultra Recon Squad em versões específicas.", "ace": "silvally"},
     {"nome": "Lillie", "regiao": "Alola", "categoria": "Aliado", "jogo": "Alola", "papel": "Uma das personagens centrais da história de Alola e próxima de Nebby.", "ace": "clefairy"},
     {"nome": "Professor Kukui", "regiao": "Alola", "categoria": "Professor(a)", "jogo": "Sun / Moon / Ultra Sun / Ultra Moon", "papel": "Professor de Alola e fundador da Liga Pokémon da região.", "ace": "incineroar"},
+    {"nome": "Professor Burnet", "regiao": "Alola", "categoria": "Professor(a)", "jogo": "Sun / Moon / Ultra Sun / Ultra Moon", "papel": "Pesquisadora ligada à Fundação Aether, especializada em Ultra Wormholes e esposa do Professor Kukui.", "ace": ""},
+    {"nome": "Samson Oak", "regiao": "Alola", "categoria": "Professor(a)", "jogo": "Sun / Moon / Ultra Sun / Ultra Moon", "papel": "Diretor da Escola Pokémon de Alola e primo do Professor Samuel Oak.", "ace": ""},
+    {"nome": "Ilima", "regiao": "Alola", "categoria": "Aliado", "jogo": "Sun / Moon / Ultra Sun / Ultra Moon", "papel": "Capitão de prova de Melemele e especialista em Pokémon do tipo Normal.", "ace": "gumshoos"},
+    {"nome": "Kiawe", "regiao": "Alola", "categoria": "Aliado", "jogo": "Sun / Moon / Ultra Sun / Ultra Moon", "papel": "Capitão de prova de Akala, especialista em Fogo e dançarino tradicional de Alola.", "ace": "marowak-alola"},
+    {"nome": "Mallow", "regiao": "Alola", "categoria": "Aliado", "jogo": "Sun / Moon / Ultra Sun / Ultra Moon", "papel": "Capitã de prova de Akala, apaixonada por culinária e especialista em Grama.", "ace": "tsareena"},
+    {"nome": "Lana", "regiao": "Alola", "categoria": "Aliado", "jogo": "Sun / Moon / Ultra Sun / Ultra Moon", "papel": "Capitã de prova de Akala, especialista em Água e conhecida por suas histórias de pescaria.", "ace": "araquanid"},
+    {"nome": "Sophocles", "regiao": "Alola", "categoria": "Aliado", "jogo": "Sun / Moon / Ultra Sun / Ultra Moon", "papel": "Capitão de prova de Ula'ula, inventor e especialista em Elétrico.", "ace": "togedemaru"},
     {"nome": "Hala", "regiao": "Alola", "categoria": "Aliado", "jogo": "Sun / Moon / Ultra Sun / Ultra Moon", "papel": "Kahuna da Ilha Melemele e especialista em Lutador.", "ace": "crabominable"},
     {"nome": "Olivia", "regiao": "Alola", "categoria": "Aliado", "jogo": "Alola", "papel": "Kahuna da Ilha Akala e especialista em Pedra.", "ace": "lycanroc"},
     {"nome": "Nanu", "regiao": "Alola", "categoria": "Aliado", "jogo": "Alola", "papel": "Kahuna de Ula'ula e especialista em Noturno.", "ace": "krookodile"},
@@ -233,7 +240,12 @@ PERSONAGENS = [
     {"nome": "Penny", "regiao": "Paldea", "categoria": "Rival", "jogo": "Scarlet / Violet", "papel": "Companheira central de Starfall Street e responsável pelo plano Cassiopeia.", "ace": "eevee"},
     {"nome": "Clavell", "regiao": "Paldea", "categoria": "Professor(a)", "jogo": "Scarlet / Violet", "papel": "Diretor da Naranja/Uva Academy e figura importante na investigação da Team Star.", "ace": "quaquaval"},
     {"nome": "Jacq", "regiao": "Paldea", "categoria": "Professor(a)", "jogo": "Scarlet / Violet", "papel": "Professor responsável por tecnologia ligada à Pokédex.", "ace": ""},
+    {"nome": "Professor Sada", "regiao": "Paldea", "categoria": "Professor(a)", "jogo": "Pokémon Scarlet", "papel": "Professora responsável pelo Laboratório da Área Zero em Scarlet e por pesquisas sobre o passado de Paldea.", "ace": ""},
+    {"nome": "Professor Turo", "regiao": "Paldea", "categoria": "Professor(a)", "jogo": "Pokémon Violet", "papel": "Professor responsável pelo Laboratório da Área Zero em Violet e por pesquisas sobre o futuro de Paldea.", "ace": ""},
     {"nome": "Geeta", "regiao": "Paldea", "categoria": "Campeão", "jogo": "Scarlet / Violet", "papel": "Campeã da Liga de Paldea e presidente da Pokémon League.", "ace": "glimmora"},
+    {"nome": "Katy", "regiao": "Paldea", "categoria": "Líder de Ginásio", "jogo": "Scarlet / Violet", "papel": "Líder do Ginásio de Cortondo e especialista em Pokémon do tipo Inseto.", "ace": "teddiursa"},
+    {"nome": "Ryme", "regiao": "Paldea", "categoria": "Líder de Ginásio", "jogo": "Scarlet / Violet", "papel": "Líder do Ginásio de Montenevera, rapper e especialista em Pokémon do tipo Fantasma.", "ace": ""},
+    {"nome": "Tulip", "regiao": "Paldea", "categoria": "Líder de Ginásio", "jogo": "Scarlet / Violet", "papel": "Líder do Ginásio de Alfornada e especialista em Pokémon do tipo Psíquico.", "ace": "espathra"},
     {"nome": "Rika", "regiao": "Paldea", "categoria": "Elite Four", "jogo": "Scarlet / Violet", "papel": "Membro da Elite Four e braço direito de Geeta.", "ace": "clodsire"},
     {"nome": "Poppy", "regiao": "Paldea", "categoria": "Elite Four", "jogo": "Scarlet / Violet", "papel": "Membro da Elite Four especialista em Aço.", "ace": "tinkaton"},
     {"nome": "Larry", "regiao": "Paldea", "categoria": "Elite Four", "jogo": "Scarlet / Violet", "papel": "Membro da Elite Four e também Líder do Ginásio de Medali.", "ace": "flamigo"},
@@ -247,6 +259,24 @@ PERSONAGENS = [
     {"nome": "Atticus", "regiao": "Paldea", "categoria": "Organização / Vilão", "jogo": "Scarlet / Violet", "papel": "Chefe da Team Star associado ao grupo Poison Crew.", "ace": "revavroom"},
     {"nome": "Ortega", "regiao": "Paldea", "categoria": "Organização / Vilão", "jogo": "Scarlet / Violet", "papel": "Chefe da Team Star associado ao grupo Fairy Crew.", "ace": "wugtrio"},
     {"nome": "Eri", "regiao": "Paldea", "categoria": "Organização / Vilão", "jogo": "Scarlet / Violet", "papel": "Chefe da Team Star associado ao grupo Fighting Crew.", "ace": "annihilape"},
+    # DLC The Teal Mask / Kitakami
+    {"nome": "Carmine", "regiao": "Paldea", "categoria": "Rival", "jogo": "The Teal Mask", "papel": "Treinadora de Kitakami e irmã mais velha de Kieran, que acompanha o protagonista durante a visita à região.", "ace": "sinistcha"},
+    {"nome": "Kieran", "regiao": "Paldea", "categoria": "Rival", "jogo": "The Teal Mask / The Indigo Disk", "papel": "Treinador de Kitakami e irmão mais novo de Carmine, cuja relação com o protagonista muda ao longo das expansões.", "ace": "hydrapple"},
+    {"nome": "Perrin", "regiao": "Paldea", "categoria": "Aliado", "jogo": "The Teal Mask", "papel": "Fotógrafa Pokémon de Kitakami que ajuda o protagonista em uma investigação sobre Pokémon raros.", "ace": ""},
+    # DLC The Indigo Disk / Blueberry Academy
+    {"nome": "Briar", "regiao": "Paldea", "categoria": "Professor(a)", "jogo": "The Indigo Disk", "papel": "Professora da Blueberry Academy que pesquisa a Área Zero, Terapagos e os mistérios do mundo Pokémon.", "ace": ""},
+    {"nome": "Cyrano", "regiao": "Paldea", "categoria": "Aliado", "jogo": "The Indigo Disk", "papel": "Diretor da Blueberry Academy e responsável pelo convite ao intercâmbio escolar.", "ace": ""},
+    {"nome": "Lacey", "regiao": "Paldea", "categoria": "Elite Four", "jogo": "The Indigo Disk", "papel": "Integrante da Elite Quatro da Blueberry Academy e especialista em Pokémon do tipo Fada.", "ace": "excadrill"},
+    {"nome": "Crispin", "regiao": "Paldea", "categoria": "Elite Four", "jogo": "The Indigo Disk", "papel": "Integrante da Elite Quatro da Blueberry Academy e especialista em Pokémon do tipo Fogo.", "ace": ""},
+    {"nome": "Amarys", "regiao": "Paldea", "categoria": "Elite Four", "jogo": "The Indigo Disk", "papel": "Integrante da Elite Quatro da Blueberry Academy e especialista em Pokémon do tipo Aço.", "ace": "skarmory"},
+    {"nome": "Drayton", "regiao": "Paldea", "categoria": "Elite Four", "jogo": "The Indigo Disk", "papel": "Integrante da Elite Quatro da Blueberry Academy, especialista em Dragão e neto de Drayden.", "ace": "archaludon"},
+    # Professores da Naranja / Uva Academy
+    {"nome": "Dendra", "regiao": "Paldea", "categoria": "Professor(a)", "jogo": "Scarlet / Violet", "papel": "Professora de Educação Física da academia, apaixonada por batalhas e treinamento Pokémon.", "ace": ""},
+    {"nome": "Miriam", "regiao": "Paldea", "categoria": "Professor(a)", "jogo": "Scarlet / Violet", "papel": "Enfermeira da academia e professora de Biologia substituta.", "ace": ""},
+    {"nome": "Raifort", "regiao": "Paldea", "categoria": "Professor(a)", "jogo": "Scarlet / Violet", "papel": "Professora de História que pesquisa os tesouros e os mistérios antigos de Paldea.", "ace": ""},
+    {"nome": "Salvatore", "regiao": "Paldea", "categoria": "Professor(a)", "jogo": "Scarlet / Violet", "papel": "Professor de Línguas da academia, conhecido por seu carinho pelos Pokémon.", "ace": ""},
+    {"nome": "Tyme", "regiao": "Paldea", "categoria": "Professor(a)", "jogo": "Scarlet / Violet", "papel": "Professora de Matemática e antiga Líder de Ginásio de Montenevera.", "ace": ""},
+    {"nome": "Saguaro", "regiao": "Paldea", "categoria": "Professor(a)", "jogo": "Scarlet / Violet", "papel": "Professor de Economia Doméstica da academia.", "ace": ""},
 ]
 
 
@@ -270,7 +300,7 @@ PERSONAGENS_ANIME = [
     {"nome": "Paul", "regiao": "Anime", "categoria": "Rival", "jogo": "Pokémon the Series: Diamond and Pearl", "papel": "Rival de Ash em Sinnoh, conhecido por seu estilo rigoroso de treinamento e por seu Electivire.", "ace": "electivire", "origem": "Anime"},
     {"nome": "Alain", "regiao": "Anime", "categoria": "Rival", "jogo": "Pokémon the Series: XY", "papel": "Treinador focado em Mega Evolução que se torna um dos grandes adversários de Ash em Kalos.", "ace": "charizard", "origem": "Anime"},
     {"nome": "Mairin", "regiao": "Anime", "categoria": "Aliado", "jogo": "Pokémon Mega Evolution Specials / XY", "papel": "Companheira de Alain nos especiais de Mega Evolução e treinadora de Chespin.", "ace": "chespin", "origem": "Anime"},
-    {"nome": "Koko", "regiao": "Anime", "categoria": "Protagonista", "jogo": "Pokémon the Movie: Secrets of the Jungle", "papel": "Garoto criado por Dada Zarude na Floresta de Okoya, cuja amizade com Ash transforma sua visão sobre si mesmo.", "ace": "zarude", "origem": "Anime"},
+    {"nome": "Koko", "regiao": "Anime", "categoria": "Protagonista", "jogo": "Pokémon the Movie: Secrets of the Jungle", "papel": "Garoto criado por Dada Zarude na Floresta de Okoya, cuja amizade com Ash transforma sua visão sobre si mesmo.", "ace": "zarude", "origem": "Anime", "arte_url": "https://zarude.pokemon.com/assets/images/characters/koko.png"},
     {"nome": "Liko", "regiao": "Anime", "categoria": "Protagonista", "jogo": "Pokémon Horizons", "papel": "Protagonista de Pokémon Horizons, estudante de Paldea que parte em uma aventura com Sprigatito e seu misterioso pingente.", "ace": "sprigatito", "origem": "Anime", "arte_url": "https://horizons.pokemon.com/_images/home/character-assets/liko-sprigatito.png"},
     {"nome": "Roy", "regiao": "Anime", "categoria": "Protagonista", "jogo": "Pokémon Horizons", "papel": "Protagonista de Pokémon Horizons, garoto de uma ilha de Kanto que viaja com Fuecoco e uma Poké Bola Ancestral.", "ace": "fuecoco", "origem": "Anime", "arte_url": "https://horizons.pokemon.com/_images/home/character-assets/roy-fuecoco.png"},
     {"nome": "Friede", "regiao": "Anime", "categoria": "Aliado", "jogo": "Pokémon Horizons", "papel": "Líder dos Tackleadores Aéreos; aventureiro e habilidoso em batalhas, acompanhado por Charizard e Capitão Pikachu.", "ace": "charizard", "origem": "Anime", "arte_url": "https://horizons.pokemon.com/_images/home/character-assets/friede-captain-pikachu.png"},
@@ -471,18 +501,225 @@ def baixar_arte_oficial(url: str, origem: str = ""):
         return None
 
 
+# Algumas artes oficiais não estão dentro da categoria Ken Sugimori.
+# O Archives mantém categorias individuais (ex.: Lyra, Hilda, Adaman, Mela).
+# Estes aliases cobrem diferenças entre o nome exibido e o nome da categoria.
+ALIASES_CATEGORIA_PERSONAGEM = {
+    "Commander Kamado": ("Kamado",),
+    "Urbain / Taunie": ("Urbain", "Taunie"),
+    "Professor Oak": ("Professor Oak", "Oak"),
+    "Professor Elm": ("Professor Elm", "Elm"),
+    "Professor Birch": ("Professor Birch", "Birch"),
+    "Professor Rowan": ("Professor Rowan", "Rowan"),
+    "Professor Juniper": ("Professor Juniper", "Juniper"),
+    "Professor Sycamore": ("Professor Sycamore", "Sycamore"),
+    "Professor Kukui": ("Professor Kukui", "Kukui"),
+    "Professor Magnolia": ("Professor Magnolia", "Magnolia"),
+    "Professor Laventon": ("Professor Laventon", "Laventon"),
+    "Professor Burnet": ("Professor Burnet", "Burnet"),
+    "Samson Oak": ("Samson Oak",),
+    "Tracey Sketchit": ("Tracey Sketchit", "Tracey"),
+    "Koko": ("Koko", "Koko (M23)"),
+}
+
+PREFERENCIA_ARTES_PERSONAGEM = {
+    "Kanto": ("firered leafgreen", "red blue", "red green"),
+    "Johto": ("heartgold soulsilver", "crystal", "gold silver"),
+    "Hoenn": ("omega ruby alpha sapphire", "emerald", "ruby sapphire"),
+    "Sinnoh": ("platinum", "diamond pearl"),
+    "Hisui": ("legends arceus",),
+    "Unova": ("black 2 white 2", "black white"),
+    "Kalos": ("legends z a", "pokemon legends z a", "x y"),
+    "Alola": ("ultra sun ultra moon", "sun moon"),
+    "Galar": ("sword shield",),
+    "Paldea": ("scarlet violet", "the teal mask", "the indigo disk", "indigo disk"),
+}
+
+# Nomes de arquivo conhecidos como arte de personagem do anime (não screenshots).
+ALIASES_ARTES_ANIME = {
+    "Tracey Sketchit": ("TraceyEP", "Tracey"),
+    "Max": ("Max AG 2", "MaxAG", "Max AG", "Max character sheet"),
+    "Alain": ("Alain JN", "Alain XY"),
+    "Ritchie": ("Ritchie Artwork",),
+    "Paul": ("Paul DP",),
+    "Mairin": ("Mairin",),
+    "Koko": ("Koko",),
+    "Spinel": ("Spinel anime 2", "Spinel anime"),
+}
+
+TERMOS_ARTES_NAO_PRINCIPAIS = (
+    "sprite", "emote", "masters", "tcg", "card", "plush", "playmat",
+    "sleeves", "banner", "screenshot", "episode", "opening", "ending",
+    "adventures", "merch", "icon", "key frame", "eyecatch", "wallpaper",
+)
+
+
+@st.cache_data(ttl=86400, show_spinner=False)
+def obter_arquivos_categoria_personagem(categorias: tuple):
+    """Consulta categorias individuais no Archives e devolve apenas arquivos de imagem."""
+    endpoint = "https://archives.bulbagarden.net/w/api.php"
+    headers = {
+        "User-Agent": "KAYZAC-Master-Pokemon/3.1 (official character artwork)",
+        "Accept": "application/json",
+    }
+    arquivos = []
+
+    for categoria in categorias:
+        parametros = {
+            "action": "query",
+            "generator": "categorymembers",
+            "gcmtitle": f"Category:{categoria}",
+            "gcmtype": "file",
+            "gcmlimit": 100,
+            "prop": "imageinfo",
+            "iiprop": "url|mime|size",
+            "format": "json",
+            "formatversion": 2,
+        }
+
+        # Paginações adicionais protegem categorias maiores (ex.: Max ou Alain).
+        for _ in range(4):
+            try:
+                resposta = requests.get(
+                    endpoint,
+                    params=parametros,
+                    timeout=(4, 12),
+                    headers=headers,
+                )
+                resposta.raise_for_status()
+                dados = resposta.json()
+            except Exception:
+                break
+
+            paginas = dados.get("query", {}).get("pages", [])
+            if isinstance(paginas, dict):
+                paginas = list(paginas.values())
+            if not isinstance(paginas, list):
+                break
+
+            for pagina in paginas:
+                infos = pagina.get("imageinfo", [])
+                if not infos or not isinstance(infos[0], dict):
+                    continue
+                info = infos[0]
+                url = info.get("url")
+                mime = str(info.get("mime", "")).lower()
+                if url and mime.startswith("image/"):
+                    arquivos.append({
+                        "titulo": str(pagina.get("title", "")),
+                        "url": url,
+                        "mime": mime,
+                        "largura": int(info.get("width", 0) or 0),
+                        "altura": int(info.get("height", 0) or 0),
+                    })
+
+            continuacao = dados.get("continue", {})
+            if not continuacao:
+                break
+            parametros.update(continuacao)
+
+    return arquivos
+
+
+def escolher_arquivo_categoria_personagem(
+    nome: str,
+    regiao: str,
+    origem: str,
+    catalogo: list,
+):
+    """Escolhe a arte principal por nome de arquivo, jogo e proporção; evita imagens aleatórias."""
+    if origem == "Anime":
+        aliases = ALIASES_ARTES_ANIME.get(nome, (nome,))
+        preferencias = ()
+    else:
+        aliases = ALIASES_CATEGORIA_PERSONAGEM.get(nome, (nome,))
+        preferencias = PREFERENCIA_ARTES_PERSONAGEM.get(regiao, ())
+
+    aliases_norm = tuple(normalizar_titulo_arquivo(alias) for alias in aliases)
+    candidatos = []
+
+    for arquivo in catalogo:
+        titulo = str(arquivo.get("titulo", ""))
+        nome_arquivo = titulo.split(":", 1)[-1].rsplit(".", 1)[0]
+        base = normalizar_titulo_arquivo(nome_arquivo)
+        alias_usado = None
+        tipo_match = 0
+
+        for alias in aliases_norm:
+            if not alias:
+                continue
+            if base == alias:
+                alias_usado, tipo_match = alias, 120
+                break
+            if base.endswith(" " + alias):
+                alias_usado, tipo_match = alias, 110
+                break
+            # No anime, alguns arquivos oficiais usam o nome seguido da série.
+            alias_compacto = alias.replace(" ", "")
+            if origem == "Anime" and (base.startswith(alias + " ") or base.startswith(alias_compacto)):
+                alias_usado, tipo_match = alias, 100
+                break
+
+        if not alias_usado:
+            continue
+
+        prioridade_edicao = 0
+        for indice, edicao in enumerate(preferencias):
+            if edicao in base:
+                prioridade_edicao = 1000 - (indice * 100)
+                break
+
+        # Mantém artes oficiais como Masters/concept art apenas como opção inferior.
+        penalidade = sum(1 for termo in TERMOS_ARTES_NAO_PRINCIPAIS if termo in base)
+        largura = int(arquivo.get("largura", 0) or 0)
+        altura = int(arquivo.get("altura", 0) or 0)
+        proporcao_vertical = 1 if altura >= 700 and (not largura or largura / max(altura, 1) <= 0.9) else 0
+
+        if origem == "Anime":
+            # Os aliases de anime são específicos para as artes de personagem já identificadas.
+            score = tipo_match * 10 + proporcao_vertical * 30 - penalidade * 120
+        else:
+            score = prioridade_edicao + tipo_match + proporcao_vertical * 30 - penalidade * 120
+
+        candidatos.append((score, prioridade_edicao, proporcao_vertical, arquivo))
+
+    if not candidatos:
+        return None
+
+    candidatos.sort(key=lambda item: (item[0], item[1], item[2]), reverse=True)
+    return candidatos[0][3]
+
+
 @st.cache_data(ttl=86400, show_spinner=False)
 def buscar_arte_personagem(nome: str, regiao: str = "", origem: str = "Jogos", arte_url: str = ""):
-    """Busca arte oficial conforme a origem: Sugimori para jogos; Pokémon para anime."""
-    if origem == "Anime":
-        # Não tenta reaproveitar arte de jogo nem procurar fanart para o elenco animado.
-        return baixar_arte_oficial(arte_url, origem) if arte_url else None
+    """Busca primeiro no catálogo Sugimori e depois na categoria individual do personagem."""
+    # Para o anime, respeita a fonte explícita cadastrada. Se o link estiver antigo ou
+    # quebrado, tenta a categoria individual do personagem como alternativa.
+    if origem == "Anime" and arte_url:
+        imagem = baixar_arte_oficial(arte_url, origem)
+        if imagem:
+            return imagem
 
-    catalogo = obter_catalogo_ken_sugimori()
-    arquivo = escolher_arquivo_sugimori(nome, regiao, catalogo)
-    if not arquivo:
+    if origem != "Anime":
+        catalogo = obter_catalogo_ken_sugimori()
+        arquivo = escolher_arquivo_sugimori(nome, regiao, catalogo)
+        if arquivo:
+            imagem = baixar_arte_oficial(arquivo.get("url", ""), "Ken Sugimori")
+            if imagem:
+                return imagem
+
+    aliases_categoria = ALIASES_CATEGORIA_PERSONAGEM.get(nome, (nome,))
+    categorias = tuple(dict.fromkeys(str(alias).strip() for alias in aliases_categoria if str(alias).strip()))
+    catalogo_personagem = obter_arquivos_categoria_personagem(categorias)
+    arquivo_personagem = escolher_arquivo_categoria_personagem(
+        nome,
+        regiao,
+        origem,
+        catalogo_personagem,
+    )
+    if not arquivo_personagem:
         return None
-    return baixar_arte_oficial(arquivo.get("url", ""), "Ken Sugimori")
+    return baixar_arte_oficial(arquivo_personagem.get("url", ""), "Bulbagarden Archives")
 
 
 @st.cache_data(ttl=86400, show_spinner=False)
@@ -585,11 +822,14 @@ def card_personagem(
                 if not carregar_arte:
                     st.caption("Arte oficial sob demanda")
                 elif personagem.get("origem") == "Anime":
-                    st.caption("Arte oficial do anime não cadastrada.")
+                    st.caption("Arte oficial do anime não localizada na categoria do personagem.")
                 else:
-                    st.caption("Arte Sugimori não localizada no catálogo oficial.")
+                    st.caption("Arte oficial não localizada nos catálogos consultados.")
             if imagem:
-                st.caption("Arte oficial do anime" if personagem.get("origem") == "Anime" else "Arte oficial de Ken Sugimori")
+                st.caption(
+                    "Arte oficial do anime" if personagem.get("origem") == "Anime"
+                    else "Arte oficial do personagem"
+                )
 
         with col_info:
             st.markdown(f"### 👤 {personagem['nome']}")
@@ -619,8 +859,8 @@ st.write(
     " aliados, antagonistas e personagens exclusivos da animação Pokémon."
 )
 st.caption(
-    "As artes dos jogos são procuradas exclusivamente no catálogo de artes oficiais de Ken Sugimori. "
-    "Os personagens do anime usam artes oficiais da animação quando disponíveis."
+    "As artes dos jogos são procuradas no catálogo Ken Sugimori e nas categorias individuais de cada personagem. "
+    "Os personagens do anime usam artes oficiais da animação, sem substituir por capturas de episódios."
 )
 st.divider()
 
