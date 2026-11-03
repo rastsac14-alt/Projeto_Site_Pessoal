@@ -1,5 +1,6 @@
 from pathlib import Path
 import io
+import re
 
 import requests
 import streamlit as st
@@ -28,6 +29,7 @@ REGIOES = [
     "Alola",
     "Galar",
     "Paldea",
+    "Anime",
 ]
 
 CATEGORIAS = [
@@ -249,6 +251,49 @@ PERSONAGENS = [
 
 
 # ============================================================
+# PERSONAGENS EXCLUSIVOS DO ANIME
+# ============================================================
+# Origem "Anime" separa esta coleção dos personagens cadastrados pelos jogos.
+# arte_url só é preenchida quando há uma imagem individual identificada em
+# fonte que identifica a imagem como arte oficial do jogo ou da animação; nunca usamos busca genérica.
+PERSONAGENS_ANIME = [
+    {"nome": "Ash Ketchum", "regiao": "Anime", "categoria": "Protagonista", "jogo": "Pokémon the Series / Jornadas", "papel": "Protagonista da série animada por mais de duas décadas; viaja com Pikachu em busca do sonho de se tornar Mestre Pokémon.", "ace": "pikachu", "origem": "Anime", "arte_url": "https://archives.bulbagarden.net/media/upload/c/cd/Ash_JN.png"},
+    {"nome": "Goh", "regiao": "Anime", "categoria": "Protagonista", "jogo": "Pokémon Jornadas", "papel": "Companheiro de Ash em Jornadas; sonha em capturar todos os Pokémon e pesquisar Mew.", "ace": "cinderace", "origem": "Anime", "arte_url": "https://archives.bulbagarden.net/media/upload/2/25/Goh_JN.png"},
+    {"nome": "Chloe Cerise", "regiao": "Anime", "categoria": "Aliado", "jogo": "Pokémon Jornadas", "papel": "Amiga de infância de Goh e filha do Professor Cerise; sua jornada acompanha Eevee e suas possibilidades de evolução.", "ace": "eevee", "origem": "Anime", "arte_url": "https://archives.bulbagarden.net/media/upload/b/b7/Chloe_JN.png"},
+    {"nome": "Professor Cerise", "regiao": "Anime", "categoria": "Professor(a)", "jogo": "Pokémon Jornadas", "papel": "Pesquisador que dirige o Laboratório Cerise e convida Ash e Goh para atuar como pesquisadores oficiais.", "ace": "", "origem": "Anime", "arte_url": "https://archives.bulbagarden.net/media/upload/d/d8/Professor_Cerise_JN.png"},
+    {"nome": "Jessie", "regiao": "Anime", "categoria": "Organização / Vilão", "jogo": "Pokémon the Series", "papel": "Integrante da Equipe Rocket que persegue Pikachu ao lado de James e Meowth.", "ace": "wobbuffet", "origem": "Anime", "arte_url": "https://archives.bulbagarden.net/media/upload/0/0d/Jessie_JN.png"},
+    {"nome": "James", "regiao": "Anime", "categoria": "Organização / Vilão", "jogo": "Pokémon the Series", "papel": "Integrante da Equipe Rocket e parceiro de Jessie nas tentativas de capturar Pikachu.", "ace": "inkay", "origem": "Anime", "arte_url": "https://archives.bulbagarden.net/media/upload/1/19/James_JN.png"},
+    {"nome": "Meowth (Equipe Rocket)", "regiao": "Anime", "categoria": "Organização / Vilão", "jogo": "Pokémon the Series", "papel": "Meowth falante da Equipe Rocket, capaz de conversar com humanos e integrante da equipe de Jessie e James.", "ace": "meowth", "origem": "Anime", "arte_url": "https://archives.bulbagarden.net/media/upload/a/aa/052Meowth_JN_anime.png"},
+    {"nome": "Tracey Sketchit", "regiao": "Anime", "categoria": "Aliado", "jogo": "Pokémon the Series: The Johto Journeys", "papel": "Observador Pokémon que viaja com Ash e Misty nas Ilhas Laranja e depois trabalha com Professor Oak.", "ace": "scyther", "origem": "Anime"},
+    {"nome": "Max", "regiao": "Anime", "categoria": "Aliado", "jogo": "Pokémon the Series: Advanced", "papel": "Irmão mais novo de May; acompanha Ash e seus amigos durante a jornada por Hoenn e Kanto.", "ace": "", "origem": "Anime"},
+    {"nome": "Ritchie", "regiao": "Anime", "categoria": "Rival", "jogo": "Pokémon the Series", "papel": "Treinador que conhece Ash na Liga Índigo e se torna um de seus rivais mais lembrados.", "ace": "pikachu", "origem": "Anime"},
+    {"nome": "Paul", "regiao": "Anime", "categoria": "Rival", "jogo": "Pokémon the Series: Diamond and Pearl", "papel": "Rival de Ash em Sinnoh, conhecido por seu estilo rigoroso de treinamento e por seu Electivire.", "ace": "electivire", "origem": "Anime"},
+    {"nome": "Alain", "regiao": "Anime", "categoria": "Rival", "jogo": "Pokémon the Series: XY", "papel": "Treinador focado em Mega Evolução que se torna um dos grandes adversários de Ash em Kalos.", "ace": "charizard", "origem": "Anime"},
+    {"nome": "Mairin", "regiao": "Anime", "categoria": "Aliado", "jogo": "Pokémon Mega Evolution Specials / XY", "papel": "Companheira de Alain nos especiais de Mega Evolução e treinadora de Chespin.", "ace": "chespin", "origem": "Anime"},
+    {"nome": "Koko", "regiao": "Anime", "categoria": "Protagonista", "jogo": "Pokémon the Movie: Secrets of the Jungle", "papel": "Garoto criado por Dada Zarude na Floresta de Okoya, cuja amizade com Ash transforma sua visão sobre si mesmo.", "ace": "zarude", "origem": "Anime"},
+    {"nome": "Liko", "regiao": "Anime", "categoria": "Protagonista", "jogo": "Pokémon Horizons", "papel": "Protagonista de Pokémon Horizons, estudante de Paldea que parte em uma aventura com Sprigatito e seu misterioso pingente.", "ace": "sprigatito", "origem": "Anime", "arte_url": "https://horizons.pokemon.com/_images/home/character-assets/liko-sprigatito.png"},
+    {"nome": "Roy", "regiao": "Anime", "categoria": "Protagonista", "jogo": "Pokémon Horizons", "papel": "Protagonista de Pokémon Horizons, garoto de uma ilha de Kanto que viaja com Fuecoco e uma Poké Bola Ancestral.", "ace": "fuecoco", "origem": "Anime", "arte_url": "https://horizons.pokemon.com/_images/home/character-assets/roy-fuecoco.png"},
+    {"nome": "Friede", "regiao": "Anime", "categoria": "Aliado", "jogo": "Pokémon Horizons", "papel": "Líder dos Tackleadores Aéreos; aventureiro e habilidoso em batalhas, acompanhado por Charizard e Capitão Pikachu.", "ace": "charizard", "origem": "Anime", "arte_url": "https://horizons.pokemon.com/_images/home/character-assets/friede-captain-pikachu.png"},
+    {"nome": "Dot", "regiao": "Anime", "categoria": "Aliado", "jogo": "Pokémon Horizons", "papel": "Gênio da computação dos Tackleadores Aéreos e sobrinha de Murdock; viaja com Quaxly.", "ace": "quaxly", "origem": "Anime", "arte_url": "https://horizons.pokemon.com/_images/home/character-assets/dot-quaxly.png"},
+    {"nome": "Murdock", "regiao": "Anime", "categoria": "Aliado", "jogo": "Pokémon Horizons", "papel": "Cozinheiro dos Tackleadores Aéreos, conhecido por cuidar do grupo e por sua parceria com Rockruff.", "ace": "rockruff", "origem": "Anime", "arte_url": "https://horizons.pokemon.com/_images/home/character-assets/murdock-rockruff.png"},
+    {"nome": "Orla", "regiao": "Anime", "categoria": "Aliado", "jogo": "Pokémon Horizons", "papel": "Mecânica e engenheira responsável pela manutenção do dirigível Brave Olivine; sua parceira é Metagross.", "ace": "metagross", "origem": "Anime", "arte_url": "https://horizons.pokemon.com/_images/home/character-assets/orla-metagross.png"},
+    {"nome": "Mollie", "regiao": "Anime", "categoria": "Aliado", "jogo": "Pokémon Horizons", "papel": "Responsável pelos cuidados médicos dos Pokémon a bordo do Brave Olivine, com Chansey como parceira.", "ace": "chansey", "origem": "Anime", "arte_url": "https://horizons.pokemon.com/_images/home/character-assets/mollie-chansey.png"},
+    {"nome": "Ludlow", "regiao": "Anime", "categoria": "Aliado", "jogo": "Pokémon Horizons", "papel": "Pescador experiente e integrante dos Tackleadores Aéreos; viaja com Quagsire.", "ace": "quagsire", "origem": "Anime", "arte_url": "https://horizons.pokemon.com/_images/home/character-assets/ludlow-quagsuire.png"},
+    {"nome": "Amethio", "regiao": "Anime", "categoria": "Antagonista", "jogo": "Pokémon Horizons", "papel": "Integrante dos Exploradores interessado no pingente de Liko; seu parceiro Pokémon é Ceruledge.", "ace": "ceruledge", "origem": "Anime", "arte_url": "https://horizons.pokemon.com/_images/home/character-assets/amethio-ceruledge.png"},
+    {"nome": "Zirc", "regiao": "Anime", "categoria": "Organização / Vilão", "jogo": "Pokémon Horizons", "papel": "Membro dos Exploradores que responde a Amethio e costuma demonstrar a força de Rhydon.", "ace": "rhydon", "origem": "Anime", "arte_url": "https://horizons.pokemon.com/_images/home/character-assets/zirc-rhydon.png"},
+    {"nome": "Onia", "regiao": "Anime", "categoria": "Organização / Vilão", "jogo": "Pokémon Horizons", "papel": "Integrante dos Exploradores que trabalha com Amethio e tem Golduck como parceiro.", "ace": "golduck", "origem": "Anime", "arte_url": "https://horizons.pokemon.com/_images/home/character-assets/onia-golduck.png"},
+    {"nome": "Hamber", "regiao": "Anime", "categoria": "Organização / Vilão", "jogo": "Pokémon Horizons", "papel": "Membro veterano dos Exploradores que supervisiona operações ao lado de Dusknoir.", "ace": "dusknoir", "origem": "Anime", "arte_url": "https://horizons.pokemon.com/_images/home/character-assets/hamber.png"},
+    {"nome": "Spinel", "regiao": "Anime", "categoria": "Organização / Vilão", "jogo": "Pokémon Horizons", "papel": "General dos Exploradores que manipula comunicações e tenta roubar o pingente de Liko.", "ace": "umbreon", "origem": "Anime", "arte_url": "https://horizons.pokemon.com/_images/home/character-assets/spinell.png"},
+    {"nome": "Sidian", "regiao": "Anime", "categoria": "Organização / Vilão", "jogo": "Pokémon Horizons", "papel": "General dos Exploradores, conhecido por sua postura séria e por lutar ao lado de Garganacl.", "ace": "garganacl", "origem": "Anime", "arte_url": "https://horizons.pokemon.com/_images/home/character-assets/sidan.png"},
+    {"nome": "Coral", "regiao": "Anime", "categoria": "Organização / Vilão", "jogo": "Pokémon Horizons", "papel": "General dos Exploradores de personalidade impulsiva e brincalhona, parceira de Glalie.", "ace": "glalie", "origem": "Anime", "arte_url": "https://horizons.pokemon.com/_images/home/character-assets/coral.png"},
+    {"nome": "Chalce", "regiao": "Anime", "categoria": "Organização / Vilão", "jogo": "Pokémon Horizons", "papel": "General dos Exploradores de postura calma e crítica, que batalha ao lado de Medicham.", "ace": "medicham", "origem": "Anime", "arte_url": "https://horizons.pokemon.com/_images/home/character-assets/chalce.png"},
+    {"nome": "Nidothing", "regiao": "Anime", "categoria": "Aliado", "jogo": "Pokémon Horizons", "papel": "Streamer popular que usa uma fantasia para esconder sua identidade e é admirada por Liko.", "ace": "", "origem": "Anime", "arte_url": "https://horizons.pokemon.com/_images/home/character-assets/nidothing.png"},
+]
+
+PERSONAGENS.extend(PERSONAGENS_ANIME)
+
+
+# ============================================================
 # FUNÇÕES
 # ============================================================
 
@@ -282,120 +327,180 @@ def nome_bonito(nome: str) -> str:
 
 
 @st.cache_data(ttl=86400, show_spinner=False)
-def buscar_arte_personagem(nome: str):
-    """Busca a arte somente sob demanda, com no máximo uma pesquisa e dois downloads."""
-    nome = str(nome or "").strip()
-    if not nome:
-        return None
-
+def obter_catalogo_ken_sugimori():
+    """Carrega somente arquivos da categoria oficial Ken Sugimori character artwork."""
     endpoint = "https://archives.bulbagarden.net/w/api.php"
     headers = {
-        "User-Agent": "KAYZAC-Master-Pokemon/2.0 (Streamlit; character gallery)",
-        "Accept": "application/json,image/*,*/*;q=0.8",
+        "User-Agent": "KAYZAC-Master-Pokemon/3.0 (character artwork catalog)",
+        "Accept": "application/json",
     }
+    parametros = {
+        "action": "query",
+        "generator": "categorymembers",
+        "gcmtitle": "Category:Ken_Sugimori_character_artwork",
+        "gcmtype": "file",
+        "gcmlimit": 500,
+        "prop": "imageinfo",
+        "iiprop": "url|mime",
+        "format": "json",
+        "formatversion": 2,
+    }
+    arquivos = []
+
+    # A categoria contém algumas centenas de arquivos. O continue evita que
+    # futuras expansões do catálogo deixem personagens sem imagem.
+    for _ in range(4):
+        try:
+            resposta = requests.get(endpoint, params=parametros, timeout=(4, 12), headers=headers)
+            resposta.raise_for_status()
+            dados = resposta.json()
+        except Exception:
+            break
+
+        paginas = dados.get("query", {}).get("pages", [])
+        if isinstance(paginas, dict):
+            paginas = list(paginas.values())
+        if not isinstance(paginas, list):
+            break
+
+        for pagina in paginas:
+            infos = pagina.get("imageinfo", [])
+            if not infos or not isinstance(infos[0], dict):
+                continue
+            info = infos[0]
+            url = info.get("url")
+            mime = str(info.get("mime", "")).lower()
+            titulo = str(pagina.get("title", ""))
+            if url and mime.startswith("image/") and titulo:
+                arquivos.append({"titulo": titulo, "url": url, "mime": mime})
+
+        continuacao = dados.get("continue", {})
+        if not continuacao:
+            break
+        parametros.update(continuacao)
+
+    return arquivos
+
+
+def normalizar_titulo_arquivo(valor: str) -> str:
+    import unicodedata
+
+    valor = unicodedata.normalize("NFKD", str(valor or ""))
+    valor = "".join(caractere for caractere in valor if not unicodedata.combining(caractere))
+    return re.sub(r"[^a-z0-9]+", " ", valor.lower()).strip()
+
+
+ALIASES_ARTES_SUGIMORI = {
+    "Lt. Surge": ("Lt Surge",),
+    "Professor Oak": ("Professor Oak",),
+    "Professor Elm": ("Professor Elm",),
+    "Professor Birch": ("Professor Birch",),
+    "Professor Rowan": ("Professor Rowan", "Rowan"),
+    "Professor Juniper": ("Professor Juniper", "Juniper"),
+    "Professor Sycamore": ("Professor Sycamore", "Sycamore"),
+    "Professor Kukui": ("Professor Kukui", "Kukui"),
+    "Professor Magnolia": ("Professor Magnolia", "Magnolia"),
+    "Professor Laventon": ("Professor Laventon", "Laventon"),
+    "Steven Stone": ("Steven Stone", "Steven"),
+    "Tate & Liza": ("Tate & Liza", "Tate and Liza"),
+    "Urbain / Taunie": ("Urbain", "Taunie"),
+}
+
+PREFERENCIA_EDICAO_SUGIMORI = {
+    "Kanto": ("firered leafgreen", "red green", "red blue"),
+    "Johto": ("heartgold soulsilver", "crystal", "gold silver"),
+    "Hoenn": ("emerald", "omega ruby alpha sapphire", "ruby sapphire"),
+    "Sinnoh": ("platinum", "diamond pearl"),
+    "Hisui": ("legends arceus",),
+    "Unova": ("black 2 white 2", "black white"),
+    "Kalos": ("x y",),
+    "Alola": ("ultra sun ultra moon", "sun moon"),
+    "Galar": ("sword shield",),
+    "Paldea": ("scarlet violet",),
+}
+
+
+def escolher_arquivo_sugimori(nome: str, regiao: str, catalogo: list):
+    """Retorna uma correspondência por sufixo exato, nunca por busca aproximada."""
+    aliases = ALIASES_ARTES_SUGIMORI.get(nome, (nome,))
+    aliases_norm = tuple(normalizar_titulo_arquivo(alias) for alias in aliases)
+    preferencias = PREFERENCIA_EDICAO_SUGIMORI.get(regiao, ())
+    candidatos = []
+
+    for arquivo in catalogo:
+        titulo = str(arquivo.get("titulo", ""))
+        nome_arquivo = titulo.split(":", 1)[-1].rsplit(".", 1)[0]
+        base = normalizar_titulo_arquivo(nome_arquivo)
+        for alias in aliases_norm:
+            if not alias or not (base == alias or base.endswith(" " + alias)):
+                continue
+            prefixo = base[:-len(alias)].strip()
+            prioridade = 0
+            for indice, edicao in enumerate(preferencias):
+                if edicao in prefixo:
+                    prioridade = 1000 - (indice * 100)
+                    break
+            # Em empate, nomes de arquivo mais específicos têm precedência.
+            candidatos.append((prioridade, len(prefixo), arquivo))
+
+    if not candidatos:
+        return None
+    candidatos.sort(key=lambda item: (item[0], item[1]), reverse=True)
+    return candidatos[0][2]
+
+
+def baixar_arte_oficial(url: str, origem: str = ""):
+    if not url:
+        return None
+    headers = {"User-Agent": "KAYZAC-Master-Pokemon/3.0"}
+    if "bulbagarden.net" in url:
+        headers["Referer"] = "https://archives.bulbagarden.net/"
     try:
-        resposta = requests.get(
-            endpoint,
-            params={
-                "action": "query",
-                "generator": "search",
-                "gsrsearch": f'"{nome}" artwork',
-                "gsrnamespace": 6,
-                "gsrlimit": 12,
-                "prop": "imageinfo",
-                "iiprop": "url|mime|size",
-                "format": "json",
-                "formatversion": 2,
-            },
-            timeout=(3.05, 5),
-            headers=headers,
-        )
+        resposta = requests.get(url, timeout=(4, 10), headers=headers)
         resposta.raise_for_status()
-        dados = resposta.json()
+        if not resposta.content or len(resposta.content) < 300:
+            return None
+        with Image.open(io.BytesIO(resposta.content)) as img:
+            img.load()
+            modo = "RGBA" if "A" in img.getbands() else "RGB"
+            convertido = img.convert(modo)
+            saida = io.BytesIO()
+            convertido.save(saida, format="PNG")
+            return saida.getvalue()
     except Exception:
         return None
 
-    paginas = dados.get("query", {}).get("pages", [])
-    if not isinstance(paginas, list):
+
+@st.cache_data(ttl=86400, show_spinner=False)
+def buscar_arte_personagem(nome: str, regiao: str = "", origem: str = "Jogos", arte_url: str = ""):
+    """Busca arte oficial conforme a origem: Sugimori para jogos; Pokémon para anime."""
+    if origem == "Anime":
+        # Não tenta reaproveitar arte de jogo nem procurar fanart para o elenco animado.
+        return baixar_arte_oficial(arte_url, origem) if arte_url else None
+
+    catalogo = obter_catalogo_ken_sugimori()
+    arquivo = escolher_arquivo_sugimori(nome, regiao, catalogo)
+    if not arquivo:
         return None
-
-    nome_lower = nome.lower()
-    candidatos = []
-    for pagina in paginas:
-        titulo = str(pagina.get("title", ""))
-        titulo_lower = titulo.lower()
-        infos = pagina.get("imageinfo", [])
-        if not infos or not isinstance(infos[0], dict):
-            continue
-        metadados = infos[0]
-        url = metadados.get("url")
-        mime = str(metadados.get("mime", "")).lower()
-        if not url or not mime.startswith("image/"):
-            continue
-
-        pontuacao = 0
-        if nome_lower in titulo_lower:
-            pontuacao += 20
-        if "official" in titulo_lower:
-            pontuacao += 8
-        if "artwork" in titulo_lower:
-            pontuacao += 8
-        if "character" in titulo_lower:
-            pontuacao += 5
-        if "sugimori" in titulo_lower:
-            pontuacao += 4
-        if "concept" in titulo_lower:
-            pontuacao += 2
-        if any(termo in titulo_lower for termo in ("sprite", "icon", "badge")):
-            pontuacao -= 12
-        if any(termo in titulo_lower for termo in ("anime", "tcg")):
-            pontuacao -= 6
-        candidatos.append((pontuacao, url, mime))
-
-    candidatos.sort(key=lambda item: item[0], reverse=True)
-    # No máximo dois downloads, cada um com timeout curto.
-    for _, url, mime in candidatos[:2]:
-        try:
-            imagem = requests.get(
-                url,
-                timeout=(3.05, 5),
-                headers={
-                    "User-Agent": headers["User-Agent"],
-                    "Referer": "https://archives.bulbagarden.net/",
-                },
-            )
-            imagem.raise_for_status()
-            dados_imagem = imagem.content
-            if not dados_imagem or len(dados_imagem) < 500:
-                continue
-            try:
-                with Image.open(io.BytesIO(dados_imagem)) as img:
-                    img.load()
-                    modo = "RGBA" if "A" in img.getbands() else "RGB"
-                    convertido = img.convert(modo)
-                    saida = io.BytesIO()
-                    convertido.save(saida, format="PNG")
-                    return saida.getvalue()
-            except Exception:
-                if mime.startswith("image/"):
-                    return dados_imagem
-        except Exception:
-            continue
-    return None
+    return baixar_arte_oficial(arquivo.get("url", ""), "Ken Sugimori")
 
 
 @st.cache_data(ttl=86400, show_spinner=False)
-def buscar_artes_em_lote(nomes: tuple):
-    """Busca artes somente para os cards visíveis, em paralelo e sob demanda."""
+def buscar_artes_em_lote(personagens_info: tuple):
+    """Busca artes oficiais apenas para os cards visíveis, em paralelo e sob demanda."""
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
-    nomes_unicos = tuple(dict.fromkeys(str(n).strip() for n in nomes if str(n).strip()))
-    if not nomes_unicos:
+    itens = tuple(dict.fromkeys(personagens_info))
+    if not itens:
         return {}
 
     resultados = {}
-    with ThreadPoolExecutor(max_workers=min(8, len(nomes_unicos))) as executor:
-        tarefas = {executor.submit(buscar_arte_personagem, nome): nome for nome in nomes_unicos}
+    with ThreadPoolExecutor(max_workers=min(8, len(itens))) as executor:
+        tarefas = {}
+        for item in itens:
+            nome, regiao, origem, arte_url = item
+            tarefa = executor.submit(buscar_arte_personagem, nome, regiao, origem, arte_url)
+            tarefas[tarefa] = nome
         for tarefa in as_completed(tarefas):
             nome = tarefas[tarefa]
             try:
@@ -403,6 +508,15 @@ def buscar_artes_em_lote(nomes: tuple):
             except Exception:
                 resultados[nome] = None
     return resultados
+
+
+def info_arte_personagem(personagem: dict) -> tuple:
+    return (
+        personagem.get("nome", ""),
+        personagem.get("regiao", ""),
+        personagem.get("origem", "Jogos"),
+        personagem.get("arte_url", ""),
+    )
 
 
 def imagem_personagem(personagem: dict):
@@ -468,13 +582,22 @@ def card_personagem(
                 st.image(imagem, use_container_width=True)
             else:
                 st.markdown("## 👤")
-                st.caption("Arte online sob demanda" if not carregar_arte else "Arte indisponível nesta fonte.")
+                if not carregar_arte:
+                    st.caption("Arte oficial sob demanda")
+                elif personagem.get("origem") == "Anime":
+                    st.caption("Arte oficial do anime não cadastrada.")
+                else:
+                    st.caption("Arte Sugimori não localizada no catálogo oficial.")
+            if imagem:
+                st.caption("Arte oficial do anime" if personagem.get("origem") == "Anime" else "Arte oficial de Ken Sugimori")
 
         with col_info:
             st.markdown(f"### 👤 {personagem['nome']}")
-            st.caption(f"{personagem['regiao']} • {personagem['categoria']}")
+            origem_legenda = "Anime" if personagem.get("origem") == "Anime" else personagem['regiao']
+            st.caption(f"{origem_legenda} • {personagem['categoria']}")
             st.write(personagem["papel"])
-            st.markdown(f"**🎮 Jogos:** {personagem['jogo']}")
+            rotulo_midia = "📺 Série" if personagem.get("origem") == "Anime" else "🎮 Jogos"
+            st.markdown(f"**{rotulo_midia}:** {personagem['jogo']}")
 
             if personagem.get("ace"):
                 st.markdown(f"**⭐ Pokémon de destaque:** {nome_bonito(personagem['ace'])}")
@@ -493,11 +616,11 @@ def card_personagem(
 st.title("👥 KAYZAC - PERSONAGENS POKÉMON")
 st.write(
     "Conheça protagonistas, rivais, professores, Líderes de Ginásio, Elite Four, Campeões,"
-    " aliados e os principais antagonistas de cada região."
+    " aliados, antagonistas e personagens exclusivos da animação Pokémon."
 )
 st.caption(
-    "A página foi pensada como um banco de personagens do universo dos jogos principais,"
-    " com espaço para crescer junto com o projeto."
+    "As artes dos jogos são procuradas exclusivamente no catálogo de artes oficiais de Ken Sugimori. "
+    "Os personagens do anime usam artes oficiais da animação quando disponíveis."
 )
 st.divider()
 
@@ -509,7 +632,7 @@ st.divider()
 col1, col2, col3 = st.columns([1, 1, 2])
 
 with col1:
-    regiao = st.selectbox("🌎 Região", REGIOES, key="personagens_regiao")
+    regiao = st.selectbox("🌎 Região / mídia", REGIOES, key="personagens_regiao")
 
 with col2:
     categoria = st.selectbox("🏷️ Categoria", CATEGORIAS, key="personagens_categoria")
@@ -542,7 +665,7 @@ if busca:
         or busca in p["jogo"].lower()
     ]
 
-# KAYZAC_PERSONAGENS_PERFORMANCE_V2
+# KAYZAC_PERSONAGENS_PERFORMANCE_V3
 # Renderização inicial leve: só 12 cards e nenhuma busca remota automática.
 CARDS_POR_PAGINA = 12
 _assinatura_filtros = (regiao, categoria, busca)
@@ -556,15 +679,15 @@ st.session_state["personagens_pagina_rapida"] = min(
     total_paginas,
 )
 carregar_artes_resultados = st.toggle(
-    "🖼️ Carregar artes online dos personagens desta página",
+    "🖼️ Carregar artes oficiais dos personagens desta página",
     value=False,
     key="personagens_carregar_artes_resultados_rapido",
-    help="Desativado por padrão para a página abrir imediatamente. Ao ativar, busca artes dos até 12 personagens visíveis.",
+    help="Desativado por padrão para a página abrir imediatamente. Ao ativar, procura artes Sugimori oficiais ou artes oficiais do anime para os até 12 personagens visíveis.",
 )
 
 m1, m2, m3 = st.columns(3)
 m1.metric("👥 Personagens encontrados", len(resultados))
-m2.metric("🌎 Regiões no banco", len(REGIOES) - 1)
+m2.metric("🌎 Regiões / mídias", len(REGIOES) - 1)
 m3.metric("🏷️ Categorias", len(CATEGORIAS) - 1)
 
 st.divider()
@@ -610,7 +733,7 @@ else:
     if carregar_artes_resultados and resultados_pagina:
         with st.spinner("🖼️ Carregando artes dos personagens desta página..."):
             artes_resultados = buscar_artes_em_lote(
-                tuple(personagem["nome"] for personagem in resultados_pagina)
+                tuple(info_arte_personagem(personagem) for personagem in resultados_pagina)
             )
 
     colunas = st.columns(2)
@@ -634,7 +757,7 @@ st.subheader("⭐ Personagens em destaque")
 buscas_destaque = ["Cynthia", "Giovanni", "N", "Lillie", "Leon", "Nemona"]
 destaques = [p for p in PERSONAGENS if p["nome"] in buscas_destaque]
 carregar_artes_destaques = st.toggle(
-    "🖼️ Carregar artes dos personagens em destaque",
+    "🖼️ Carregar artes oficiais dos personagens em destaque",
     value=False,
     key="personagens_carregar_artes_destaques_rapido",
     help="Busca separadamente as artes dos seis destaques, somente quando solicitada.",
@@ -643,7 +766,7 @@ artes_destaques = {}
 if carregar_artes_destaques and destaques:
     with st.spinner("🖼️ Carregando artes dos destaques..."):
         artes_destaques = buscar_artes_em_lote(
-            tuple(personagem["nome"] for personagem in destaques)
+            tuple(info_arte_personagem(personagem) for personagem in destaques)
         )
 
 dest_cols = st.columns(3)
