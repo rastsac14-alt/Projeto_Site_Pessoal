@@ -293,6 +293,160 @@ POKETOON_2026 = [
 
 
 # ============================================================
+# DADOS — CRIADORES DE CONTEÚDO POKÉMON
+# ============================================================
+# Links individuais foram incluídos quando a identificação do canal pôde ser
+# confirmada. Nos demais casos, o botão abre uma pesquisa para evitar homônimos.
+
+CRIADORES_POKEMON = [
+    {
+        "nome": "Kaka - Mestre Pokémon!",
+        "categoria": "Lore e teorias",
+        "descricao": "Vídeos sobre mitologia, história, lore, teorias, design dos Pokémon, curiosidades, reviews e jogos.",
+        "plataforma": "YouTube",
+        "url": "https://www.youtube.com/@kakamestrepok%C3%A9mon",
+        "confirmado": True,
+    },
+    {
+        "nome": "Miguezord",
+        "categoria": "Gameplay e desafios",
+        "descricao": "Análises, desafios, runs com regras especiais, times e guias para jogos Pokémon.",
+        "plataforma": "YouTube",
+        "url": "https://www.youtube.com/@miguezord",
+        "confirmado": True,
+    },
+    {
+        "nome": "Treinador Zard",
+        "categoria": "Competitivo",
+        "descricao": "Conteúdo Pokémon com foco em batalhas competitivas, estratégias, torneios, desafios e gameplays.",
+        "plataforma": "YouTube",
+        "url": "https://www.youtube.com/@treinadorzard",
+        "confirmado": True,
+    },
+    {
+        "nome": "EternaVerso",
+        "categoria": "Lore e teorias",
+        "descricao": "Curiosidades, explicações de tipagens, história e conceitos do universo Pokémon, além de gameplays e desafios.",
+        "plataforma": "YouTube",
+        "url": "https://www.youtube.com/@EternaVerso",
+        "confirmado": True,
+    },
+    {
+        "nome": "Estação HD / Andih",
+        "categoria": "Anime e reações",
+        "descricao": "Canal associado a Andih, com conteúdo Pokémon, análises, comentários, reações e assuntos de anime e cultura pop.",
+        "plataforma": "YouTube",
+        "url": "https://www.youtube.com/@estacaohdoficial",
+        "confirmado": True,
+    },
+    {
+        "nome": "Diogo ZM",
+        "categoria": "Competitivo",
+        "descricao": "Canal de Pokémon com foco declarado no cenário competitivo.",
+        "plataforma": "YouTube",
+        "url": "https://www.youtube.com/@diogozm",
+        "confirmado": True,
+    },
+    {
+        "nome": "Moracci",
+        "categoria": "Gameplay e desafios",
+        "descricao": "Gameplays, desafios para zerar jogos Pokémon, corridas monotype, shiny runs e experiências com jogos modificados.",
+        "plataforma": "YouTube",
+        "url": "https://www.youtube.com/channel/UCZUuvoxxUa67g-9tB-TxBHg",
+        "confirmado": True,
+    },
+    {
+        "nome": "ChequerChequerTV",
+        "categoria": "Gameplay e desafios",
+        "descricao": "Desafios longos e difíceis em jogos, incluindo Pokémon, com formatos como zerar sem receber dano e desafios de sobrevivência.",
+        "plataforma": "YouTube",
+        "url": "https://www.youtube.com/@ChequerChequerTV",
+        "confirmado": True,
+    },
+    {
+        "nome": "LeeGengar",
+        "categoria": "Notícias e análises",
+        "descricao": "Notícias, curiosidades, análises, rankings, tier lists, comentários sobre novidades e conteúdos variados de Pokémon.",
+        "plataforma": "YouTube",
+        "url": "https://www.youtube.com/@LEEGENGARBR",
+        "confirmado": True,
+    },
+    {
+        "nome": "Barbosa A3",
+        "categoria": "TCG e colecionismo",
+        "descricao": "Criador brasileiro ligado à comunidade Pokémon e à cobertura de eventos; perfil identificado em materiais da cobertura do Mundial de 2022.",
+        "plataforma": "YouTube",
+        "url": "https://www.youtube.com/@BARBOSAA3",
+        "confirmado": True,
+    },
+    {
+        "nome": "Ferezins",
+        "categoria": "Comunidade e eventos",
+        "descricao": "Criador brasileiro ligado à comunidade Pokémon e à cobertura de eventos oficiais, incluindo o Mundial de 2022.",
+        "plataforma": "YouTube",
+        "url": "https://www.youtube.com/@FEREZINS",
+        "confirmado": True,
+    },
+    {
+        "nome": "Mayck - Pokémon",
+        "categoria": "Notícias e análises",
+        "descricao": "Conteúdo sobre curiosidades, novidades, teorias, Fakemon e ideias originais inspiradas no universo Pokémon.",
+        "plataforma": "YouTube",
+        "url": "https://www.youtube.com/@mayckpokemon",
+        "confirmado": True,
+    },
+    {
+        "nome": "King",
+        "categoria": "A confirmar",
+        "descricao": "Nome indicado para a biblioteca KAYZAC. A identidade exata do canal ainda precisa ser confirmada para não apontar para outro criador.",
+        "plataforma": "Pesquisa no YouTube",
+        "url": "https://www.youtube.com/results?search_query=King+criador+Pok%C3%A9mon+Brasil",
+        "confirmado": False,
+    },
+    {
+        "nome": "PokeShogun",
+        "categoria": "A confirmar",
+        "descricao": "Criador indicado para a biblioteca KAYZAC. Link individual ainda precisa de confirmação.",
+        "plataforma": "Pesquisa no YouTube",
+        "url": "https://www.youtube.com/results?search_query=PokeShogun+Pok%C3%A9mon",
+        "confirmado": False,
+    },
+    {
+        "nome": "Culas Games",
+        "categoria": "A confirmar",
+        "descricao": "Criador indicado para a biblioteca KAYZAC. Link individual ainda precisa de confirmação.",
+        "plataforma": "Pesquisa no YouTube",
+        "url": "https://www.youtube.com/results?search_query=Culas+Games+Pok%C3%A9mon",
+        "confirmado": False,
+    },
+    {
+        "nome": "Laike",
+        "categoria": "A confirmar",
+        "descricao": "Criador indicado para a biblioteca KAYZAC. Link individual ainda precisa de confirmação.",
+        "plataforma": "Pesquisa no YouTube",
+        "url": "https://www.youtube.com/results?search_query=Laike+Pok%C3%A9mon+Brasil",
+        "confirmado": False,
+    },
+    {
+        "nome": "CaduNX",
+        "categoria": "A confirmar",
+        "descricao": "Criador indicado para a biblioteca KAYZAC. Link individual ainda precisa de confirmação.",
+        "plataforma": "Pesquisa no YouTube",
+        "url": "https://www.youtube.com/results?search_query=CaduNX+Pok%C3%A9mon",
+        "confirmado": False,
+    },
+    {
+        "nome": "Slowbrother",
+        "categoria": "A confirmar",
+        "descricao": "Criador indicado para a biblioteca KAYZAC. Link individual ainda precisa de confirmação.",
+        "plataforma": "Pesquisa no YouTube",
+        "url": "https://www.youtube.com/results?search_query=Slowbrother+Pok%C3%A9mon",
+        "confirmado": False,
+    },
+]
+
+
+# ============================================================
 # ESTADO DE PROGRESSO
 # ============================================================
 
@@ -347,12 +501,13 @@ def render_capa_midia(emoji: str, titulo: str, subtitulo: str) -> None:
 # TABS PRINCIPAIS
 # ============================================================
 
-tab_manga, tab_anime, tab_filmes, tab_curta, tab_progresso, tab_sobre = st.tabs(
+tab_manga, tab_anime, tab_filmes, tab_curta, tab_criadores, tab_progresso, tab_sobre = st.tabs(
     [
         "📚 Mangá",
         "📺 Anime",
         "🎬 Filmes & Especiais",
         "🎞️ Curtas",
+        "🌟 Criadores",
         "🏆 Meu Progresso",
         "ℹ️ Sobre",
     ]
@@ -550,6 +705,70 @@ with tab_curta:
 
     st.caption(
         "A Pokémon Company vem disponibilizando POKÉTOON no canal oficial; a disponibilidade dos vídeos pode variar por região e período."
+    )
+
+
+# ============================================================
+# 🌟 CRIADORES DE CONTEÚDO
+# ============================================================
+
+with tab_criadores:
+    render_capa_midia(
+        "🌟",
+        "Criadores de Conteúdo Pokémon",
+        "Conheça canais, influenciadores e comunidades que mantêm o universo Pokémon vivo na internet.",
+    )
+    st.write(
+        "Uma biblioteca aberta de criadores: de análises, notícias e teorias a gameplays, desafios, competitivo, "
+        "anime e colecionismo. Os links levam aos canais ou a pesquisas quando a identidade ainda precisa ser confirmada."
+    )
+
+    categorias_criadores = ["Todos"] + sorted({c["categoria"] for c in CRIADORES_POKEMON})
+    col_busca, col_categoria = st.columns([2, 1])
+    with col_busca:
+        busca_criador = st.text_input(
+            "🔎 Buscar criador",
+            placeholder="Digite um nome...",
+            key="midia_busca_criador",
+        )
+    with col_categoria:
+        categoria_criador = st.selectbox(
+            "🎯 Tipo de conteúdo",
+            categorias_criadores,
+            key="midia_categoria_criador",
+        )
+
+    criadores_filtrados = [
+        criador for criador in CRIADORES_POKEMON
+        if (not busca_criador or busca_criador.casefold() in criador["nome"].casefold())
+        and (categoria_criador == "Todos" or criador["categoria"] == categoria_criador)
+    ]
+    st.caption(f"{len(criadores_filtrados)} criador(es) encontrado(s) · {sum(c['confirmado'] for c in CRIADORES_POKEMON)} links individuais confirmados")
+
+    if not criadores_filtrados:
+        st.info("Nenhum criador encontrado. Tente outro nome ou categoria.")
+    else:
+        colunas = st.columns(2)
+        for indice, criador in enumerate(criadores_filtrados):
+            with colunas[indice % 2]:
+                with st.container(border=True):
+                    st.markdown(f"### {criador['nome']}")
+                    status = "✅ Canal identificado" if criador["confirmado"] else "🔎 Identidade/link a confirmar"
+                    st.caption(f"{criador['categoria']} · {status}")
+                    st.write(criador["descricao"])
+                    texto_botao = "▶️ Abrir canal no YouTube" if criador["confirmado"] else "🔍 Pesquisar criador no YouTube"
+                    st.link_button(texto_botao, criador["url"], use_container_width=True)
+
+    st.divider()
+    st.markdown("### ➕ Como ampliar a biblioteca")
+    st.caption(
+        "Os nomes King, PokeShogun, Culas Games, Laike, CaduNX e Slowbrother foram incluídos com links de pesquisa, "
+        "pois não consegui confirmar com segurança um endereço individual para cada perfil. "
+        "Assim, evitamos associar um nome a um canal homônimo."
+    )
+    st.info(
+        "A lista é independente da aba Personagens: aqui entram pessoas e canais que produzem conteúdo Pokémon, "
+        "não personagens fictícios da franquia."
     )
 
 
