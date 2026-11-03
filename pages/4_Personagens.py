@@ -533,6 +533,8 @@ ALIASES_CATEGORIA_PERSONAGEM = {
     "Professor Magnolia": ("Professor Magnolia", "Magnolia"),
     "Professor Laventon": ("Professor Laventon", "Laventon"),
     "Professor Burnet": ("Professor Burnet", "Burnet"),
+    # Salvatore possui um retrato oficial de perfil do League Club Room em Scarlet/Violet.
+    "Salvatore": ("Salvatore",),
     # Este arquivo é artwork oficial da animação Sun & Moon (não sprite de jogo).
     "Samson Oak": ("Samson Oak SM", "Samson Oak"),
     "Tracey Sketchit": ("Tracey Sketchit", "Tracey"),
@@ -573,6 +575,8 @@ TERMOS_ARTES_NAO_PRINCIPAIS = (
 # Nomes exatos dos retratos oficiais que devem vencer outras imagens da mesma categoria.
 # Os arquivos VSDendra/VSMiriam/etc. são renders 3D de batalha, não desenhos Sugimori.
 ARQUIVOS_ARTES_PRIORITARIOS = {
+    # Retrato oficial de perfil do League Club Room (não é artwork Sugimori).
+    "Salvatore": ("LCR Salvatore icon large",),
     "Samson Oak": ("Samson Oak SM",),
     "Dendra": ("VSDendra",),
     "Miriam": ("VSMiriam",),
@@ -582,6 +586,7 @@ ARQUIVOS_ARTES_PRIORITARIOS = {
 }
 
 ROTULOS_ARTES_ESPECIAIS = {
+    "Salvatore": "Retrato oficial de perfil • League Club Room (Scarlet/Violet)",
     "Samson Oak": "Artwork oficial do anime • Sun & Moon",
     "Dendra": "Retrato VS oficial do jogo • modelo 3D de Scarlet/Violet",
     "Miriam": "Retrato VS oficial do jogo • modelo 3D de Scarlet/Violet",
@@ -590,7 +595,7 @@ ROTULOS_ARTES_ESPECIAIS = {
     "Tyme": "Retrato VS oficial do jogo • modelo 3D de Scarlet/Violet",
 }
 
-VERSAO_CACHE_ARTES = "2026-11-03-personagens-artes-v2"
+VERSAO_CACHE_ARTES = "2026-11-03-personagens-artes-v3-salvatore"
 
 
 @st.cache_data(ttl=86400, show_spinner=False)
