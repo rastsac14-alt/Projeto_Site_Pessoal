@@ -1258,7 +1258,14 @@ def renderizar_emulador(payload: dict[str, Any]) -> None:
 
     window.EJS_disableLocalStorage = false;
 
-    window.EJS_threads = {str(bool(perfil['threads'])).lower()};
+    // O Streamlit Cloud/iframe nem sempre oferece isolamento de origem.
+    // Threads do EmulatorJS só podem ser ativadas quando o navegador confirma
+    // crossOriginIsolated + SharedArrayBuffer (cabeçalhos COOP/COEP).
+    const kayzacThreadsSolicitadas = {str(bool(perfil['threads'])).lower()};
+    const kayzacThreadsDisponiveis =
+        window.crossOriginIsolated === true &&
+        typeof window.SharedArrayBuffer === "function";
+    window.EJS_threads = kayzacThreadsSolicitadas && kayzacThreadsDisponiveis;
 
     window.EJS_forceLegacyCores = {str(bool(perfil['legacy'])).lower()};
 
@@ -1334,6 +1341,12 @@ def renderizar_emulador(payload: dict[str, Any]) -> None:
             "🔥 Jogo carregado. Use o menu do EmulatorJS ou os atalhos rápidos do KAYZAC. " +
 
             (PAYLOAD.core === "azahar" ? "🟣 3DS experimental: esta integração usa uma pré-release do EmulatorJS." : "");
+
+        if (kayzacThreadsSolicitadas && !kayzacThreadsDisponiveis) {{
+
+            hintEl.innerHTML += " O navegador/iframe não oferece SharedArrayBuffer; o KAYZAC iniciou em modo compatível, sem múltiplas threads.";
+
+        }}
 
     }};
 
@@ -1612,9 +1625,7 @@ def renderizar_emulador(payload: dict[str, Any]) -> None:
 # ============================================================
 
 
-st.markdown(
-
-    textwrap.dedent("""
+cabecalho_html = textwrap.dedent("""
 
     <div style="
 
@@ -1656,11 +1667,12 @@ st.markdown(
 
     </div>
 
-    """),
+    """).strip()
 
-    unsafe_allow_html=True,
-
-)
+if hasattr(st, "html"):
+    st.html(cabecalho_html)
+else:
+    st.markdown(cabecalho_html, unsafe_allow_html=True)
 
 
 st.info(
@@ -2000,7 +2012,7 @@ elif modo == "🟣 Nintendo 3DS experimental":
 
         "🧪 Esta opção usa o EmulatorJS 4.3.0-pre, que adiciona o core Azahar. "
 
-        "É uma pré-release: pode haver jogos que não iniciem, travem ou apresentem problemas."
+        "É uma pré-release e exige SharedArrayBuffer/threads. O iframe padrão do Streamlit Cloud pode não fornecer os cabeçalhos COOP/COEP necessários; nesse caso, use o launcher local ou streaming."
 
     )
 
