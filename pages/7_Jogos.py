@@ -1896,53 +1896,16 @@ def renderizar_emulador(payload: dict[str, Any]) -> None:
 # ============================================================
 
 
-cabecalho_html = textwrap.dedent("""
-
-    <div style="
-
-        background:
-
-            radial-gradient(circle at 8% 10%, rgba(17,140,255,.18), transparent 30%),
-
-            radial-gradient(circle at 90% 10%, rgba(83,183,255,.10), transparent 26%),
-
-            linear-gradient(180deg, #070b10 0%, #05070a 100%);
-
-        border: 1px solid rgba(83,183,255,.32);
-
-        border-radius: 22px;
-
-        padding: 26px;
-
-        margin-bottom: 18px;
-
-    ">
-
-        <div style="font-size: 2.1rem; font-weight: 900;">
-
-            🎮 KAYZAC GAME CENTER
-
-        </div>
-
-        <div style="margin-top: 7px; color: #aab9c8; font-size: 1.02rem;">
-
-            O cantinho do treinador para jogar, salvar, acelerar e continuar sua aventura.
-
-        </div>
-
-        <div style="margin-top: 12px; color: #d8e8f6;">
-
-            ⚡ Retro · 🟣 3DS experimental · 🔴 Switch avançado · 📱 Mobile · 💾 Saves
-
-        </div>
-
-    </div>
-
-    """).strip()
-
-# Usar Markdown com HTML liberado mantém o cabeçalho dentro do fluxo normal
-# do Streamlit e evita diferenças de renderização entre versões de st.html.
-st.markdown(cabecalho_html, unsafe_allow_html=True)
+# Cabeçalho renderizado em iframe próprio para evitar que o Markdown
+# interprete linhas internas do atributo style como texto comum.
+cabecalho_html = """
+<div style="background: radial-gradient(circle at 8% 10%, rgba(17,140,255,.18), transparent 30%), radial-gradient(circle at 90% 10%, rgba(83,183,255,.10), transparent 26%), linear-gradient(180deg, #070b10 0%, #05070a 100%); border: 1px solid rgba(83,183,255,.32); border-radius: 22px; padding: 26px; margin: 0 0 18px 0; color: #f4f8ff; font-family: Arial, Helvetica, sans-serif;">
+  <div style="font-size: 2.1rem; font-weight: 900; line-height: 1.25;">🎮 KAYZAC GAME CENTER</div>
+  <div style="margin-top: 7px; color: #aab9c8; font-size: 1.02rem;">O cantinho do treinador para jogar, salvar, acelerar e continuar sua aventura.</div>
+  <div style="margin-top: 12px; color: #d8e8f6;">⚡ Retro · 🟣 3DS experimental · 🔴 Switch avançado · 📱 Mobile · 💾 Saves</div>
+</div>
+"""
+components.html(cabecalho_html, height=170, scrolling=False)
 
 
 st.info(
@@ -2746,3 +2709,4 @@ st.caption(
     "Pokémon e marcas relacionadas pertencem aos respectivos detentores."
 
 )
+
