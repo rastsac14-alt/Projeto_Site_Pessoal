@@ -14,6 +14,7 @@ import os
 import platform
 
 import shlex
+import shutil
 
 import subprocess
 
@@ -84,6 +85,11 @@ PASTA_JOGOS = BASE_DIR / "jogos"
 PASTA_JOGOS_AVANCADOS = BASE_DIR / ".kayzac_game_cache"
 
 PASTA_JOGOS_AVANCADOS.mkdir(exist_ok=True)
+
+# Arquivos da pasta jogos/ são publicados temporariamente para o EmulatorJS
+# por meio do servidor estático do Streamlit (enableStaticServing = true).
+PASTA_ROMAS_ESTATICAS = BASE_DIR / "static" / "roms"
+PASTA_ROMAS_ESTATICAS.mkdir(parents=True, exist_ok=True)
 
 
 # ============================================================
@@ -748,6 +754,279 @@ def montar_payload_rom(
     }
 
 
+def publicar_rom_estatica(caminho_origem: Path) -> tuple[str, str]:
+    # Copia em blocos para evitar carregar a ROM inteira novamente na RAM.
+    extensao = caminho_origem.suffix.lower()
+    permitido = {ext for dados in SISTEMAS_RETRO.values() for ext in dados["ext"]}
+    if extensao not in permitido:
+        raise ValueError(f"Extensão não suportada para ROM retro: {extensao}")
+
+    digest = hashlib.sha256()
+    with caminho_origem.open("rb") as arquivo:
+        while True:
+            bloco = arquivo.read(8 * 1024 * 1024)
+            if not bloco:
+                break
+            digest.update(bloco)
+    hash_rom = digest.hexdigest()
+
+    nome_destino = f"{hash_rom}{extensao}"
+    destino = PASTA_ROMAS_ESTATICAS / nome_destino
+    if not destino.exists():
+        temporario = destino.with_suffix(destino.suffix + ".part")
+        try:
+            with caminho_origem.open("rb") as origem, temporario.open("wb") as saida:
+                shutil.copyfileobj(origem, saida, length=8 * 1024 * 1024)
+            temporario.replace(destino)
+        finally:
+            if temporario.exists():
+                temporario.unlink(missing_ok=True)
+
+    return f"/app/static/roms/{nome_destino}", hash_rom
+
+
+def montar_payload_rom_estatica(
+    caminho_rom: Path,
+    nome_arquivo: str,
+    sistema_nome: str,
+    perfil_nome: str,
+) -> dict[str, Any]:
+    # O payload contém somente a URL pública e metadados da ROM.
+    sistema = SISTEMAS_RETRO[sistema_nome]
+    rom_url, digest = publicar_rom_estatica(caminho_rom)
+    identidade = hashlib.sha256(
+        f"{digest}|{Path(nome_arquivo).name}".encode("utf-8", errors="ignore")
+    ).hexdigest()
+    return {
+        "nome": Path(nome_arquivo).name,
+        "nome_jogo": nome_seguro(nome_arquivo),
+        "core": sistema["core"],
+        "scheme": sistema["scheme"],
+        "sistema": sistema_nome,
+        "game_id": max(1, int(identidade[:12], 16) % 2_000_000_000),
+        "rom_url": rom_url,
+        "tamanho": caminho_rom.stat().st_size,
+        "perfil": perfil_nome,
+        "pokemon": classificar_jogo_pokemon(nome_arquivo),
+        "cdn": sistema["cdn"],
+    }
+
+
+def renderizar_carregador_local(perfil_nome: str) -> None:
+    # O arquivo escolhido permanece no navegador e não passa pelo Streamlit.
+    perfil = PERFIS.get(perfil_nome, PERFIS["⚖️ Equilibrado"])
+    sistemas_front = []
+    extensoes = []
+    for nome, dados in SISTEMAS_RETRO.items():
+        sistemas_front.append({
+            "nome": nome,
+            "core": dados["core"],
+            "scheme": dados["scheme"],
+            "ext": dados["ext"],
+            "limite": MAX_NDS_BROWSER_ROM_MB if dados["core"] == "desmume" else MAX_BROWSER_ROM_MB,
+        })
+        extensoes.extend(dados["ext"])
+
+    controles_front = {
+        0: {
+            0: {"value": "x", "value2": "BUTTON_2"},
+            1: {"value": "s", "value2": "BUTTON_4"},
+            2: {"value": "v", "value2": "SELECT"},
+            3: {"value": "enter", "value2": "START"},
+            4: {"value": "up arrow", "value2": "DPAD_UP"},
+            5: {"value": "down arrow", "value2": "DPAD_DOWN"},
+            6: {"value": "left arrow", "value2": "DPAD_LEFT"},
+            7: {"value": "right arrow", "value2": "DPAD_RIGHT"},
+            8: {"value": "z", "value2": "BUTTON_1"},
+            9: {"value": "a", "value2": "BUTTON_3"},
+            10: {"value": "q", "value2": "LEFT_TOP_SHOULDER"},
+            11: {"value": "e", "value2": "RIGHT_TOP_SHOULDER"},
+        }
+    }
+
+    template = r'''<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{--azul:#118cff;--texto:#f4f8ff;--fraco:#aab9c8}
+*{box-sizing:border-box}
+body{margin:0;padding:10px;background:transparent;color:var(--texto);font-family:Arial,Helvetica,sans-serif}
+.panel{background:linear-gradient(180deg,#080f18,#05070a);border:1px solid rgba(83,183,255,.32);border-radius:16px;padding:16px}
+h3{margin:0 0 12px;font-size:1.12rem}
+.muted{color:var(--fraco);font-size:.88rem;line-height:1.45}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+label{display:block;font-size:.86rem;margin-bottom:6px;color:#d8e8f6}
+input,select,button{font:inherit}
+input[type=file],select{width:100%;background:#191f29;color:#fff;border:1px solid #35485b;border-radius:9px;padding:11px}
+button{background:#10263a;color:#fff;border:1px solid rgba(83,183,255,.45);border-radius:9px;padding:10px 12px;font-weight:700;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+.primary{background:#118cff;border-color:#118cff;width:100%;margin:12px 0}
+.status{padding:10px 12px;background:#101923;border:1px solid #25384a;border-radius:9px;margin-top:10px;color:#8fd1ff;font-weight:700;min-height:40px}
+.screen{height:620px;background:#000;border:1px solid #263544;border-radius:12px;overflow:hidden;margin-top:12px}
+#game{width:100%;height:620px}
+.toolbar{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;margin-top:10px}
+.toolbar button{font-size:.82rem;padding:9px 5px}
+.note{margin-top:10px;padding:10px;border-radius:9px;background:rgba(17,140,255,.08);color:#cbd9e7;font-size:.82rem;line-height:1.4}
+@media(max-width:700px){.row{grid-template-columns:1fr}.toolbar{grid-template-columns:repeat(3,minmax(0,1fr))}.screen,#game{height:480px}}
+</style>
+</head>
+<body>
+<div class="panel">
+  <h3>📁 Escolha uma ROM do seu dispositivo</h3>
+  <div class="muted">O arquivo é lido diretamente pelo navegador. Ele não é enviado ao Streamlit nem convertido para Base64.</div>
+  <div style="margin-top:12px">
+    <label for="rom-file">Arquivo do jogo</label>
+    <input id="rom-file" type="file" accept="__ACCEPT__">
+  </div>
+  <div class="row">
+    <div><label for="system">Sistema / core</label><select id="system"><option value="">Detectar automaticamente</option>__OPTIONS__</select></div>
+    <div><label>Arquivo selecionado</label><div id="file-info" class="status">Nenhuma ROM selecionada</div></div>
+  </div>
+  <button id="start" class="primary" disabled>🎮 INICIAR AVENTURA</button>
+  <div id="status" class="status">Aguardando seleção de ROM.</div>
+  <div class="toolbar" aria-label="Controles rápidos KAYZAC">
+    <button data-key="F2">💾 Quick Save</button><button data-key="F4">📂 Quick Load</button><button data-key="F6">🔢 Slot</button>
+    <button data-key="F7">⚡ Fast Forward</button><button data-key="F8">⏪ Rewind</button><button data-key="F9">🐢 Slow</button>
+    <button id="fullscreen">⛶ Tela Cheia</button><button id="restart">🔄 Reiniciar</button><button id="help">❓ Atalhos</button>
+  </div>
+  <div class="screen" id="screen"><div id="game"></div></div>
+  <div class="note" id="note">Dica: para Nintendo DS, o limite KAYZAC é de 600 MB. O desempenho real depende da memória disponível no navegador e do dispositivo. Threads ficam desativadas neste modo para priorizar compatibilidade com o iframe.</div>
+</div>
+<script>
+(() => {
+  const SYSTEMS = __SYSTEMS__;
+  const CONTROLS = __CONTROLS__;
+  const PROFILE = __PROFILE__;
+  const CDN = __CDN__;
+  const fileInput = document.getElementById('rom-file');
+  const systemSelect = document.getElementById('system');
+  const fileInfo = document.getElementById('file-info');
+  const status = document.getElementById('status');
+  const startButton = document.getElementById('start');
+  const note = document.getElementById('note');
+  let selectedFile = null;
+  let started = false;
+  let romObjectUrl = null;
+
+  const formatMB = bytes => (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+  function detectSystem(fileName) {
+    const ext = '.' + fileName.split('.').pop().toLowerCase();
+    return SYSTEMS.find(s => s.ext.includes(ext)) || null;
+  }
+  function activeSystem() {
+    return SYSTEMS.find(s => s.nome === systemSelect.value) || detectSystem(selectedFile ? selectedFile.name : '');
+  }
+  fileInput.addEventListener('change', () => {
+    selectedFile = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+    startButton.disabled = !selectedFile || started;
+    if (!selectedFile) { fileInfo.textContent = 'Nenhuma ROM selecionada'; return; }
+    const detected = detectSystem(selectedFile.name);
+    fileInfo.textContent = selectedFile.name + ' · ' + formatMB(selectedFile.size);
+    if (!systemSelect.value && detected) systemSelect.value = detected.nome;
+    status.textContent = detected ? 'Sistema detectado: ' + detected.nome : 'Selecione manualmente o sistema.';
+  });
+  systemSelect.addEventListener('change', () => {
+    if (selectedFile) status.textContent = 'Sistema selecionado: ' + (activeSystem()?.nome || 'não reconhecido');
+  });
+
+  function sendKey(key, down) {
+    const event = new KeyboardEvent(down ? 'keydown' : 'keyup', {key, code:key, bubbles:true, cancelable:true});
+    document.dispatchEvent(event);
+  }
+  document.querySelectorAll('[data-key]').forEach(button => {
+    const key = button.dataset.key;
+    if (key === 'F7' || key === 'F8' || key === 'F9') {
+      button.addEventListener('pointerdown', e => {e.preventDefault();sendKey(key,true)});
+      ['pointerup','pointercancel','pointerleave'].forEach(name => button.addEventListener(name, () => sendKey(key,false)));
+    } else {
+      button.addEventListener('click', () => {sendKey(key,true);setTimeout(() => sendKey(key,false),70)});
+    }
+  });
+  document.getElementById('fullscreen').addEventListener('click', async () => {
+    try { await document.getElementById('screen').requestFullscreen(); }
+    catch (e) { status.textContent = 'O navegador não permitiu tela cheia.'; }
+  });
+  document.getElementById('restart').addEventListener('click', () => {
+    if (window.EJS_emulator && typeof window.EJS_emulator.restart === 'function') window.EJS_emulator.restart();
+    else status.textContent = 'O emulador ainda não está pronto.';
+  });
+  document.getElementById('help').addEventListener('click', () => {
+    note.textContent = 'Controles: setas = direcional · Z = A · X = B · Enter = Start · V = Select · Q/E = L/R. Atalhos: F2 salvar, F4 carregar, F6 trocar slot, F7 acelerar, F8 rewind e F9 câmera lenta.';
+  });
+
+  startButton.addEventListener('click', () => {
+    if (!selectedFile || started) return;
+    const system = activeSystem();
+    if (!system) { status.textContent = 'Não reconheci a extensão. Selecione o sistema manualmente.'; return; }
+    if (selectedFile.size > system.limite * 1024 * 1024) {
+      status.textContent = 'Arquivo acima do limite de ' + system.limite + ' MB para ' + system.nome + '.';
+      return;
+    }
+    try {
+      romObjectUrl = URL.createObjectURL(selectedFile);
+      let id = 0;
+      const identity = selectedFile.name + '|' + selectedFile.size + '|' + selectedFile.lastModified;
+      for (let i = 0; i < identity.length; i++) id = (Math.imul(id, 31) + identity.charCodeAt(i)) | 0;
+      window.EJS_player = '#game';
+      window.EJS_core = system.core;
+      window.EJS_gameUrl = romObjectUrl;
+      window.EJS_gameName = selectedFile.name.replace(/\.[^.]+$/, '');
+      window.EJS_gameID = Math.abs(id) || 1;
+      window.EJS_pathtodata = CDN;
+      window.EJS_language = 'pt-BR';
+      window.EJS_disableAutoLang = true;
+      window.EJS_startOnLoaded = true;
+      window.EJS_volume = 0.75;
+      window.EJS_color = '#118cff';
+      window.EJS_backgroundColor = '#05070a';
+      window.EJS_askBeforeExit = true;
+      window.EJS_threads = false;
+      window.EJS_forceLegacyCores = PROFILE.legacy;
+      window.EJS_browserMode = PROFILE.browser_mode;
+      window.EJS_defaultControls = CONTROLS;
+      window.EJS_defaultOptions = {'save-state-slot':0,'save-state-location':'browser'};
+      window.EJS_Buttons = {playPause:true,restart:true,mute:true,settings:true,fullscreen:true,saveState:true,loadState:true,screenRecord:true,gamepad:true,cheat:true,volume:true,saveSavFiles:true,loadSavFiles:true,quickSave:true,quickLoad:true,screenshot:true,cacheManager:true,exitEmulation:true};
+      window.EJS_ready = () => { status.textContent = '🟢 Emulador pronto'; note.textContent = 'ROM carregada diretamente do seu dispositivo. Use o menu do EmulatorJS ou os atalhos do KAYZAC.'; };
+      window.EJS_onGameStart = () => { status.textContent = '🟢 Jogando: ' + selectedFile.name; };
+      window.EJS_onExit = () => { status.textContent = 'Emulador encerrado.'; };
+      const loader = document.createElement('script');
+      loader.src = CDN + 'loader.js';
+      loader.async = false;
+      loader.onerror = () => {status.textContent = 'Falha ao carregar o EmulatorJS. Verifique a conexão ou a disponibilidade do CDN.';};
+      loader.onload = () => {status.textContent = '⏳ Loader carregado; inicializando core e ROM...';};
+      document.body.appendChild(loader);
+      started = true;
+      startButton.disabled = true;
+      fileInput.disabled = true;
+      systemSelect.disabled = true;
+      status.textContent = '⏳ Preparando ' + selectedFile.name + '...';
+    } catch (error) {
+      status.textContent = 'Não foi possível preparar a ROM: ' + error.message;
+    }
+  });
+  window.addEventListener('beforeunload', () => { if (romObjectUrl) URL.revokeObjectURL(romObjectUrl); });
+})();
+</script>
+</body>
+</html>'''
+
+    option_html = ''.join(
+        f'<option value="{html.escape(s["nome"], quote=True)}">{html.escape(s["nome"])}</option>'
+        for s in sistemas_front
+    )
+    html_code = (template
+        .replace('__ACCEPT__', ','.join(extensoes))
+        .replace('__OPTIONS__', option_html)
+        .replace('__SYSTEMS__', json.dumps(sistemas_front, ensure_ascii=False))
+        .replace('__CONTROLS__', json.dumps(controles_front, ensure_ascii=False))
+        .replace('__PROFILE__', json.dumps({"legacy": bool(perfil["legacy"]), "browser_mode": perfil["browser_mode"]}, ensure_ascii=False))
+        .replace('__CDN__', json.dumps(EMULATORJS_STABLE_CDN))
+    )
+    components.html(html_code, height=1120, scrolling=True)
+
+
 def renderizar_emulador(payload: dict[str, Any]) -> None:
 
     perfil = PERFIS.get(payload.get("perfil", "⚖️ Equilibrado"), PERFIS["⚖️ Equilibrado"])
@@ -757,29 +1036,19 @@ def renderizar_emulador(payload: dict[str, Any]) -> None:
     cdn = EMULATORJS_3DS_PRE_CDN if eh_3ds else EMULATORJS_STABLE_CDN
 
 
-    dados_json = json.dumps(
-
-        {
-
-            "nome": payload["nome"],
-
-            "nome_jogo": payload["nome_jogo"],
-
-            "core": payload["core"],
-
-            "scheme": payload["scheme"],
-
-            "sistema": payload["sistema"],
-
-            "game_id": payload["game_id"],
-
-            "rom_base64": payload["rom_base64"],
-
-        },
-
-        ensure_ascii=False,
-
-    )
+    dados_emulador = {
+        "nome": payload["nome"],
+        "nome_jogo": payload["nome_jogo"],
+        "core": payload["core"],
+        "scheme": payload["scheme"],
+        "sistema": payload["sistema"],
+        "game_id": payload["game_id"],
+    }
+    if payload.get("rom_url"):
+        dados_emulador["rom_url"] = payload["rom_url"]
+    else:
+        dados_emulador["rom_base64"] = payload["rom_base64"]
+    dados_json = json.dumps(dados_emulador, ensure_ascii=False)
 
 
     controles = {
@@ -1226,7 +1495,9 @@ def renderizar_emulador(payload: dict[str, Any]) -> None:
     }}
 
 
-    const ROM_URL = base64ToBlobUrl(PAYLOAD.rom_base64);
+    const ROM_URL = PAYLOAD.rom_url
+        ? new URL(PAYLOAD.rom_url, window.location.origin).href
+        : base64ToBlobUrl(PAYLOAD.rom_base64 || "");
     PAYLOAD.rom_base64 = "";
 
 
@@ -1669,10 +1940,9 @@ cabecalho_html = textwrap.dedent("""
 
     """).strip()
 
-if hasattr(st, "html"):
-    st.html(cabecalho_html)
-else:
-    st.markdown(cabecalho_html, unsafe_allow_html=True)
+# Usar Markdown com HTML liberado mantém o cabeçalho dentro do fluxo normal
+# do Streamlit e evita diferenças de renderização entre versões de st.html.
+st.markdown(cabecalho_html, unsafe_allow_html=True)
 
 
 st.info(
@@ -1794,112 +2064,11 @@ if modo == "🎮 Retro no navegador":
 
 
     with aba_upload:
-
-        arquivo_upload = st.file_uploader(
-
-            "Escolha uma ROM",
-
-            type=[
-
-                ext.lstrip(".")
-
-                for dados in SISTEMAS_RETRO.values()
-
-                for ext in dados["ext"]
-
-            ],
-
-            key="game_center_retro_upload",
-
+        st.caption(
+            "A ROM é selecionada diretamente no navegador e não é enviada ao servidor Streamlit. "
+            "Isso evita o aumento de tamanho causado pela conversão Base64."
         )
-
-
-        if arquivo_upload:
-
-            dados = arquivo_upload.getvalue()
-
-            tamanho_mb = len(dados) / (1024 * 1024)
-
-            deteccao = detectar_sistema(arquivo_upload.name)
-
-            sistemas_validos = list(SISTEMAS_RETRO)
-
-            sistema_padrao = deteccao if deteccao in sistemas_validos else sistemas_validos[0]
-
-
-            c1, c2, c3 = st.columns(3)
-
-            c1.metric("📦 Arquivo", arquivo_upload.name)
-
-            c2.metric("💾 Tamanho", f"{tamanho_mb:.2f} MB")
-
-            c3.metric("🔎 Sistema", sistema_padrao.split(" ", 1)[1])
-
-
-            sistema = st.selectbox(
-
-                "🕹️ Sistema / core",
-
-                sistemas_validos,
-
-                index=sistemas_validos.index(sistema_padrao),
-
-                key="retro_upload_sistema",
-
-            )
-
-
-            pokemon_rotulo = classificar_jogo_pokemon(arquivo_upload.name)
-
-            if pokemon_rotulo:
-
-                st.success(f"⚡ Pokémon detectado: **{pokemon_rotulo}**")
-
-            limite_rom_mb = limite_rom_navegador_mb(sistema)
-
-            if sistema == "🟦 Nintendo DS":
-                st.caption(
-                    f"🟦 Nintendo DS: limite KAYZAC de {limite_rom_mb} MB. "
-                    "ROMs grandes podem exigir bastante memória do navegador e do servidor."
-                )
-
-
-            if tamanho_mb > limite_rom_mb:
-
-                st.error(
-
-                    f"❌ O arquivo ultrapassa o limite do navegador para este sistema ({limite_rom_mb} MB). "
-
-                    "Para arquivos maiores, use um emulador externo/local."
-
-                )
-
-            elif st.button(
-
-                "🎮 INICIAR AVENTURA",
-
-                type="primary",
-
-                use_container_width=True,
-
-                key="retro_iniciar_upload",
-
-            ):
-
-                st.session_state["game_center_payload"] = montar_payload_rom(
-
-                    dados,
-
-                    arquivo_upload.name,
-
-                    sistema,
-
-                    perfil_escolhido,
-
-                )
-
-                st.rerun()
-
+        renderizar_carregador_local(perfil_escolhido)
 
     with aba_pasta:
 
@@ -1952,6 +2121,14 @@ if modo == "🎮 Retro no navegador":
                 )
 
 
+                static_serving_ativo = bool(st.get_option("server.enableStaticServing"))
+                if not static_serving_ativo:
+                    st.warning(
+                        "Para abrir ROMs da pasta jogos/ sem Base64, ative "
+                        "enableStaticServing = true em .streamlit/config.toml. "
+                        "O modo Upload desta página não depende dessa opção."
+                    )
+
                 if st.button(
 
                     "🎮 JOGAR DA PASTA",
@@ -1961,12 +2138,11 @@ if modo == "🎮 Retro no navegador":
                     use_container_width=True,
 
                     key="retro_iniciar_pasta",
+                    disabled=not static_serving_ativo,
 
                 ):
 
-                    dados_local = caminho.read_bytes()
-
-                    tamanho_mb = len(dados_local) / (1024 * 1024)
+                    tamanho_mb = caminho.stat().st_size / (1024 * 1024)
 
                     limite_rom_mb = limite_rom_navegador_mb(deteccao)
 
@@ -1976,25 +2152,31 @@ if modo == "🎮 Retro no navegador":
 
                             f"❌ Arquivo acima do limite de {limite_rom_mb} MB para este sistema. "
 
-                            "Use o launcher externo."
+                            "Use um emulador externo/local."
 
                         )
 
                     else:
 
-                        st.session_state["game_center_payload"] = montar_payload_rom(
+                        try:
 
-                            dados_local,
+                            st.session_state["game_center_payload"] = montar_payload_rom_estatica(
 
-                            caminho.name,
+                                caminho,
 
-                            deteccao,
+                                caminho.name,
 
-                            perfil_escolhido,
+                                deteccao,
 
-                        )
+                                perfil_escolhido,
 
-                        st.rerun()
+                            )
+
+                            st.rerun()
+
+                        except Exception as erro:
+
+                            st.error(f"Não foi possível preparar a ROM estática: {erro}")
 
 
 # ============================================================
