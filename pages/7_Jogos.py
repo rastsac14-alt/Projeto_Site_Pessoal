@@ -969,6 +969,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
       let id = 0;
       const identity = selectedFile.name + '|' + selectedFile.size + '|' + selectedFile.lastModified;
       for (let i = 0; i < identity.length; i++) id = (Math.imul(id, 31) + identity.charCodeAt(i)) | 0;
+      // Diagnóstico: ativa os logs oficiais do EmulatorJS antes de carregar o loader.
+      window.EJS_DEBUG_XX = true;
       window.EJS_player = '#game';
       window.EJS_core = system.core;
       window.EJS_gameUrl = romObjectUrl;
@@ -1001,10 +1003,14 @@ button:disabled{opacity:.5;cursor:not-allowed}
       window.addEventListener('error', event => {
         const target = event.target;
         const resource = target && (target.src || target.href);
-        if (resource && /emulatorjs|\.wasm|\/cores\//i.test(String(resource))) {
-          status.textContent = 'Falha ao carregar recurso do emulador: ' + String(resource).split('/').slice(-1)[0];
-        } else if (event.message) {
-          status.textContent = 'Erro JavaScript: ' + event.message;
+        if (resource) {
+          status.textContent = 'Falha ao carregar recurso: ' + String(resource).split('/').slice(-1)[0];
+        } else {
+          const detalhe = event.error && event.error.stack
+            ? event.error.stack
+            : (event.message || 'Erro sem detalhes retornados pelo navegador.');
+          status.textContent = 'Erro JavaScript: ' + String(detalhe).slice(0, 240);
+          console.error('[KAYZAC / EmulatorJS] Erro capturado:', event.error || event.message || event);
         }
       }, true);
       window.addEventListener('unhandledrejection', event => {
@@ -1012,6 +1018,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
         status.textContent = 'Falha interna do emulador: ' + String(reason && (reason.message || reason)).slice(0, 220);
       });
       const loader = document.createElement('script');
+      // Solicita ao CDN permissão CORS para que o navegador revele detalhes
+      // de erros lançados pelo script externo (em vez de apenas 'Script error').
+      loader.crossOrigin = 'anonymous';
       loader.src = CDN + 'loader.js';
       loader.async = false;
       loader.onerror = () => {
