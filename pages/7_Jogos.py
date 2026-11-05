@@ -18,6 +18,7 @@ import shlex
 import subprocess
 
 import tempfile
+import textwrap
 
 from pathlib import Path
 
@@ -1613,7 +1614,7 @@ def renderizar_emulador(payload: dict[str, Any]) -> None:
 
 st.markdown(
 
-    """
+    textwrap.dedent("""
 
     <div style="
 
@@ -1655,7 +1656,7 @@ st.markdown(
 
     </div>
 
-    """,
+    """),
 
     unsafe_allow_html=True,
 
