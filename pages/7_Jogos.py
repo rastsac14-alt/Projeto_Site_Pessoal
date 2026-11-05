@@ -101,9 +101,9 @@ EMULATORJS_3DS_PRE_CDN = "https://cdn.emulatorjs.org/4.3.0-pre/data/"
 # Limites de ROM no navegador.
 # A maioria dos sistemas usa o limite conservador de 128 MB.
 # Nintendo DS recebe um limite maior para ROMs como Pokémon Black/White
-# (256 MB), mas arquivos grandes ainda dependem da RAM do servidor e do navegador.
+# (256–512 MB), mas arquivos grandes ainda dependem da RAM do servidor e do navegador.
 MAX_BROWSER_ROM_MB = 128
-MAX_NDS_BROWSER_ROM_MB = 300
+MAX_NDS_BROWSER_ROM_MB = 600
 
 
 # 3DS / Switch preparados para launcher local.
