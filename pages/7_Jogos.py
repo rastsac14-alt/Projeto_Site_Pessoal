@@ -379,7 +379,7 @@ PERFIS = {
 
         "threads": False,
 
-        "legacy": True,
+        "legacy": False,
 
         "hide_shader": True,
 
@@ -977,25 +977,54 @@ button:disabled{opacity:.5;cursor:not-allowed}
       window.EJS_pathtodata = CDN;
       window.EJS_language = 'pt-BR';
       window.EJS_disableAutoLang = true;
-      window.EJS_startOnLoaded = true;
+      // O usuário inicia pelo botão Play Now do próprio EmulatorJS após o core carregar.
+      window.EJS_startOnLoaded = false;
       window.EJS_volume = 0.75;
       window.EJS_color = '#118cff';
       window.EJS_backgroundColor = '#05070a';
       window.EJS_askBeforeExit = true;
       window.EJS_threads = false;
-      window.EJS_forceLegacyCores = PROFILE.legacy;
+      // Use o core padrão moderno; forçar legado pode selecionar uma variante inadequada no iframe.
+      window.EJS_forceLegacyCores = false;
       window.EJS_browserMode = PROFILE.browser_mode;
       window.EJS_defaultControls = CONTROLS;
       window.EJS_defaultOptions = {'save-state-slot':0,'save-state-location':'browser'};
       window.EJS_Buttons = {playPause:true,restart:true,mute:true,settings:true,fullscreen:true,saveState:true,loadState:true,screenRecord:true,gamepad:true,cheat:true,volume:true,saveSavFiles:true,loadSavFiles:true,quickSave:true,quickLoad:true,screenshot:true,cacheManager:true,exitEmulation:true};
-      window.EJS_ready = () => { status.textContent = '🟢 Emulador pronto'; note.textContent = 'ROM carregada diretamente do seu dispositivo. Use o menu do EmulatorJS ou os atalhos do KAYZAC.'; };
+      let ejsReady = false;
+      window.EJS_ready = () => {
+        ejsReady = true;
+        status.textContent = '🟢 Interface do EmulatorJS pronta. Clique em Play Now dentro da tela para iniciar.';
+        note.textContent = 'ROM carregada diretamente do seu dispositivo. A inicialização foi deixada manual para preservar o gesto do usuário.';
+      };
       window.EJS_onGameStart = () => { status.textContent = '🟢 Jogando: ' + selectedFile.name; };
       window.EJS_onExit = () => { status.textContent = 'Emulador encerrado.'; };
+      window.addEventListener('error', event => {
+        const target = event.target;
+        const resource = target && (target.src || target.href);
+        if (resource && /emulatorjs|\.wasm|\/cores\//i.test(String(resource))) {
+          status.textContent = 'Falha ao carregar recurso do emulador: ' + String(resource).split('/').slice(-1)[0];
+        } else if (event.message) {
+          status.textContent = 'Erro JavaScript: ' + event.message;
+        }
+      }, true);
+      window.addEventListener('unhandledrejection', event => {
+        const reason = event.reason;
+        status.textContent = 'Falha interna do emulador: ' + String(reason && (reason.message || reason)).slice(0, 220);
+      });
       const loader = document.createElement('script');
       loader.src = CDN + 'loader.js';
       loader.async = false;
-      loader.onerror = () => {status.textContent = 'Falha ao carregar o EmulatorJS. Verifique a conexão ou a disponibilidade do CDN.';};
-      loader.onload = () => {status.textContent = '⏳ Loader carregado; inicializando core e ROM...';};
+      loader.onerror = () => {
+        status.textContent = 'Falha ao baixar loader.js do CDN: ' + loader.src;
+      };
+      loader.onload = () => {
+        status.textContent = '⏳ loader.js carregado; aguardando inicialização do core...';
+        window.setTimeout(() => {
+          if (!ejsReady) {
+            status.textContent = '⚠️ O core não sinalizou prontidão após 60 s. Verifique F12 → Console e Rede (arquivos .wasm/.data).';
+          }
+        }, 60000);
+      };
       document.body.appendChild(loader);
       started = true;
       startButton.disabled = true;
